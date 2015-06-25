@@ -1,5 +1,5 @@
 
-= CoronaSDK Sample Code
+# CoronaSDK Sample Code
 
 These samples have been adapted for cross-platform deployment in the following ways:
 
