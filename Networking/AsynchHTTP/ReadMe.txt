@@ -1,0 +1,1 @@
+Uses an asychronous HTTPS call to make a network request over SSL. This feature exposes native OS network functionality, and includes both HTTP and HTTPS/SSL support. For large responses, use network.download() to save to a file rather than loading into memory. See the "AsynchImageDownload" sample project for more on network.download.

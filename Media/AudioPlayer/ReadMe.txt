@@ -1,0 +1,1 @@
+This application uses different audio tools to load, stream, play, pause, resume, and modify audio files.  It also uses lua tables and widgets to create a friendly user interface.

@@ -1,0 +1,1 @@
+Demonstrates physics.setDrawMode() and draggable objects using "touch joints". You will not be able to read this in the "Debug" mode, and in the "Hybrid" mode, this Box will become transparent.

@@ -1,0 +1,1 @@
+Demonstrates how to send and receive push notifications via the Google Cloud Messaging service. See the "build.settings" file to see what Android permissions are required. See the "config.lua" file on how to register for push notifications with Google. Go to http://developer.android.com/google/gcm/gs.html to set up your app for Google's push notification system.

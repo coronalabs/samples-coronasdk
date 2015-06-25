@@ -1,0 +1,1 @@
+Shows how to use the display.setStatusBar() and a timer to cycle through the different status bar modes every few seconds. 

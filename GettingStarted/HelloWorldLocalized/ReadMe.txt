@@ -1,0 +1,1 @@
+Hello World sample app, with multiple language support based on user's settings.

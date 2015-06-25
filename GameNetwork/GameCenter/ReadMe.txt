@@ -1,0 +1,1 @@
+Shows an example of various GameCenter calls on iOS.  This sample only runs on iOS devices.

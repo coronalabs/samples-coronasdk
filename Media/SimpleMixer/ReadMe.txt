@@ -1,0 +1,1 @@
+Demonstrates using sliders to adjust volume levels and using the audio functions: dispose, getVolume, getDuration, isChannelPaused, loadSound, loadStream, pause, play, resume, setVolume, totalChannels, freeChannels, and reservedChannels.

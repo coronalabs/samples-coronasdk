@@ -1,0 +1,1 @@
+This sample uses buttons to control events and timer functions to create a stopwatch. You can pause the timer to see how many milliseconds have passed and stop the timer to restart.

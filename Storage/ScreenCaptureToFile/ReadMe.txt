@@ -1,0 +1,1 @@
+Demonstrates using audio.play, display.save, tap events, and device type detection to screen capture a JPG and save it to /Documents directory.

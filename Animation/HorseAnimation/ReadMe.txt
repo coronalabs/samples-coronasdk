@@ -1,0 +1,1 @@
+Demonstrates how to use optimized sprite sheets loaded using newSpriteSheetFromData.

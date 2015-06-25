@@ -1,0 +1,1 @@
+Demonstrates a simple way to perform animation, using an "enterFrame" listener to trigger updates.

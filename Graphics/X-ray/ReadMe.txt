@@ -1,0 +1,1 @@
+The x-ray effect is created by a mask.  Unlike the flashlight sample application, "isHitTestMasked" property is not used so only areas the lie within both the mask and the image being masked will have touch events.

@@ -1,0 +1,1 @@
+Presents the Facebook Connect login dialog, and then posts to the user's stream (Also demonstrates the use of Facebook library.)

@@ -1,0 +1,66 @@
+--
+-- For more information on build.settings see the Corona SDK Build Guide at:
+-- http://docs.coronalabs.com/guide/distribution/buildSettings/index.html
+--
+
+settings =
+{
+	android =
+	{
+		usesPermissions =
+		{
+			-- This permission is required in order for analytics to be sent to Flurry's servers.
+			"android.permission.INTERNET",
+
+			-- These permissions are optional.
+			-- If set, then Flurry will also record current location via GPS and/or WiFi.
+			-- If not set, then Flurry can only record which country the app was used in.
+			"android.permission.ACCESS_FINE_LOCATION",    -- Fetches location via GPS.
+			"android.permission.ACCESS_COARSE_LOCATION",  -- Fetches location via WiFi or cellular service.
+		},
+		usesFeatures =
+		{
+			-- If you set permissions "ACCESS_FINE_LOCATION" and "ACCESS_COARSE_LOCATION" above,
+			-- then you should set up your app to not require location services as follows.
+			-- Otherwise, devices that do not have location sevices (such as a GPS) will be unable
+			-- to purchase this app in the app store.
+			{ name = "android.hardware.location", required = false },
+			{ name = "android.hardware.location.gps", required = false },
+			{ name = "android.hardware.location.network", required = false },
+		},
+	},
+	iphone =
+	{
+		plist =
+		{
+			CFBundleIconFiles = 
+			{
+				"Icon.png", 
+				"Icon@2x.png", 
+				"Icon-60.png",
+				"Icon-60@2x.png",
+				"Icon-60@3x.png",
+				"Icon-72.png", 
+				"Icon-72@2x.png",
+				"Icon-76.png",
+				"Icon-76@2x.png", 
+				"Icon-Small.png", 
+				"Icon-Small@2x.png",
+				"Icon-Small@3x.png",
+				"Icon-Small-40.png",
+				"Icon-Small-40@2x.png",
+				"Icon-Small-50.png", 
+				"Icon-Small-50@2x.png",
+			},
+		},
+	},
+	plugins =
+	{
+		-- key is the name passed to Lua's 'require()'
+		["CoronaProvider.analytics.flurry"] =
+		{
+			-- required
+			publisherId = "com.coronalabs",
+		},
+	},
+}

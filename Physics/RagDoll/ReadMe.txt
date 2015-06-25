@@ -1,0 +1,1 @@
+Demonstrates how to create a ragdoll using physics. It is necessary to turn off continuous physics which prevents "tunnelling" in order to make strong joints. Consequently, the objects may move through thin walls, so the thickness of the walls need to be increased. Since this application is in Debug Mode, the infoText will not be able to be displayed. 

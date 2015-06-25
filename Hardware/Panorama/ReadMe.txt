@@ -1,0 +1,1 @@
+Demonstrates the use of gyroscopes to control panoramic view of a room using motion controls.

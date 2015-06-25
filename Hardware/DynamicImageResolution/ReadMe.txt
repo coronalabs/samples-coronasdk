@@ -1,0 +1,1 @@
+Demonstrates how to use the "newImageRect" function to select the best image for the resolution of the current device.  If no best image is found, then the base image will be used.

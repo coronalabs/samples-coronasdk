@@ -1,0 +1,1 @@
+Demonstrates queryRegion. Since this application is in hybrid mode, the helpInfo is transparent.

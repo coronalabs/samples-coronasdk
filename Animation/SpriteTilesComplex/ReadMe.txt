@@ -1,0 +1,1 @@
+Demonstrates how to use sprites of different sizes from the same sprite sheet.

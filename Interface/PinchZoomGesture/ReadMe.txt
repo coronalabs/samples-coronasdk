@@ -1,0 +1,1 @@
+Demonstrates how to use touch, buttons, and location events to determine whether to pinch zoom in or out.

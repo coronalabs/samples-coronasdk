@@ -1,0 +1,1 @@
+Conveniently save an arbitrary Lua table to a textfile, then reload the data.

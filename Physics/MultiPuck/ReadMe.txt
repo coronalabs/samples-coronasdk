@@ -1,0 +1,1 @@
+Demonstrates multitouch and draggable phyics objects using "touch joints" in gameUI library. The user can drag the pucks to slide them. Pucks are low friction so they will glide. The user can create a puck with one hand and drag another at the same time. Pucks are only created at the "end" phase of the touch event.

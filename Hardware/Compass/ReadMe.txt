@@ -1,0 +1,1 @@
+This application uses heading events to locate coordinates.

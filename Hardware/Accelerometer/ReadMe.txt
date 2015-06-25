@@ -1,0 +1,1 @@
+Demonstrates use of the accelerometer.  Displays accelerometer values on screen and moves objected based on values.  Beeps and displays message when Shake detected.

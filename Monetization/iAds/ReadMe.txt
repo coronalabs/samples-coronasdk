@@ -1,0 +1,1 @@
+Shows an example of how to use iAds on iOS.  This sample only runs on iOS devices.

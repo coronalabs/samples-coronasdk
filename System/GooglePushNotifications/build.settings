@@ -1,0 +1,28 @@
+--
+-- For more information on build.settings see the Corona SDK Build Guide at:
+-- http://docs.coronalabs.com/guide/distribution/buildSettings/index.html
+--
+
+settings =
+{
+	orientation =
+	{
+		default = "portrait",
+		supported = { "portrait" }
+	},
+	android =
+	{
+		permissions =
+		{
+			{ name = ".permission.C2D_MESSAGE", protectionLevel = "signature" },
+		},
+		usesPermissions =
+		{
+			"android.permission.INTERNET",
+			"android.permission.GET_ACCOUNTS",
+			"android.permission.RECEIVE_BOOT_COMPLETED",
+			"com.google.android.c2dm.permission.RECEIVE",
+			".permission.C2D_MESSAGE",
+		},
+	},
+}

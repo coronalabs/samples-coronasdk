@@ -1,0 +1,17 @@
+[
+    {"name":"generator.checkerboard"},
+    {"name":"generator.lenticularHalo",
+     "reqhp":true},
+    {"name":"generator.linearGradient"},
+    {"name":"generator.marchingAnts"},
+    {"name":"generator.perlinNoise",
+     "reqhp":true},
+    {"name":"generator.radialGradient"},
+    {"name":"generator.random",
+     "reqhp":true},
+    {"name":"generator.stripes"},
+    {"name":"generator.sunbeams",
+     "reqhp":true},
+]
+
+

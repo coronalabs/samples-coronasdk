@@ -1,0 +1,1 @@
+Demonstrates how to display a set of images in a series that the user can swipe from left to right, using the methods provided in slideView.lua.

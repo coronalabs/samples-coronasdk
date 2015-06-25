@@ -1,0 +1,13 @@
+--
+-- For more information on build.settings see the Corona SDK Build Guide at:
+-- http://docs.coronalabs.com/guide/distribution/buildSettings/index.html
+--
+
+settings =
+{
+	orientation =
+	{
+		default = "portrait", 
+		supported = { "landscapeLeft", "landscapeRight", "portrait", "portraitUpsideDown" },
+	},
+}

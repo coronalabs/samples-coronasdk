@@ -1,0 +1,1 @@
+This animation uses touch events and speed modified by time to create a time-based animation. The ball can be dragged or flung and will bounce upon contact with the borders.

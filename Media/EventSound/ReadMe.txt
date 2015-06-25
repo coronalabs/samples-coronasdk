@@ -1,0 +1,1 @@
+Demonstrates how to use media.playEventSound to create a metronome that beeps every second.  Format will switch based on device type.

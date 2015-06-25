@@ -1,0 +1,1 @@
+Demonstrates how to trigger and cancel local notifications. See the "build.settings" file to see what Android permissions are required.

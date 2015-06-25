@@ -1,0 +1,1 @@
+Demonstrates how to use system.getInfo() API and system.getPreference() API to get device information.

@@ -1,0 +1,1 @@
+Demonstrates how to pick and display a photo from the photo library on a device.

@@ -1,0 +1,1 @@
+Demonstrates Location events which are returned by the GPS listener.  Devices with without GPS will have less accurate location data and the Corona Simulator will return a set of artificial coordinates for the purpose of testing.

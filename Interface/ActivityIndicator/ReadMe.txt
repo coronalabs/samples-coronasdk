@@ -1,0 +1,1 @@
+Demonstrates how to create a native activity indicator that doesn't interfere with the animation on the screen.  The "fishies" sample application in the graphics section is used here as an example to show that the animation does still run while the indicator is up. You can even touch the fishies to make them change color while the indicator is running.    

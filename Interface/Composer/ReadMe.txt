@@ -1,0 +1,1 @@
+Demonstrates the use of the Composer API (scenes events, transitions, etc...) Also creates a tabBar widget to set up tabBar buttons.

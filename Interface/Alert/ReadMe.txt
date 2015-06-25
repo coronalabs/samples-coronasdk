@@ -1,0 +1,1 @@
+Demonstrates how to create a native alert that disappears after 10 seconds. Clicking on "learn more" will open a url.  Just like the "activityindicator" the "fishies" sample application still runs in the background when the alert is up.  

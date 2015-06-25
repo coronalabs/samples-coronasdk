@@ -1,0 +1,1 @@
+Shows how to put a mask on top of an image and modifying the mask to view desired parts of the image underneath.  By default the mask will limit touch regions to areas that contain both the mask and the image being masked.  The "isHitTestMasked" property is used in this sample app to remove this limitation.  

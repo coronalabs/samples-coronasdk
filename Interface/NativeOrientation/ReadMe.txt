@@ -1,0 +1,1 @@
+Demonstrates orientation using build settings.  This example launches in landscape mode, but will auto-rotate both Corona and native UI elements. To lock orientation, reduce the number of "supported" orientations in the build.settings file.   (Also see the build.settings file in this project.)

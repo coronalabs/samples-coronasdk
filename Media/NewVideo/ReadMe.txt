@@ -1,0 +1,1 @@
+Demonstrates native.newVideo to stream a video from a remote source (URL). Also demonstrates all the newVideo controls.

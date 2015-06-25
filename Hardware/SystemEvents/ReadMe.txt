@@ -1,0 +1,1 @@
+Demonstrates how to get the screen width and height, creating and detecting files in the /Document directory, and displaying simple text messages for a limited period of time.  SystemEvent messages will also be displayed such as applicationStart, applicationExit, applicationsuspend, and applicationResume.

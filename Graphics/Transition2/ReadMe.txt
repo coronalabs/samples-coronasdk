@@ -1,0 +1,1 @@
+This sample demonstrates a sequence of transitions
