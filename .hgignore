@@ -1,0 +1,20 @@
+syntax: glob
+
+# Backup files left behind by Emacs
+*~
+
+# Lock files used by Emacs
+# Notice that the "#" char is escaped
+.\#*
+
+# Temp files used by vim
+.*.swp
+
+# Hidden files used by the Finder in MacOS
+.DS_Store
+.Trashes
+.com.apple.timemachine.supported
+.fseventsd/*
+.TemporaryItems/*
+Desktop DB
+Desktop DF
