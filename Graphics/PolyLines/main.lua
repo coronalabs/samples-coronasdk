@@ -14,12 +14,9 @@ display.setStatusBar( display.HiddenStatusBar )
 
 -- Example of shape drawing function
 local function newStar()
-
 	-- Points of the line to stroke, in the shape of a star.
 	-- To prevent odd stroke graphics, have the start/end point of the star be a flat, level area.
-	local star = display.newLine( -50,-35, -27,-35, 0,-110, 27,-35, 105,-35, 43,16, 65,90, 0,45, -65,90, -43,15, -105,-35, -50,-35 )
-
-	return star
+	return display.newLine( -50,-35, -27,-35, 0,-110, 27,-35, 105,-35, 43,16, 65,90, 0,45, -65,90, -43,15, -105,-35, -50,-35 )
 end
 
 
