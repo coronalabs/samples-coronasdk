@@ -9,20 +9,15 @@
 -- Supports Graphics 2.0
 ------------------------------------------------------------
 
+
 display.setStatusBar( display.HiddenStatusBar )
 
 -- Example of shape drawing function
 local function newStar()
 
-	-- need initial segment to start
-	local star = display.newLine( 0,-110, 27,-35 ) 
-
-	-- further segments can be added later
-	star:append( 105,-35, 43,16, 65,90, 0,45, -65,90, -43,15, -105,-35, -27,-35, 0,-110 )
-
-	-- default color and width (can also be modified later)
-	star:setStrokeColor( 255/255, 255/255, 25/2555, 255/255 )
-	star.strokeWidth = 3
+	-- Points of the line to stroke, in the shape of a star.
+	-- To prevent odd stroke graphics, have the start/end point of the star be a flat, level area.
+	local star = display.newLine( -50,-35, -27,-35, 0,-110, 27,-35, 105,-35, 43,16, 65,90, 0,45, -65,90, -43,15, -105,-35, -50,-35 )
 
 	return star
 end
@@ -35,32 +30,37 @@ for i = 1, 20 do
 
 	local myStar = newStar()
 	
-	-- Graphics 2.0 needs colors from 0 to 1
 	myStar:setStrokeColor( math.random(255)/255, math.random(255)/255, math.random(255)/255, math.random(200)/255 + 55/255 )
-	myStar.strokeWidth = math.random(10)
+	myStar.strokeWidth = math.random(10) + 5
 	
-	myStar.x = math.random( display.contentWidth )
-	myStar.y = math.random( display.contentHeight )
-	myStar.rotation = math.random(360)
-	
-	myStar.xScale = math.random(150)/100 + 0.5
+	myStar.xScale = math.random(100)/100 + 0.5
 	myStar.yScale = myStar.xScale
+
+	-- Line display objects don't support anchor points. To rotate the stars about a point, put them in a group.
+	local starGroup = display.newGroup()
+	starGroup:insert(myStar)
+	starGroup.anchorChildren = true
+	starGroup.rotation = math.random(360)
+	
+	starGroup.x = math.random( display.contentWidth )
+	starGroup.y = math.random( display.contentHeight )
 	
 	local dr = math.random( 1, 4 )
-	myStar.dr = dr
+	starGroup.dr = dr
 	if ( math.random() < 0.5 ) then
-		myStar.dr = -dr
+		starGroup.dr = -dr
 	end
 
-	table.insert( stars, myStar )
+	table.insert( stars, starGroup )
 end
 
 
 function stars:enterFrame( event )
 
 	for i,v in ipairs( self ) do
-		v.rotation = v.rotation + v.dr
+		v.rotation = ( v.rotation + v.dr ) % 360
 	end
 end
 
 Runtime:addEventListener( "enterFrame", stars )
+
