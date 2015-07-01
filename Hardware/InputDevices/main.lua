@@ -229,29 +229,10 @@ local keyDown = "down"
 local keyLeft = "left"
 local keyRight = "right"
 
--- Handles forging a key name for supporting arrow key movements on OS X
-local function getKeyNameFromCode( keyCode )
-	if ( 126 == keyCode ) then
-		return "up"
-	elseif ( 125 == keyCode ) then
-		return "down"
-	elseif ( 123 == keyCode ) then
-		return "left"
-	elseif ( 124 == keyCode ) then
-		return "right"
-	end
-	return nil
-end
-
 -- Called when a key event has been received
 local function onKeyEvent( event )
 	local keyName = event.keyName
 	local phase = event.phase
-
-	-- If we're on OSX we can't use up/down/left/right, so overwrite using the native key codes
-	if ( onOSX ) then
-		keyName = getKeyNameFromCode( event.nativeKeyCode )
-	end
 
 	-- Handle movement keys events; update movement logic variables
 	if ( not joystickInUse ) then
@@ -300,6 +281,11 @@ if ( getHasJoystick ) then
 		-- However, touch-screen events can fire these as well so we filter them out
 		if ( ( "x" ~= axis and "y" ~= axis ) or ( string.find( descriptor, "Joystick" ) == nil ) ) then
 			return
+		end
+
+		-- OSX does not support accuracy at present, and always returns zero.
+		if ( accuracy == 0 ) then
+			accuracy = 0.15
 		end
 
 		-- Detect zero movement based on device accuracy
