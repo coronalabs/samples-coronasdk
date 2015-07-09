@@ -144,11 +144,12 @@ function scene:show( event )
 
 end
 
+function scene:hide( event )
+	Runtime:removeEventListener( "inputDeviceStatus", onInputDeviceStatusChanged )
+end
+
 
 function scene:destroy( event )
-
-	Runtime:removeEventListener( "inputDeviceStatus", onInputDeviceStatusChanged )
-
 	audio.dispose( sndClick )
 	sndClick = nil
 
@@ -159,5 +160,7 @@ end
 scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "destroy", scene )
+scene:addEventListener( "hide", scene )
+
 
 return scene

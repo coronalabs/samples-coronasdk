@@ -41,17 +41,11 @@ function scene:create( event )
 end
 
 function scene:show( event )
-
-   local sceneGroup = self.view
-
 	Runtime:addEventListener( "axis", onAxisEvent )
 	Runtime:addEventListener( "key", onKeyEvent )
 end
 
 function scene:hide( event )
-
-   local sceneGroup = self.view
-
 	Runtime:removeEventListener( "axis", onAxisEvent )
 	Runtime:removeEventListener( "key", onKeyEvent )
 
