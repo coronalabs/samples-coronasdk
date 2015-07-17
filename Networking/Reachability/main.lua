@@ -48,6 +48,7 @@ local centerX = display.contentCenterX
 local centerY = display.contentCenterY
 local _W = display.contentWidth
 local _H = display.contentHeight
+print(centerX, centerY, _W, _H)
 
 display.setStatusBar( display.HiddenStatusBar )		-- hide status bar
 io.output():setvbuf('no') 		-- **debug: disable output buffering for Xcode Console
@@ -83,17 +84,17 @@ local MyNetworkReachabilityListener		-- forward reference
 
 local background = display.newImage("carbonfiber.jpg", centerX, centerY, true) -- flag overrides large image downscaling
 
-local roundedRect1 = display.newRoundedRect( centerX, 35, 300, 40, 8 )
-roundedRect1:setFillColor( 0, 170/255 )
+local roundedRect1 = display.newRoundedRect( centerX, 35, _W - 10, 40, 8 )
+roundedRect1:setFillColor( 0.5, 170/255 )
 
-local netStatusRect = display.newRoundedRect( centerX, 145, 300, 40, 8 )
+local netStatusRect = display.newRoundedRect( centerX, 165, _W - 10, 40, 8 )
 netStatusRect:setFillColor( 1, 0, 0, 170/255 )
 
 t = display.newText( "Network Status Check", centerX, 32, nil, 24 )
 t:setFillColor( 1, 1, 0 )
 
 -- Create Status field
-netStatus = display.newText( "---", centerX, 145, native.systemFont, 26 )
+netStatus = display.newText( "---", centerX, 165, native.systemFont, 26 )
 netStatus:setFillColor( 1, 1, 1 )
 
 -------------------------------------------
@@ -136,13 +137,13 @@ end
 
 -- Create Text Input Field
 --
-urlField = native.newTextField( 130, 105, 240, 30 )
+local urlLabel = display.newText( "URL:", 25, 104, native.systemFont, 18)
+urlField = native.newTextField( centerX, 105, _W - 100, 30 )
 --urlField = native.newTextField( 10, 90, 240, 30 )
 if "Win" == system.getInfo("environment") then
 	urlField = display.newRect( 10, 90, 240, 30 )
 end
 
-urlField.x = centerX
 urlField.font = native.newFont( native.systemFontBold, 18 )
 urlField.inputType = "url"
 urlField.text = defaultURL
@@ -151,7 +152,7 @@ urlField:addEventListener( "userInput", urlTextHandler )
 
 -- Create Text Output Box
 --
-textBox = native.newTextBox( 160, 310, 300, 220 )
+textBox = native.newTextBox( 160, 310, _W - 10, 220 )
 --textBox = native.newTextBox( 10, 200, 300, 220 )
 if "win" == system.getInfo("environment") then
 	textBox = display.newRect( 10, 200, 300, 220 )
@@ -195,7 +196,7 @@ function MyNetworkReachabilityListener( event )
 
 		textBox.text = "Event Count: " .. eventCount
 		textBox.text = textBox.text .. "\n" .. "Address: " .. tostring( event.address ) .. "\n"
-		textBox.text = textBox.text .. "\n" .. "isReachable:           " .. tostring( event.isReachable )
+		textBox.text = textBox.text .. "\n" .. "isReachable:            " .. tostring( event.isReachable )
 		textBox.text = textBox.text .. "\n" .. "isConnectionRequired:   " .. tostring( event.isConnectionRequired )
 		textBox.text = textBox.text .. "\n" .. "isConnectionOnDemand:   " .. tostring( event.isConnectionOnDemand )
 		textBox.text = textBox.text .. "\n" .. "isInteractionRequired:  " .. tostring( event.isInteractionRequired )
@@ -203,24 +204,18 @@ function MyNetworkReachabilityListener( event )
 		textBox.text = textBox.text .. "\n" .. "isReachableViaWiFi:     " .. tostring( event.isReachableViaWiFi )
 		
 		-- For terminal display (debug)
-        print( "address", event.address )
-        print( "isReachable", event.isReachable )
-        print("isConnectionRequired", event.isConnectionRequired)
-        print("isConnectionOnDemand", event.isConnectionOnDemand)
-        print("IsInteractionRequired", event.isInteractionRequired)
-        print("IsReachableViaCellular", event.isReachableViaCellular)
-        print("IsReachableViaWiFi", event.isReachableViaWiFi) 
-
+		local json = require("json")
+		print("networkStatus event: ", json.prettify(event))
 end
 
 -- Check to make sure platform supports Network Status change
 --
 if network.canDetectNetworkStatusChanges then
-	if "simulator" == system.getInfo("environment") then
-        network.setStatusListener( "apple.com", MyNetworkReachabilityListener )
-    else
+	--if "simulator" == system.getInfo("environment") then
+    --    network.setStatusListener( "apple.com", MyNetworkReachabilityListener )
+    --else
 		network.setStatusListener( urlField.text, MyNetworkReachabilityListener )
-	end
+	--end
 
 else
 		textBox.text = "Network Reachability not supported!"

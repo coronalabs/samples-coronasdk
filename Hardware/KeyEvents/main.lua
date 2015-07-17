@@ -10,9 +10,10 @@
 --
 -- File dependencies: build.settings
 --
--- Target devices: Android (no Simulator or iOS)
+-- Target devices: Android, OS X, Windows
 --
 -- Update History:
+--	7/13/2015	1.3		Changed check from platform to system.hasEventSource( )
 --	9/09/2013	1.2		Added support for Windows. Modified key event handler.
 --	7/14/2011	1.1		Added "volumeUp" exception code / removed splash screen
 --	7/12/2011	1.0		Initial version
@@ -46,11 +47,13 @@ local textOptions =
 }
 local eventTxt = display.newText( textOptions )
 
--- Check that we are running on Android or Windows
 --
-local platformName = system.getInfo("platformName")
-if "Android" ~= platformName and "Win" ~= platformName then
-	eventTxt.text = "Build for Android Device!"
+-- Check that the current platform provides key events
+--
+if not system.hasEventSource( "key" ) then
+	msg = display.newText( "Key events not supported on this platform", centerX, centerY - 100, native.systemFontBold, 13 )
+	msg.x = display.contentWidth/2      -- center title
+	msg:setFillColor( 1,0,0 )
 end
 
 -- The Key Event Listener

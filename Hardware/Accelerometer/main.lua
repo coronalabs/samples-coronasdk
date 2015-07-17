@@ -17,9 +17,10 @@
 --
 -- Target devices: iPhone and Android
 --
--- Limitations: Accelerator doesn't work on Simulator (execpt for Shake)
+-- Limitations: Accelerator doesn't work on every platform
 --
 -- Update History:
+--	v1.1	Changed check from Simulator to system.hasEventSource( )
 --
 -- Comments: 
 --
@@ -39,15 +40,23 @@ local centerY = display.contentCenterY
 title = display.newText( "Accelerator / Shake", centerX, 20, native.systemFontBold, 20 )
 title:setFillColor( 1,1,0 )
 
--- Determine if running on Corona Simulator
 --
-local isSimulator = "simulator" == system.getInfo("environment")
-
--- Accelerator is not supported on Simulator
+-- Check if accelerator is supported on this platform
 --
-if isSimulator then
-	msg = display.newText( "Accelerometer not supported on Simulator", centerX, 55, native.systemFontBold, 13 )
+if not system.hasEventSource( "accelerometer" ) then
+	msg = display.newText( "Accelerometer not supported on this platform", centerX, 55, native.systemFontBold, 13 )
 	msg:setFillColor( 1,1,0 )
+end
+
+if system.getInfo("environment") == "simulator" then
+	local boxY = display.contentHeight - 40
+	local msg = display.newText( "Choose 'Shake' in the Hardware menu", centerX, boxY, native.systemFontBold, 13 )
+	local box = display.newRoundedRect( centerX, boxY, display.contentWidth - 20, 30, 6 )
+	box:setFillColor( 0.5, 0.5, 0.5, 0.5 )
+	msg.x = display.contentWidth / 2
+	msg:setFillColor( 1, 0, 0 )
+else
+
 end
 
 local soundID = audio.loadSound ("beep_wav.wav")

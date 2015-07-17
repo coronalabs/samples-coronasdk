@@ -30,7 +30,7 @@ shadow.anchorX = 0.0		-- TopLeft anchor
 shadow.anchorY = 0.0		-- TopLeft anchor
 shadow:setFillColor( 0, 0, 0, 120/255 )
 
-local simulatorMessage = "Maps not supported in Corona Simulator.\n\nYou must build for iOS or Android to test MapView support."
+local simulatorMessage = "MapView is not supported on this platform.\n\nYou should build for iOS or Android to try MapView."
 local label = display.newText( simulatorMessage, 20, 70, shadow.contentWidth - 10, 0, native.systemFont, 14 )
 label.anchorX = 0.0		-- TopLeft anchor
 label.anchorY = 0.0		-- TopLeft anchor

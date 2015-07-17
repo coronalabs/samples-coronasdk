@@ -18,11 +18,11 @@
 -- Update History:
 --	v1.2	8/19/10		Added Simulator warning message
 --  v1.3	11/28/11	Added test for Location error & alert box
+--	v1.4	7/13/15		Changed check from Simulator to system.hasEventSource( )
 --
 -- Comments: 
 -- This example shows you how to access the various properties of the "location" events, which
--- are returned by the GPS listener. Devices without GPS will have less accurate location data,
--- and the Corona Simulator returns a set of artificial coordinates for testing.
+-- are returned by the GPS listener. Devices without GPS will have less accurate location data
 --
 -- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
@@ -133,14 +133,11 @@ local locationHandler = function( event )
 end
 
 		
--- Determine if running on Corona Simulator
 --
-local isSimulator = "simulator" == system.getInfo("environment")
-
--- Location Events is not supported on Simulator
+-- Check if this platform supports location events
 --
-if isSimulator then
-	msg = display.newText( "Location events not supported on Simulator!", 0, 230, native.systemFontBold, 13 )
+if not system.hasEventSource( "location" ) then
+	msg = display.newText( "Location events not supported on this platform", 0, 230, native.systemFontBold, 13 )
 	msg.x = display.contentWidth/2		-- center title
 	msg:setFillColor( 1,1,1 )
 end

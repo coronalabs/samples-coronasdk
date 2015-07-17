@@ -15,6 +15,8 @@
 -- Supports Graphics 2.0
 ---------------------------------------------------------------------------------------
 
+local json = require('json')
+
 local centerX = display.contentCenterX
 local centerY = display.contentCenterY
 local _W = display.contentWidth
@@ -37,7 +39,11 @@ local sessionComplete = function(event)
 
 	print( "Camera ", ( image and "returned an image" ) or "session was cancelled" )
 	print( "event name: " .. event.name )
-	print( "target: " .. tostring( image ) )
+	if image then
+		print( "target: ", image._properties)
+	else
+		print( "event.target was nil" )
+	end
 
 	if image then
 		-- center image on screen

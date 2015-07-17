@@ -17,10 +17,9 @@
 --
 -- Target devices: iPhone 3GS or newer for compass data.
 --
--- Limitations: Heading events not supported on Simulator or iPhone 3G
---
 -- Update History:
 --	v1.3	Added Simulator warning message
+--	v1.4	Changed check from Simulator to system.hasEventSource( )
 --
 -- Comments: 
 --
@@ -180,8 +179,8 @@ local isSimulator = "simulator" == system.getInfo("environment")
 
 -- Heading Events are not supported on Simulator
 --
-if isSimulator then
-	msg = display.newText( "Heading events not supported on Simulator!", 0, 20, native.systemFontBold, 12 )
+if not system.hasEventSource( "heading" ) then
+	msg = display.newText( "Heading events not supported on this platform", 0, 20, native.systemFontBold, 12 )
 	msg.x = display.contentCenterX		-- center title
 	msg:setFillColor( 1,1,0 )
 end

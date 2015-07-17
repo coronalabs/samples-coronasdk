@@ -16,9 +16,10 @@
 --
 -- Target devices: iPhone and Android
 --
--- Limitations: Gyroscope doesn't work on Simulator
+-- Limitations: Gyroscope doesn't work on all platforms
 --
 -- Update History:
+--	v1.1	7/13/15		Display message if gyroscope not supported
 --
 -- Comments: 
 --
@@ -44,11 +45,13 @@ title = display.newText( "Gyroscope", 0, 35, native.systemFontBold, 20 )
 title.x = display.contentWidth / 2
 title:setFillColor( 1, 1, 0 )
 
--- Notify the user if the device does not have a gyroscope.
+--
+-- Check that the current platform supports a gyroscope
+--
 if not system.hasEventSource("gyroscope") then
-	msg = display.newText( "Gyroscope sensor not found!", 0, 70, native.systemFontBold, 13 )
-	msg.x = display.contentWidth / 2
-	msg:setFillColor( 1, 0, 0 )
+	msg = display.newText( "Gyroscope events not supported on this platform", 0, 70, native.systemFontBold, 13 )
+	msg.x = display.contentWidth/2		-- center title
+	msg:setFillColor( 1,1,1 )
 end
 
 
@@ -220,7 +223,5 @@ local function onGyroscopeUpdate( event )
 end
 
 
--- Add gyroscope listeners, but only if the device has a gyroscope.
-if system.hasEventSource("gyroscope") then
-	Runtime:addEventListener("gyroscope", onGyroscopeUpdate)
-end
+-- Add gyroscope listeners
+Runtime:addEventListener("gyroscope", onGyroscopeUpdate)

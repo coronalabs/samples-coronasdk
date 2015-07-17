@@ -375,13 +375,6 @@ end
 --
 local isSimulator = "simulator" == system.getInfo("environment")
 
--- Notifications not supported on Simulator
---
-if isSimulator then
-	msg = display.newText( "Local Notifications not supported on Sim!", centerX, 7, native.systemFontBold, 12 )
-	msg:setFillColor( 1,1,0 )
-end
-
 -------------------------------------------
 -- Add Listeners
 -------------------------------------------
@@ -416,3 +409,19 @@ end
 
 -- Add the System callback event
 Runtime:addEventListener( "system", onSystemEvent );
+
+if notifications.isStub then
+	local greyBox = display.newRoundedRect(centerX - 1, centerY - 1 , _W - 4, _H - 4, 4)
+	greyBox:setFillColor( 0.8, 0.8 )
+
+	local msg = display.newText( "Local notifications not supported on this platform", 0, centerY + 10, native.systemFontBold, 13 )
+	msg.x = display.contentWidth / 2
+	msg:setFillColor( 1, 0, 0 )
+
+	local function ignoreTaps()
+		return true
+	end
+
+	greyBox:addEventListener( "touch", ignoreTaps )
+end
+

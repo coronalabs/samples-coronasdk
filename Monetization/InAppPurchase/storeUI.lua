@@ -20,10 +20,10 @@ local productButtons = {}
 -- To be called when the store.isActive property returns false.
 -------------------------------------------------------------------------------
 function storeUI.showStoreNotAvailableWarning( )
-	if platform == "Simulator" then
-		native.showAlert( "Notice", "In-app purchases is not supported by the Corona Simulator.", { "OK" } )
+	if platform == "simulator" then
+		native.showAlert( "Notice", "In-app purchases are not supported by the Corona Simulator.", { "OK" } )
 	else
-		native.showAlert( "Notice", "In-app purchases is not supported on this device.", { "OK" } )
+		native.showAlert( "Notice", "In-app purchases are not supported on this system/device.", { "OK" } )
 	end
 end
 
@@ -43,7 +43,7 @@ function storeUI.initializeStoreMenu ( )
 	storeUI.descriptionArea = native.newTextBox( 0, 0,
 				display.contentCenterX - 20, 0.75 * display.contentHeight )
 	storeUI.printOptionPrompt( )
-	storeUI.descriptionArea:setTextColor( 1, 0, 0 )
+	storeUI.descriptionArea:setTextColor( 0, 0.8, 0, 0.8 )
 	storeUI.descriptionArea.size = 24
 	storeUI.descriptionArea.hasBackground = false
 	storeUI.descriptionArea.anchorX = 0
@@ -61,7 +61,7 @@ function storeUI.addProductFields( productData )
 	if ( not productData.validProducts  ) or ( #productData.validProducts  <= 0 ) then
 		-- There are no products to purchase. This indicates that in-app purchasing is not supported.
 		local noProductsLabel = display.newText(
-					"Sorry!\nIn-App purchases is not supported on this device.",
+					"Sorry!\nIn-App purchases are not supported on this device.",
 					display.contentWidth / 2, display.contentHeight / 3,
 					display.contentWidth / 2, 0,
 					native.systemFont, 16 )

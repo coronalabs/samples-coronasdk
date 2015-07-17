@@ -16,7 +16,7 @@
 --
 -- Target devices: iPhone and Android
 --
--- Limitations: Does not work on Simulator
+-- Limitations: Does not work on all platforms
 --
 -- Update History:
 --
@@ -30,7 +30,6 @@
 
 -- Require the widget library
 local widget = require( "widget" )
-
 
 local topLeft = {
 	x = (display.contentWidth - display.viewableContentWidth) / 2, 
@@ -89,7 +88,10 @@ function initGyroscope()
 	if system.hasEventSource("gyroscope") then
 		Runtime:addEventListener("gyroscope", onGyroscopeUpdate)
 	else
-		local 	msg = display.newText( "Gyroscope sensor not found!", 0, 55, native.systemFontBold, 13 )
+		--
+		-- Note that the current platform does not support gyroscope events
+		--
+		local msg = display.newText( "Gyroscope events not supported on this platform", 0, 55, native.systemFontBold, 13 )
 		msg.x = display.contentWidth / 2
 		msg:setFillColor( 1, 0, 0 )
 	end

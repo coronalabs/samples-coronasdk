@@ -120,11 +120,11 @@ function productData.setProductList( platform )
 	    currentProductList = googleProductList
 	elseif ( platform == "iPhone OS" ) then
 		currentProductList = appleProductList
-	elseif ( platform == "Simulator" ) then
+	elseif ( platform == "simulator" ) then
 		currentProductList = dummyProductList
 	else
 		-- Platform doesn't support IAP
-		assert( false )
+		native.showAlert( "Notice", "In-app purchases are not supported on this system/device.", { "OK" } )
 	end
 end
 

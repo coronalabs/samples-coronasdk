@@ -30,11 +30,19 @@
 -- Supports Graphics 2.0
 ---------------------------------------------------------------------------------------
 
--- activate multitouch
-system.activate( "multitouch" )
-
 -- add bkgd image to screen
 local background = display.newImage( "aquariumbackgroundIPhone.jpg", display.contentCenterX, display.contentCenterY )
+
+if not system.hasEventSource( "multitouch" ) then
+	local msg = display.newText( "Multitouch events not supported on this platform", 0, 20, native.systemFontBold, 13 )
+	msg.x = display.contentWidth / 2
+	msg:setFillColor( 1, 0, 0 )
+else
+	-- activate multitouch
+	system.activate( "multitouch" )
+	local msg = display.newText( "Pinch and zoom the image", display.contentWidth / 2, display.contentHeight - 40, native.systemFontBold, 13 )
+	msg:setFillColor( 0, 1, 0 )
+end
 
 local function calculateDelta( previousTouches, event )
 	local id,touch = next( previousTouches )
@@ -152,16 +160,6 @@ function background:touch( event )
 	return result
 end
 
--- Determine if running on Corona Simulator
 --
-local isSimulator = "simulator" == system.getInfo("environment")
-
--- Multitouch Events not supported on Simulator
---
-if isSimulator then
-	msg = display.newText( "Multitouch not supported on Simulator!", display.contentCenterX, display.contentCenterY, native.systemFont, 14 )
-	msg:setFillColor( 1, 1, 0 )
-end
-
 -- register table listener
 background:addEventListener( "touch", background )

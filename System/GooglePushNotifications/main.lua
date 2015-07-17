@@ -41,11 +41,23 @@ display.setStatusBar(display.DefaultStatusBar)
 local background = display.newRect(centerX, centerY, display.contentWidth, display.contentHeight)
 background:setFillColor(0.5, 0, 0)
 
--- Display instructions.
-local message = "Tap the screen to push a notification"
-local textField = display.newText(message, 0, centerY, native.systemFont, 18)
-textField:setFillColor(1, 1, 1)
-textField.x = centerX
+local boxY = centerY
+local textY = boxY - 1
+local box = display.newRoundedRect( centerX, boxY, display.contentWidth - 20, 30, 6 )
+box:setFillColor( 0.5, 0.5, 0.5, 0.5 )
+local msg
+
+if system.getInfo("platformName") ~= "Android" then
+	msg = display.newText( "Google Push Notifications only on Android", centerX, textY, native.systemFontBold, 12 )
+	msg:setFillColor( 1, 0, 0 )
+elseif googleApiKey == "Your API key goes here." then
+	msg = display.newText( "Google Push Notifications need to be configured", centerX, textY, native.systemFontBold, 12 )
+	msg:setFillColor( 0, 0, 1 )
+else
+	-- Display instructions.
+	msg = display.newText("Tap the screen to push a notification", centerX, textY, native.systemFont, 18)
+	msg:setFillColor(1, 1, 1)
+end
 
 
 -- Called when a sent notification has succeeded or failed.

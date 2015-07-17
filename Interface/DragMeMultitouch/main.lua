@@ -11,7 +11,13 @@
 --
 -- Supports Graphics 2.0
 
-system.activate( "multitouch" )
+if not system.hasEventSource( "multitouch" ) then
+	local msg = display.newText( "Multitouch events not supported on this platform", 0, 20, native.systemFontBold, 13 )
+	msg.x = display.contentWidth / 2
+	msg:setFillColor( 1, 0, 0 )
+else
+	system.activate( "multitouch" )
+end
 
 local arguments =
 {

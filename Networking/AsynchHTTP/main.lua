@@ -30,16 +30,33 @@
 -- Supports Graphics 2.0
 ---------------------------------------------------------------------------------------
 
-local myText = display.newText("(Waiting for response)", display.contentCenterX, 120, native.systemFont, 16)
+local json = require("json")
+
+-- Access Google over SSL:
+local url = "https://encrypted.google.com"
+
+local myTitle = display.newText("AsyncHTTP", display.contentCenterX, 15, native.systemFont, 20)
+local myText = display.newText("(Waiting for response)", display.contentCenterX, 45, native.systemFont, 14)
+local myInfo = native.newTextBox(display.contentCenterX, display.contentCenterY + 30, display.contentWidth - 20, 400)
+myInfo.font = native.newFont("Courier", 8)
 
 local function networkListener( event )
 	if ( event.isError ) then
 		myText.text = "Network error!"
+		myInfo.text = "networkRequest event: " .. json.prettify(event)
+
 	else
-		myText.text = "See Corona Terminal for response"
-		print ( "RESPONSE: " .. event.response )
+		local rawResponse = event.response
+
+		myText.text = "Server responded with HTTP status " .. event.status
+		event.response = "<data from retrieved URL is available here>"
+		myInfo.text = "networkRequest event: " .. json.prettify(event) .. "\n\n(see console for complete network event)"
+
+		print ( "networkRequest event: " .. json.prettify(event) )
+		print ( "RESPONSE: " .. tostring(rawResponse) )
 	end
 end
 
--- Access Google over SSL:
-network.request( "https://encrypted.google.com", "GET", networkListener )
+myInfo.text = "Requesting " .. url .. " ..."
+
+network.request( url, "GET", networkListener )

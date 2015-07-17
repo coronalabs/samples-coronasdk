@@ -48,22 +48,23 @@ local posterFrame = display.newImage( "Default.png", centerX, centerY )
 posterFrame:rotate(270)
 
 function posterFrame:tap( event )
-	msg.text = "Video Done"		-- message will appear after the video finishes
+	timer.performWithDelay( 500, function() msg.text = "Video done"; end, 1 )		-- message will appear after the video finishes
 	media.playVideo( "http://www.coronalabs.com/video/bbb/BigBuckBunny_640x360.m4v", media.RemoteSource, true )
 end
 
--- Determine if running on Corona Simulator
--- Works in Mac Simulator but not Window Simulator
-local isSimulator = "simulator" == system.getInfo("environment")
-if system.getInfo( "platformName" ) == "Mac OS X" then isSimulator = false; end
-
 -- Video is not supported on Windows Simulator
---
-if isSimulator then
-	msg = display.newText( "No Video on Simulator!", centerX, 85, native.systemFontBold, 22 )
+local notSupported = ( system.getInfo("environment") == "simulator" and system.getInfo( "platformName" ) == "Win" )
+
+local boxY = 17
+local textY = boxY - 1
+local box = display.newRoundedRect( centerX, boxY, display.contentWidth - 20, 30, 6 )
+box:setFillColor( 0.5, 0.5, 0.5, 0.5 )
+
+if notSupported then
+	msg = display.newText( "media.playVideo not supported in Simulator", centerX, textY, native.systemFontBold, 22 )
+	msg:setFillColor( 1, 0, 0 )
 else
-	msg = display.newText( "Tap to start video", centerX, 85, native.systemFontBold, 22 )
+	msg = display.newText( "Tap to start video", centerX, textY, native.systemFontBold, 22 )
+	msg:setFillColor( 0,0,1 )
 	posterFrame:addEventListener( "tap", posterFrame )		-- add Tap listener
 end
-
-msg:setFillColor( 0,0,1 )

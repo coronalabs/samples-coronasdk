@@ -62,14 +62,14 @@ videoRatio = 180/320		-- used to create our video container based on video size 
 local posterFrame = display.newRoundedRect( centerX, centerY - 20, _W, _H - 40, 20 )
 posterFrame:setFillColor( 200/255 )
 
--- Determine if running on Corona Simulator or Android device
+-- Determine if running on Corona Simulator
 --
 local isSimulator = "simulator" == system.getInfo("environment")
 
 -- Video is not supported on Simulator
 --
 if isSimulator then
-	msg = display.newText( "No Video on Simulator", centerX, 80, native.systemFontBold, 22 )
+	msg = display.newText( "native.newVideo() not supported in Simulator", centerX, 80, native.systemFontBold, 22 )
 else
 	msg = display.newText( "Press Play to start video", centerX, 60, native.systemFontBold, 22 )
 --	posterFrame:addEventListener( "tap", posterFrame )		-- add Tap listener
@@ -116,7 +116,7 @@ end
 --
 function playCtl( event )
 
-	if not video then
+	if not isSimulator and not video then
 	
 		local function videoListener( event )
 			print( "Video Listener called: ", event.phase )
@@ -138,14 +138,16 @@ function playCtl( event )
 		buttonsEnable( true )
 	end
 	
-	if videoPaused then	
-		video:play()
-		videoPaused = false
-		playButton:setLabel( "Pause" )
-	else
-		video:pause()
-		videoPaused = true
-		playButton:setLabel( "Resume" )
+	if video then
+		if videoPaused then	
+			video:play()
+			videoPaused = false
+			playButton:setLabel( "Pause" )
+		else
+			video:pause()
+			videoPaused = true
+			playButton:setLabel( "Resume" )
+		end
 	end
 	
 end
@@ -204,6 +206,7 @@ playButton = widget.newButton
 	    top = buttonTop,
 		width = 90,
 		height = 30,
+		font = native.systemFontBold,
 		fontSize = FONT_SIZE,
 		id = "playButton",
 	    label = "Play",
@@ -216,6 +219,7 @@ stopButton = widget.newButton
 	    top = buttonTop,
 		width = 90,
 		height = 30,
+		font = native.systemFontBold,
 		fontSize = FONT_SIZE,
 		id = "stopButton",
 	    label = "Stop",
@@ -228,6 +232,7 @@ seekButton = widget.newButton
 	    top = buttonTop,
 		width = 90,
 		height = 30,
+		font = native.systemFontBold,
 		fontSize = FONT_SIZE,
 		id = "seekButton",
 	    label = "Seek 25%",
@@ -240,6 +245,7 @@ muteButton = widget.newButton
 	    top = buttonTop,
 		width = 90,
 		height = 30,
+		font = native.systemFontBold,
 		fontSize = FONT_SIZE,
 		id = "muteButton",
 	    label = "Mute",
@@ -262,7 +268,6 @@ local function updateTime( event )
 		end
 		runningTime.text = string.format( "Time: %.0f sec.", currentTime )
 	end
-	
 end
 
 timer.performWithDelay( 1000, updateTime, 0 )

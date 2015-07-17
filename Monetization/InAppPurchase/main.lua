@@ -58,7 +58,7 @@ local platform = system.getInfo( "platformName" )
 
 -- Determine if this app is running within the Corona Simulator.
 if platform == "Mac OS X" or platform == "Win" then
-	platform = "Simulator" -- For ease in checking platforms later
+	platform = system.getInfo("environment") -- For ease in checking platforms later
 end
 
 -- IAP in Google Play requires Corona build #1128 or later, so verify we have it
@@ -67,8 +67,12 @@ assert( tonumber( string.sub( system.getInfo( "build" ), 6 ) ) >= 1128 )
 if ( platform == "Android" ) then
     store = require( "plugin.google.iap.v3" )
     googleIAPv3 = true
-elseif ( platform == "Simulator" ) then
+elseif store.availableStores.apple then
+	-- iOS is supported
+elseif ( platform == "simulator" ) then
     native.showAlert( "Notice", "In-app purchases are not supported in the Corona Simulator.", { "OK" } )
+else
+	native.showAlert( "Notice", "In-app purchases are not supported on this system/device.", { "OK" } )
 end
 
 -- Interact with IAP product data
@@ -116,7 +120,7 @@ end
 local function loadStoreProducts( )
 	-- Usually you would only list products for purchase if the device supports in-app purchases.
 	-- But for the sake of testing the user interface, you might want to list products if running on the simulator too.
-	if platform == "Simulator" or store.isActive then
+	if platform == "simulator" or store.isActive then
 		if store.canLoadProducts then
 			-- Property "canLoadProducts" indicates that localized product information such as name and price
 			-- can be retrieved from the store (such as iTunes). Fetch all product info here asynchronously.
@@ -150,14 +154,14 @@ local function setupStoreFunctionButtons( )
 	-- Create and position LoadProducts and Restore button.
 	-- We have the store library call second in this conditional to avoid 
 	-- trying to call the store library while in the simulator.
-	if platform == "Simulator" or store.isActive then
+	if platform == "simulator" or store.isActive then
 		
 		------------------------------------------
 		-- Load Products button
 		------------------------------------------
 		local loadProducts = function ( product )
 			-- Request the store to load all available products.
-			if platform == "Simulator" or store.isActive then
+			if platform == "simulator" or store.isActive then
 				print ( "Loading Products " )
 				loadStoreProducts( )
 			else
@@ -171,8 +175,8 @@ local function setupStoreFunctionButtons( )
 				storeUI.printToConsole( "Load products from the Google Play store." )
 			elseif store.availableStores.apple then
 				storeUI.printToConsole( "Load products from iOS App Store." )
-			elseif platform == "Simulator" then
-				storeUI.printToConsole( "Load dummy products for the Corona simulator." )
+			elseif platform == "simulator" then
+				storeUI.printToConsole( "Load dummy products for the Corona Simulator." )
 			end
 		end
 
@@ -346,10 +350,10 @@ if googleIAPv3 then
 elseif store.availableStores.apple then
 	store.init( "apple", transactionCallback )
 	print( "Using Apple's In-App Purchase system." )
-elseif platform == "Simulator" then
+elseif platform == "simulator" then
     native.showAlert( "Notice", "In-app purchases are not supported in the Corona Simulator. Using dummy products.", { "OK" } )
 else
-	native.showAlert( "Notice", "In-app purchases is not supported on this system/device.", { "OK" } )
+	native.showAlert( "Notice", "In-app purchases are not supported on this system/device.", { "OK" } )
 end
 
 -- Hide title card, run store

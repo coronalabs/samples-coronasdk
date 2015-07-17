@@ -44,12 +44,7 @@ local modeNames = {
 
 local background = display.newImage( "shine.png", display.contentCenterX, display.contentCenterY ) 
 
-local label = display.newText( "Mode changes every 2 seconds", 0, 0, native.systemFontBold, 18 )
-label:setFillColor( 1, 1, 1 )
-
--- center text
-label.x = display.contentWidth*0.5
-label.y = display.contentHeight*0.8
+local label
 
 local function changeStatusBarMode( event )
 	local numModes = #modes
@@ -61,5 +56,26 @@ local function changeStatusBarMode( event )
 	display.setStatusBar( modes[index] )
 end
 
--- call changeStatusBarMode() every second
-timer.performWithDelay( 2000, changeStatusBarMode, 0 )
+local model = system.getInfo("model")
+local environment = system.getInfo("environment") 
+local platformName = system.getInfo("platformName")
+
+-- Only perform the magic if on an iOS device or simulating one
+if (environment == "simulator" and (model == "iPad" or model == "iPhone")) or platformName == "iPhone OS" then
+	label = display.newText( "Statusbar mode changes every 2 seconds", 0, 0, native.systemFontBold, 12 )
+	label:setFillColor( 1, 1, 1 )
+	-- center text
+	label.x = display.contentWidth*0.5
+	label.y = display.contentHeight*0.8
+
+	-- call changeStatusBarMode() every second
+	timer.performWithDelay( 2000, changeStatusBarMode, 0 )
+else
+	local msg = display.newText( "Statusbar mode not supported on this platform", 0, 60, native.systemFontBold, 12 )
+	msg.x = display.contentWidth / 2
+	msg:setFillColor( 1, 0, 0 )
+	local msg2 = display.newText( "Try simulating or building for iOS", 0, 100, native.systemFontBold, 12 )
+	msg2.x = display.contentWidth / 2
+	msg2:setFillColor( 1, 0, 0 )
+end
+
