@@ -69,9 +69,9 @@ local function onKeyEvent( event )
 	end
 	eventTxt.text = message
 
-	-- If the "back" key was pressed on Android, then prevent it from backing out of the app.
+	-- If the "back" key was pressed, then prevent it from backing out of the app.
 	-- We do this by returning true, telling the operating system that we are overriding the key.
-	if (event.keyName == "back") and (platformName == "Android") then
+	if (event.keyName == "back") then
 		return true
 	end
 
