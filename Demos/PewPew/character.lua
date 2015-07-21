@@ -4,9 +4,9 @@
 -- See the following site for further information: https://creativecommons.org/publicdomain/zero/1.0/
 -------------------------------------------------------------------------------------------------------
 
-local function generateCharacter(displayName, name, offset)
+local function generateCharacter( displayName, name, offset, appFont )
 
-	local group = display.newGroup( )
+	local group = display.newGroup()
 
 	local selOffset = (( (offset or math.random(4)) + 1 ) % 4) * 4
 
@@ -58,30 +58,30 @@ local function generateCharacter(displayName, name, offset)
 	character:setFrame( 2 )
 
 	group:insert( character, true )
+	character.dispGroup = group
 
 	local hpBg = display.newRect( group, 0, -4-character.height*0.5, 40, 8 )
-	hpBg:setFillColor( 0,0,0 )
+	hpBg:setFillColor( 0, 0, 0, 0.5 )
 
 	local hpFg = display.newRect( group, 0, -4-character.height*0.5, 38, 6 )
-	hpFg:setFillColor( 0, 1, 0 )
-
+	hpFg:setFillColor( 0.2, 0.85, 0.4 )
 
 	if name then
-		local playerName = display.newText( {parent=group, text=name, x=0, y=-16-character.height*0.5, fontSize=12} )
+		local playerName = display.newText( { parent=group, text=name, x=0, y=-18-character.height*0.5, font=appFont, fontSize=11 } )
 		playerName.anchorY = 1
 	end
 
 	if displayName then
-		local playerName = display.newText( {parent=group, text=displayName, x=0, y=-8-character.height*0.5, fontSize=8} )
-		playerName.anchorY = 1
+		local playerDisplayName = display.newText( { parent=group, text=displayName, x=0, y=-10-character.height*0.5, font=appFont, fontSize=7 } )
+		playerDisplayName.anchorY = 1
 	end
 
-	local function setHp(hp)
+	local function setHp( hp )
 		hpFg.width = 38*hp/100
 		hpFg:setFillColor( 100/hp, hp/100, 0 )
 	end
 
-	return {group=group, hp=setHp, anim=character}
+	return { group=group, hp=setHp, anim=character }
 end
 
 return generateCharacter

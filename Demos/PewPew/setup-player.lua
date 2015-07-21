@@ -4,141 +4,187 @@ local widget = require( "widget" )
 
 local scene = composer.newScene()
 
-local controlButtons = {"left", "right", "up", "down",  "fire", "start"}
+local controlButtons = { "left", "right", "up", "down", "fire", "start" }
+local tableObjects = {
+	labels = { "move left", "move right", "move up", "move down", "fire", "start game" },
+	rects = {},
+	valuesObjects = {}
+}
+local titleText
+local currentInputIndex = 1
+local deviceNameText
 
-local function UpdateText()
-	local device = composer.getVariable( "userDevice" )
-	local controls = composer.getVariable( "controls" )
-	local ret = controls[device].name .. '\n'
 
-	for a = 1,#controlButtons do
-		ret = ret .. "\n" .. controlButtons[a] .. ' : '
-		if composer.getVariable( "currentInputConfig" ) == a and controls[device][controlButtons[a]] ~= nil then
-			ret = ret .. "<press button now> (" .. controls[device][controlButtons[a]] .. ")"
-		elseif controls[device][controlButtons[a]] ~= nil then
-			ret = ret .. controls[device][controlButtons[a]]
-		elseif composer.getVariable( "currentInputConfig" ) == a then
-			ret = ret .. "<press button now>"
-		else
-			ret = ret .. "..."
-		end
+local function updateControlHighlight( )
+	-- Highlight current selection box in red
+	if currentInputIndex <= #tableObjects["rects"] and currentInputIndex>0 then
+		tableObjects["rects"][currentInputIndex]:setFillColor( 0.8, 0.2, 0.2 )
 	end
-
-	if (composer.getVariable( "currentInputConfig" ) or 0) > #controlButtons then
-		ret = ret .. '\n\nDone. Press any key to return to main menu.'
-	end
-
-	scene.statusText.text = ret
 end
 
-local function processKey(keyName)
-	local ccf = composer.getVariable( "currentInputConfig" ) or 0
+
+-- Process the just-pressed key/button/axis
+local function processKey( keyName )
+
 	local device = composer.getVariable( "userDevice" )
 
-	if ccf>0 then
+	if currentInputIndex > 0 then
 		local controls = composer.getVariable( "controls" )
-		controls[device][controlButtons[ccf]] = keyName
-		composer.setVariable( "currentInputConfig", 0 )
-		UpdateText()
-		timer.performWithDelay( 300, function ( )
-			composer.setVariable( "currentInputConfig", ccf+1 )
-			UpdateText()
-		end)
+
+		-- Prevent duplicate key selection
+		-- Fail if the key has currently been selected
+		local keyExists = false
+		for i = 1,currentInputIndex-1 do
+			if controls[device][controlButtons[i]] == keyName then
+				keyExists = true
+			end
+		end
+
+		-- If fail case, show alert message and return
+		if keyExists then
+			titleText.alpha = 1
+			titleText.text = "control already selected"
+			titleText:setFillColor( 0.8, 0.2, 0.2 )
+			transition.to( titleText, { time=280, delay=1500, alpha=0, transition=easing.outQuad } )
+			return
+		end
+
+		-- Set key to current control
+		controls[device][controlButtons[currentInputIndex]] = keyName
+		tableObjects["rects"][currentInputIndex]:setFillColor( 0.4 )
+		tableObjects["valuesObjects"][currentInputIndex].text = keyName
+
+		-- Increment selection index row and update text value
+		local newInputIndex = currentInputIndex + 1
+		currentInputIndex = 0
+		updateControlHighlight(  )
+		timer.performWithDelay( 300, function (  )
+			currentInputIndex = newInputIndex
+			updateControlHighlight( )
+		end )
 	end
 end
+
 
 local function onKeyEvent( event )
-	local ccf = composer.getVariable( "currentInputConfig" ) or 0
+	if event.phase ~= "up" then
+		return
+	end
+
+	local getEventDevice = composer.getVariable( "getEventDevice" )
 	local device = composer.getVariable( "userDevice" )
 
-	if ccf > #controlButtons then
-		composer.setVariable( "currentInputConfig" , 0) 
+	if currentInputIndex > #controlButtons then
 		composer.setVariable( "userDevice", nil )
 		print( require("json").encode(composer.getVariable( "controls" )) )
-		composer.gotoScene( "main-menu" )
+		composer.gotoScene( "main-menu", { effect="slideUp", time=600 } )
+		return
 	end		
 
-	if not (event.phase == "down" and getEventDevice(event) == device) then
+	if getEventDevice(event) ~= device then
 		return
 	end
-	processKey(event.keyName)
+	processKey( event.keyName )
 end
 
+
 local function onAxisEvent( event )
+
+	local getEventDevice = composer.getVariable( "getEventDevice" )
 	local device = composer.getVariable( "userDevice" )
 
-	if not (getEventDevice(event) == device and math.abs( event.normalizedValue ) > ( event.axis.accuracy or 0.5 ) ) then
+	if getEventDevice(event) ~= device or math.abs( event.normalizedValue ) < math.max( event.axis.accuracy, 0.6 ) then
 		return
 	end
 
-	local ccf = composer.getVariable( "currentInputConfig" ) or 0
-	if ccf > #controlButtons then
-		composer.setVariable( "currentInputConfig" , 0) 
+	if currentInputIndex > #controlButtons then
 		composer.setVariable( "userDevice", nil )
-		composer.gotoScene( "main-menu" )
-	end		
+		composer.gotoScene( "main-menu", { effect="slideUp", time=600 } )
+		return
+	end
 
 
 	if event.normalizedValue > 0 then
-		processKey(event.axis.type .. "+")
+		processKey( event.axis.type .. "+" )
 	else
-		processKey(event.axis.type .. "-")
+		processKey( event.axis.type .. "-" )
 	end
-
 end
 
 
 function scene:create( event )
 
 	local sceneGroup = self.view
+	local setupGroup = display.newGroup()
 
-	-- Settings button
-	display.newText{
+	-- Title/message text
+	titleText = display.newText{
 		parent = sceneGroup,
 		x = display.contentCenterX,
-		y = 10,
-		text = "Controller Setup",
-		fontSize = 17,
-	}
-
-	self.statusText = display.newText{
-		parent = sceneGroup,
-		x = display.contentCenterX,
-		y = display.contentCenterY,
-		width = display.contentWidth,
+		y = 60,
 		text = "",
-		align = "center",
-		fontSize = 17,
+		font = composer.getVariable("appFont"),
+		fontSize = 15
 	}
 
+	-- Layout control selection UI
+	local device = composer.getVariable( "userDevice" )
+	local controls = composer.getVariable( "controls" )
+
+	local topRect = display.newRect( setupGroup, 101, 60, 322, 27 )
+		topRect:setFillColor( 0.52 )
+	deviceNameText = display.newText( setupGroup, controls[device].name, topRect.x, topRect.y, composer.getVariable("appFont"), 14 )
+		
+	for i = 1,#tableObjects["labels"] do
+		local controlRectLeft = display.newRect( setupGroup, 0, 60+(i*29), 120, 27 )
+		controlRectLeft:setFillColor( 0.32 )
+		local controlLabel = display.newText( setupGroup, tableObjects["labels"][i], controlRectLeft.x+50, controlRectLeft.y, composer.getVariable("appFont"), 15 )
+		controlLabel:setFillColor( 0.9 )
+		controlLabel.anchorX = 1
+		local controlRectRight = display.newRect( setupGroup, 62, 60+(i*29), 200, 27 )
+		tableObjects["rects"][i] = controlRectRight
+		controlRectRight.anchorX = 0
+		controlRectRight:setFillColor( 0.4 )
+		local currentSetting = controls[device][controlButtons[i]] or ""
+		local controlValue = display.newText( setupGroup, currentSetting, controlRectRight.x+10, controlRectRight.y, composer.getVariable("appFont"), 15 )
+		tableObjects["valuesObjects"][i] = controlValue
+		controlValue.anchorX = 0
+	end
+	sceneGroup:insert( setupGroup )
+	setupGroup.anchorChildren = true
+	setupGroup.x, setupGroup.y = display.contentCenterX, display.contentCenterY+24
 end
+
 
 function scene:show( event )
 
-	local sceneGroup = self.view
+	if event.phase == "did" then
+		Runtime:addEventListener( "axis", onAxisEvent )
+		Runtime:addEventListener( "key", onKeyEvent )
+	elseif event.phase == "will" then
+		local device = composer.getVariable( "userDevice" )
+		local controls = composer.getVariable( "controls" )
 
-	UpdateText()
+		deviceNameText.text = controls[device].name
 
-	Runtime:addEventListener( "axis", onAxisEvent )
-	Runtime:addEventListener( "key", onKeyEvent )
+		for i = 1,#tableObjects["labels"] do
+			local currentSetting = controls[device][controlButtons[i]] or ""
+			tableObjects["valuesObjects"][i].text = currentSetting
+		end
 
-	timer.performWithDelay( 300, function (  )
-		composer.setVariable( "currentInputConfig", 1 )
-		UpdateText()
-	end)
-
+		currentInputIndex = 1
+		updateControlHighlight()
+	end
 end
+
 
 function scene:hide( event )
 
-	local sceneGroup = self.view
-
-	Runtime:removeEventListener( "axis", onAxisEvent )
-	Runtime:removeEventListener( "key", onKeyEvent )
-
+	if event.phase == "will" then
+		Runtime:removeEventListener( "axis", onAxisEvent )
+		Runtime:removeEventListener( "key", onKeyEvent )
+	end
 end
-
-
 
 scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )

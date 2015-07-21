@@ -41,14 +41,6 @@
     "fire": "button3",
     "start": "button10"
   },
-  "OUYA Game Controller": {
-    "up": "y-",
-    "down": "y+",
-    "left": "x-",
-    "right": "x+",
-    "fire": "buttonA",
-    "start": "buttonX"
-  },
   "Sony PLAYSTATION(R)3 Controller": {
     "up": "y-",
     "down": "y+",

@@ -1,0 +1,34 @@
+{
+  "Keyboard": {
+    "up": "w",
+    "down": "s",
+    "left": "a",
+    "right": "d",
+    "fire": "space",
+    "start": "enter"
+  },
+  "OUYA Game Controller": {
+    "up": "y-",
+    "down": "y+",
+    "left": "x-",
+    "right": "x+",
+    "fire": "buttonA",
+    "start": "menu"
+  },
+  "Gamepad": {
+    "up": "y-",
+    "down": "y+",
+    "left": "x-",
+    "right": "x+",
+    "fire": "buttonA",
+    "start": "buttonB"
+  },
+  "Xbox Controller": {
+    "up": "y-",
+    "down": "y+",
+    "left": "x-",
+    "right": "x+",
+    "fire": "buttonA",
+    "start": "buttonStart"
+  },
+}

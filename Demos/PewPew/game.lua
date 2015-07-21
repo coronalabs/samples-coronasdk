@@ -2,95 +2,109 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
 
+local generateCharacter = require( "character" )
 local particleDesigner = require( "particleDesigner" )
-
-local runFrameSpeed = 1.5
 
 local scene = composer.newScene()
 
-local controlButtons = {["left"]={x=-1,y=0}, ["right"]={x=1,y=0}, ["up"]={x=0,y=-1}, ["down"]={x=0,y=1}}
-local generateCharacter = require( "character" )
-
+local runFrameSpeed = 1.5
+local runtime = 0
+local spinner
+local startText
+local controlButtons = { ["left"]={x=-1,y=0}, ["right"]={x=1,y=0}, ["up"]={x=0,y=-1}, ["down"]={x=0,y=1} }
 local players = {}
 local numPlayers = 0
+local pewPews = {}
+local pewCounter = nil
+local sndPewHandle, sndPew2Handle, sndDamageHandle, sndDeathHandle, sndBackgroundMusic, sndBackgroundMusicHandle, sndClickHandle
 
-local sndPew, sndPew2, sndDamage, sndDeath, sndBackgroundMusic, sndBackgroundMusicHandle, sndClick
 
 local function onInputDeviceStatusChanged( event )
+
 	if event.connectionStateChanged then
-		local device = getEventDevice(event)
+		local getEventDevice = composer.getVariable( "getEventDevice" )
+		local device = getEventDevice( event )
 		local player = players[device]
 		if player ~= nil then
 			if event.device.isConnected then
-				player.sprite.group.alpha = player.hp>0 and 1 or 0.45
+				player.sprite.group.alpha = player.hp > 0 and 1 or 0.45
 			else
-				player.sprite.group.alpha = .25
+				player.sprite.group.alpha = 0.25
 				player.v.x = 0
 				player.v.y = 0
-				player.sprite.anim:setFrame(2)
+				player.sprite.anim:setFrame( 2 )
 			end
 		end
 	end
 end
 
-local function createPlayer(device, displayName, inputDevice)
-	local sprite = generateCharacter(displayName, device, numPlayers)
+
+local function createPlayer( device, displayName, inputDevice )
+
+	local sprite = generateCharacter( displayName, device, numPlayers, composer.getVariable("appFont") )
 	numPlayers = numPlayers + 1
 	sprite.group.x = math.random( 50, display.contentWidth - 50 )
 	sprite.group.y = math.random( 50, display.contentHeight - 50 )
-	players[device] = { sprite = sprite
-			, v = {x=0,y=0} 
-			, anim="idle" 
-			, canFire = true
-			, cooldown = 300
-			, name = displayName
-			, score = 0
-			, lastDir = controlButtons["down"]
-			, hp = 100
-			, inputDevice = inputDevice
+	players[device] = {
+		sprite = sprite,
+		v = { x=0, y=0 },
+		anim = "idle",
+		canFire = true,
+		cooldown = 300,
+		name = displayName,
+		score = 0,
+		lastDir = controlButtons["down"],
+		hp = 100,
+		inputDevice = inputDevice
 	}
-	scene.view:insert(sprite.group)
+	scene.view:insert( sprite.group )
 end
 
-local pewPews = {}
+
 local function createPew( player )
+
 	local len = math.sqrt(player.lastDir.x*player.lastDir.x + player.lastDir.y*player.lastDir.y)
-	if len>0 then
+	if len > 0 then
 		player.canFire = false
-		timer.performWithDelay( player.cooldown, function (  )
-			player.canFire = player.hp>0
+		timer.performWithDelay( player.cooldown, function()
+			player.canFire = player.hp > 0
 		end )
-		local isCorona = math.random()<=0.95
+
+		local isCorona = math.random() <= 0.95
 		local pew = {
-			sprite = display.newImageRect( scene.view,  isCorona and "pew.png" or "pew2.png", 25,25 ),
+			sprite = display.newImageRect( scene.view, isCorona and "pew.png" or "pew2.png", 25, 25 ),
 			dmg = isCorona and 5 or 2,
-			v = {x=0,y=0},
+			v = { x=0, y=0 },
 			lifetime = 1.2,
 			player = player
 		}
-		audio.play( isCorona and sndPew or sndPew2 )
+		audio.play( isCorona and sndPewHandle or sndPew2Handle )
 		pew.sprite.x = player.sprite.group.x
 		pew.sprite.y = player.sprite.group.y
-		transition.to(pew.sprite, {rotation=360*pew.lifetime*2, time=pew.lifetime*1000})
-		transition.to(pew.sprite, {alpha=0, time=pew.lifetime*0.2*1000, delay=pew.lifetime*0.8*1000})
+		player.sprite.group:toFront()
+		transition.to( pew.sprite, { rotation=360*pew.lifetime*2, time=pew.lifetime*1000 } )
+		transition.to( pew.sprite, { alpha=0, time=pew.lifetime*0.2*1000, delay=pew.lifetime*0.8*1000 } )
 		pew.v.x = 3*player.lastDir.x/len + player.v.x
 		pew.v.y = 3*player.lastDir.y/len + player.v.y
 		pewPews[#pewPews+1] = pew
 	end
 end
 
+
 local function onKeyEvent( event )
 
-	local device = getEventDevice(event)
+	local getEventDevice = composer.getVariable( "getEventDevice" )
+	local device = getEventDevice( event )
 	local controls = composer.getVariable( "controls" )
 
 	local player = players[device]
 	if player ~= nil then
+
 		local controlDevice = controls[device]
 		for c, mod in pairs(controlButtons) do
 			if controlDevice[c] == event.keyName then
 				local val
-				if event.phase == 'down' then
+				if event.phase == "down" then
 					val = 1
 				else
 					val = 0
@@ -99,33 +113,34 @@ local function onKeyEvent( event )
 				player.v.y = player.v.y*(1-math.abs(mod.y)) + math.abs(mod.y)*mod.y*val
 			end
 		end
-		if player.v.x*player.v.x + player.v.y*player.v.y > 1 then
-			local len = math.sqrt(player.v.x*player.v.x + player.v.y*player.v.y)
-			player.v.x = player.v.x/len
-			player.v.y = player.v.y/len
-		end
-		if player.canFire and controlDevice['fire'] == event.keyName then
-			createPew(player)
+		if player.canFire and controlDevice["fire"] == event.keyName then
+			createPew( player )
 		end
 	else
 		if controls[device] and controls[device]["start"] == event.keyName then
-			createPlayer(device, controls[device].name, event.device)
+			transition.to( startText, { time=280, alpha=0, transition=easing.outQuad } )
+			transition.to( spinner, { time=280, alpha=0, transition=easing.outQuad } )
+			createPlayer( device, controls[device].name, event.device )
 		end
 	end
 end
 
 
-
 local function onAxisEvent( event )
+
+	local getEventDevice = composer.getVariable( "getEventDevice" )
+	local device = getEventDevice( event )
 	local controls = composer.getVariable( "controls" )
-	local device = getEventDevice(event)
+
 	local axisName = ""
-	if event.normalizedValue>0 then
+	if event.normalizedValue > 0 then
 		axisName = event.axis.type .. "+"
 	else
 		axisName = event.axis.type .. "-"
 	end
 
+	local accuracy = math.max(event.axis.accuracy, 0.3)
+	
 	local player = players[device]
 	if player ~= nil then
 		local controlDevice = controls[device]
@@ -144,40 +159,44 @@ local function onAxisEvent( event )
 			player.v.x = player.v.x/len
 			player.v.y = player.v.y/len
 		end
-		if player.canFire and controlDevice['fire'] == axisName and event.normalizedValue > ( event.axis.accuracy or 0.5 ) then
+		if player.canFire and controlDevice['fire'] == axisName and event.normalizedValue > accuracy then
 			createPew(player)
 		end
 	else
-		if controls[device] and controls[device]["start"] == axisName and event.normalizedValue > ( event.axis.accuracy or 0.5 ) then
+		if controls[device] and controls[device]["start"] == axisName and event.normalizedValue > accuracy then
+			transition.to( startText, { time=280, alpha=0, transition=easing.outQuad } )
+			transition.to( spinner, { time=280, alpha=0, transition=easing.outQuad } )
 			createPlayer(device, controls[device].name, event.device)
 		end
 	end
 end
 
-local runtime = 0
 
 local function getDeltaTime()
-   local temp = system.getTimer()  --Get current game time in ms
-   local dt = (temp-runtime) / (1000/60)  --60fps or 30fps as base
-   runtime = temp  --Store game time
+   local temp = system.getTimer()  -- Get current game time in ms
+   local dt = (temp-runtime) / (1000/60)  -- 60fps or 30fps as base
+   runtime = temp  -- Store game time
    return dt
 end
 
+
 local function clampToScreen( x, min, max )
-	if x<min then
+	if x < min then
 		return min
-	elseif x>max then
+	elseif x > max then
 		return max
 	else
 		return x
 	end
 end
 
-local pewCounter = nil
+
 local function onFrameEnter()
+
 	if not pewCounter then
 		-- pewCounter = display.newText( scene.view, "0", 10, 10)
 	end
+
 	local dt = getDeltaTime()
 	local frameVelocity = dt*runFrameSpeed*1 -- instead of 1 should be frame time.
 	for device, player in pairs(players) do
@@ -214,7 +233,7 @@ local function onFrameEnter()
 		end		
 	end
 
-	-- tick pew pews
+	-- Tick pew pews
 	if #pewPews > 0 then
 		for i=1,#pewPews do
 			local pew = pewPews[i]
@@ -253,9 +272,9 @@ local function onFrameEnter()
 								player.canFire = false
 								player.sprite.group.alpha = 0.45
 								player.sprite.anim.fill.effect = "filter.grayscale"
-								audio.play( sndDeath )
+								audio.play( sndDeathHandle )
 							else
-								audio.play( sndDamage )
+								audio.play( sndDamageHandle )
 								emitter = particleDesigner.newEmitter( "damage.json" )
 								emitter.x = pew.sprite.x
 								emitter.y = pew.sprite.y
@@ -290,6 +309,7 @@ local function onFrameEnter()
 	end
 end
 
+
 function scene:create( event )
 
 	local sceneGroup = self.view
@@ -298,7 +318,7 @@ function scene:create( event )
 	display.setDefault( "textureWrapY", "repeat" )
 
 	-- Create a background image
-	local background = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentHeight )
+	local background = display.newRect( sceneGroup, display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentHeight )
 	background.fill = { type="image", filename="grass.png" }
 	background.fill.scaleX = 0.5
 	background.fill.scaleY = 0.5
@@ -309,114 +329,119 @@ function scene:create( event )
 	display.setDefault( "textureWrapY", textureWrapDefault )
 
 	-- Add back button
-	local backButton = widget.newButton{
-		label = "Main Menu",
+	local exitButton = widget.newButton{
+		label = "exit",
 		onPress = function()
-			audio.play( sndClick )
-			composer.gotoScene( "main-menu", { effect="crossFade", time=200 } )
+			audio.play( sndClickHandle )
+			composer.gotoScene( "main-menu", { effect="slideUp", time=600 } )
 		end,
-		-- emboss = false,
 		fontSize = 13,
 		shape = "rectangle",
-		width = 120,
+		width = 70,
 		height = 20,
 		fillColor = {
-			default={ (55/255)+(0.3), (68/255)+(0.3), (77/255)+(0.3), 1 },
-			over={ (55/255)+(0.3), (68/255)+(0.3), (77/255)+(0.3), 0.8 }
+			default={ 0, 0, 0, 0.6 },
+			over={ 0, 0, 0, 0.6 }
 		},
 		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } }
 	}
-   sceneGroup:insert( backButton )
-   backButton.x = backButton.width*0.5
-   backButton.y = display.actualContentHeight - backButton.height*0.5
+	sceneGroup:insert( exitButton )
+	exitButton.x = exitButton.width*0.5 - composer.getVariable( "letterboxWidth" )
+	exitButton.y = display.contentHeight - exitButton.height*0.5 + composer.getVariable( "letterboxHeight" )
+	
+	startText = display.newText{
+		parent = sceneGroup,
+		x = display.contentCenterX,
+		y = display.contentCenterY-60,
+		text = 'press "start game" button on any device to play',
+		font = composer.getVariable("appFont"),
+		fontSize = 17
+	}
 
+	-- Load sounds
+	sndClickHandle = audio.loadSound( "click.ogg" )
+	sndBackgroundMusicHandle = audio.loadStream( "background_fight.ogg" )
+	sndDamageHandle = audio.loadSound( "damage.ogg" )
+	sndDeathHandle = audio.loadSound( "death.ogg" )
+	sndPewHandle = audio.loadSound( "pew.ogg" )
+	sndPew2Handle = audio.loadSound( "pew2.ogg" )
+
+	-- Create spinner
+	spinner = widget.newSpinner{
+		x = display.contentCenterX,
+		y = display.contentCenterY
+	}
+	sceneGroup:insert( spinner )
 end
+
 
 function scene:show( event )
 
-	local sceneGroup = self.view
+	if event.phase == "will" then
+		-- Re-show and start spinner
+		startText.alpha = 1
+		spinner.alpha = 1
+		spinner:start()
 
-	Runtime:addEventListener( "axis", onAxisEvent )
-	Runtime:addEventListener( "key", onKeyEvent )
-	Runtime:addEventListener( "inputDeviceStatus", onInputDeviceStatusChanged )
-	Runtime:addEventListener( "enterFrame", onFrameEnter )
+	elseif event.phase == "did" then
+		-- Add listeners
+		Runtime:addEventListener( "axis", onAxisEvent )
+		Runtime:addEventListener( "key", onKeyEvent )
+		Runtime:addEventListener( "inputDeviceStatus", onInputDeviceStatusChanged )
+		Runtime:addEventListener( "enterFrame", onFrameEnter )
 
-	sndBackgroundMusicHandle = audio.play( sndBackgroundMusic, { loops = -1 } )
-
-	-- Load sounds.
-	sndClick = audio.loadSound( "click.ogg" )
-	sndBackgroundMusic = audio.loadStream( "background_fight.ogg" )
-	sndDamage = audio.loadSound( "damage.ogg" )
-	sndDeath = audio.loadSound( "death.ogg" )
-	sndPew = audio.loadSound( "pew.ogg" )
-	sndPew2 = audio.loadSound( "pew2.ogg" )
+		audio.rewind( sndBackgroundMusicHandle )
+		sndBackgroundMusic = audio.play( sndBackgroundMusicHandle, { loops=-1 } )
+	end
 end
+
 
 function scene:hide( event )
 
-	local sceneGroup = self.view
+	if event.phase == "will" then
 
-	Runtime:removeEventListener( "axis", onAxisEvent )
-	Runtime:removeEventListener( "key", onKeyEvent )
-	Runtime:removeEventListener( "inputDeviceStatus", onInputDeviceStatusChanged )
-	Runtime:removeEventListener( "enterFrame", onFrameEnter )
+		-- Remove listeners
+		Runtime:removeEventListener( "axis", onAxisEvent )
+		Runtime:removeEventListener( "key", onKeyEvent )
+		Runtime:removeEventListener( "inputDeviceStatus", onInputDeviceStatusChanged )
+		Runtime:removeEventListener( "enterFrame", onFrameEnter )
 
-	--cleanup
-	if #pewPews > 0 then
-		for i=1,#pewPews do
-			local pew = pewPews[i]
-			pew.player = nil
-			if pew.sprite then
-				transition.cancel( pew.sprite )
-				pew.sprite:removeSelf( )
-				pew.sprite = nil
+		-- Stop all audio
+		audio.stop()
+
+	elseif event.phase == "did" then
+
+		-- Cleanup
+		if #pewPews > 0 then
+			for i=1,#pewPews do
+				local pew = pewPews[i]
+				pew.player = nil
+				if pew.sprite then
+					transition.cancel( pew.sprite )
+					pew.sprite:removeSelf()
+					pew.sprite = nil
+				end
 			end
 		end
-	end
+		pewPews = {}
 
-	for k, player in pairs(players) do
-		if player.sprite.group then
-			player.sprite.group:removeSelf( )
-			player.sprite.group = nil
+		for k,player in pairs(players) do
+			if player.sprite.group then
+				player.sprite.group:removeSelf()
+				player.sprite.group = nil
+			end
 		end
+		players = {}
+		numPlayers = 0
+
+		-- Stop spinner
+		spinner:stop()
 	end
-
-	players = {}
-	numPlayers = 0
-	pewPews = {}
-
-	audio.dispose( sndClick )
-	sndClick = nil
-
-	audio.dispose( sndPew )
-	sndPew = nil
-
-	audio.dispose( sndPew2 )
-	sndPew2 = nil
-
-	audio.dispose( sndDamage )
-	sndDamage = nil
-
-	audio.dispose( sndDeath )
-	sndDeath = nil
-
-	audio.stop( sndBackgroundMusicHandle )
-	sndBackgroundMusicHandle = nil
-
-	audio.dispose( sndBackgroundMusic )
-	sndBackgroundMusic = nil
-
-end
-
-
-function scene:destroy( event )
-    local sceneGroup = self.view
 end
 
 
 scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
 
 return scene
