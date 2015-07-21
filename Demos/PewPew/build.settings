@@ -2,22 +2,26 @@ settings =
 {
 	android =
 	{
-        usesFeatures =
-        {
-            { name="android.hardware.touchscreen", required=false },
-            { name="android.hardware.gamepad", required=false },
-            { name="android.software.leanback", required=false },
-        },	
-        supportsTV = true,
-        isGame = true,
+		usesFeatures =
+		{
+			{ name="android.hardware.touchscreen", required=false },
+			{ name="android.hardware.gamepad", required=false },
+			{ name="android.software.leanback", required=false },
+		},
+		supportsTV = true,
+		isGame = true,
 		mainIntentFilter =
 		{
-			categories = { "tv.ouya.intent.category.GAME", "android.intent.category.LEANBACK_LAUNCHER" },
+			categories =
+			{
+				"tv.ouya.intent.category.GAME",
+				"android.intent.category.LEANBACK_LAUNCHER",
+			},
 		}
 	},
 	orientation =
 	{
 		default = "landscapeLeft",
-		supported = { "landscapeLeft", "landscapeRight" }
+		supported = { "landscapeLeft", "landscapeRight" },
 	}
 }
