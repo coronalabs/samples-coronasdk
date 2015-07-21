@@ -69,7 +69,7 @@ local function networkListener2( event )
 end
 
 myImage2 = display.loadRemoteImage( 
-	"https://v6developer.coronalabs.com/demo/hello.png", 
+	"https://developer.coronalabs.com/demo/hello.png", 
 	"GET", 
 	networkListener2, 
 	"helloCopy2.png", 
