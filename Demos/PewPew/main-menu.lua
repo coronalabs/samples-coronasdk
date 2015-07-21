@@ -7,19 +7,40 @@ local scene = composer.newScene()
 
 local sndClickHandle, sndBackgroundHandle, sndBackground
 local controllersTableView
-
+local buttonGroup
+local focusIndex
 
 -- Scene button handler function
-local function handleSceneButton( event )
-
-	local nextScene = event.target.id
-	if ( nextScene == "game" and next( composer.getVariable("controls") ) == nil ) then
+local function handleSceneButton( nextScene )
+	if nextScene == "game" and next( composer.getVariable("controls") ) == nil then
 		print( "You must have at least one player connected!" )
+	elseif nextScene == "exit" then
+		os.exit()
 	else
 		audio.play( sndClickHandle )
 		composer.gotoScene( nextScene, { effect="slideDown", time=600 } )
 	end
 	return true
+end
+
+
+local function widgetHandleSceneButton( event )
+	return handleSceneButton(event.target.id)
+end
+
+
+local function updateMenuSelection()
+	local activefillColor = { (55/255)+(0.3), (68/255)+(0.3), (77/255)+(0.3), 1 }
+	local inactivefillColor = { (55/255)+(0.15), (68/255)+(0.15), (77/255)+(0.15), 1 }
+
+	for i=1,buttonGroup.numChildren do
+		local child = buttonGroup[i]
+		if i == focusIndex then
+			child:setFillColor( unpack( activefillColor ) )
+		else
+			child:setFillColor( unpack( inactivefillColor ) )
+		end
+	end 
 end
 
 
@@ -143,15 +164,15 @@ end
 function scene:create( event )
 
 	local sceneGroup = self.view
-	local buttonGroup = display.newGroup()
+	buttonGroup = display.newGroup()
 
 	-- Play button
 	local playButton = widget.newButton{
 		x = display.contentCenterX,
 		y = 0,
 		id = "game",
-		label = "play",
-		onPress = handleSceneButton,
+		label = "Play",
+		onPress = widgetHandleSceneButton,
 		emboss = false,
 		font = composer.getVariable("appFont"),
 		fontSize = 17,
@@ -171,8 +192,8 @@ function scene:create( event )
 		x = display.contentCenterX,
 		y = 42,
 		id = "select-player-device",
-		label = "configure a controller",
-		onPress = handleSceneButton,
+		label = "Configure a controller",
+		onPress = widgetHandleSceneButton,
 		emboss = false,
 		font = composer.getVariable("appFont"),
 		fontSize = 17,
@@ -187,6 +208,29 @@ function scene:create( event )
 	}
 	buttonGroup:insert( configureButton )
 	buttonGroup.y =  0 - composer.getVariable("letterboxHeight") + buttonGroup.contentHeight/2 + 45
+	sceneGroup:insert( buttonGroup )
+	
+	-- Exit button
+	local configureButton = widget.newButton{
+		x = display.contentCenterX,
+		y = 84,
+		id = "exit",
+		label = "Exit",
+		onPress = widgetHandleSceneButton,
+		emboss = false,
+		font = composer.getVariable("appFont"),
+		fontSize = 17,
+		shape = "rectangle",
+		width = 250,
+		height = 32,
+		fillColor = {
+			default={ (55/255)+(0.15), (68/255)+(0.15), (77/255)+(0.15), 1 },
+			over={ (55/255)+(0.1), (68/255)+(0.1), (77/255)+(0.1), 0.8 }
+		},
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } }
+	}
+	buttonGroup:insert( configureButton )
+	buttonGroup.y =  0 - composer.getVariable("letterboxHeight") + buttonGroup.contentHeight/2
 	sceneGroup:insert( buttonGroup )
 
 	-- Create tableView showing controllers
@@ -206,7 +250,14 @@ function scene:create( event )
 	sndClickHandle = audio.loadSound( "click.ogg" )
 	sndBackgroundHandle = audio.loadSound( "background_menu.ogg" )
 
+	timer.performWithDelay( 1, function (  )
+		focusIndex = 1
+		updateMenuSelection()
+	end )
 end
+
+
+function math.clamp(n, low, high) return math.min(math.max(n, low), high) end
 
 
 local function onKeyEvent( event )
@@ -221,11 +272,20 @@ local function onKeyEvent( event )
 
 	local device = getEventDevice( event )
 
-	if controls[device] and controls[device]["start"] == event.keyName then
-		timer.performWithDelay( 1, function ()
-			audio.play( sndClickHandle )
-			composer.gotoScene( "game", { effect="slideDown", time=600 } )
-		end)
+	if controls[device] then
+		if controls[device]["start"] == event.keyName or controls[device]["fire"] == event.keyName then
+			if focusIndex>0 then
+				timer.performWithDelay( 1, function ()
+					audio.play( sndClickHandle )
+					handleSceneButton( buttonGroup[focusIndex].id )
+				end)
+			end
+		elseif controls[device]["up"] == event.keyName then
+			focusIndex = math.clamp( focusIndex - 1, 1, buttonGroup.numChildren )
+		elseif controls[device]["down"] == event.keyName then
+			focusIndex = math.clamp( focusIndex + 1, 1, buttonGroup.numChildren )
+		end
+		updateMenuSelection()
 	elseif controls[device] == nil then
 		-- not configured device --
 		composer.setVariable( "userDevice", device )
@@ -239,13 +299,68 @@ local function onKeyEvent( event )
 end
 
 
+local function onAxisEvent( event )
+	local getEventDevice = composer.getVariable( "getEventDevice" )
+	local device = getEventDevice( event )
+	local controls = composer.getVariable( "controls" )
+
+	local axisName = ""
+	if event.normalizedValue > 0 then
+		axisName = event.axis.type .. "+"
+	else
+		axisName = event.axis.type .. "-"
+	end
+
+	local accuracy = 0.6
+	
+	if math.abs(event.normalizedValue) > 0.6 then
+		if controls[device] then
+			if controls[device]["start"] == axisName or controls[device]["fire"] == axisName then
+				if focusIndex>0 then
+					timer.performWithDelay( 1, function ()
+						audio.play( sndClickHandle )
+						handleSceneButton( buttonGroup[focusIndex].id )
+					end)
+				end
+			elseif controls[device]["up"] == axisName then
+				focusIndex = math.clamp( focusIndex - 1, 1, buttonGroup.numChildren )
+				Runtime:removeEventListener( "axis", onAxisEvent )
+				timer.performWithDelay( 300, function()
+					Runtime:addEventListener( "axis", onAxisEvent )
+				end )
+			elseif controls[device]["down"] == axisName then
+				focusIndex = math.clamp( focusIndex + 1, 1, buttonGroup.numChildren )
+				Runtime:removeEventListener( "axis", onAxisEvent )
+				timer.performWithDelay( 300, function()
+					Runtime:addEventListener( "axis", onAxisEvent )
+				end )
+			end
+			updateMenuSelection()
+		elseif controls[device] == nil then
+			-- not configured device --
+			local getNiceDeviceName = composer.getVariable("getNiceDeviceName")
+			composer.setVariable( "userDevice", device )
+			if controls[device] == nil then
+				controls[device] = {name=getNiceDeviceName( event )}
+			end
+			timer.performWithDelay( 1, function ()
+				composer.gotoScene( "setup-player", { effect="slideDown", time=600 } )
+			end)
+		end 
+	end
+end
+
+
 function scene:show( event )
 
 	if event.phase == "will" then
 
+		focusIndex = 0
+		updateMenuSelection()
 		updateControlsTable()
 	elseif event.phase == "did" then
 		Runtime:addEventListener( "key", onKeyEvent )
+		Runtime:addEventListener( "axis", onAxisEvent )
 		Runtime:addEventListener( "inputDeviceStatus", onInputDeviceStatusChanged )
 
 		audio.rewind( sndBackgroundHandle )
@@ -259,6 +374,7 @@ function scene:hide( event )
 	if event.phase == "will" then
 		audio.stop( sndBackground )
 		Runtime:removeEventListener( "key", onKeyEvent )
+		Runtime:removeEventListener( "axis", onAxisEvent )
 		Runtime:removeEventListener( "inputDeviceStatus", onInputDeviceStatusChanged )
 	elseif event.phase == "did" then
 	end

@@ -18,6 +18,8 @@ local pewPews = {}
 local pewCounter = nil
 local sndPewHandle, sndPew2Handle, sndDamageHandle, sndDeathHandle, sndBackgroundMusic, sndBackgroundMusicHandle, sndClickHandle
 
+local exitButtonBackground, exitButton
+local exitOnStartUp = false
 
 local function onInputDeviceStatusChanged( event )
 
@@ -55,7 +57,8 @@ local function createPlayer( device, displayName, inputDevice )
 		score = 0,
 		lastDir = controlButtons["down"],
 		hp = 100,
-		inputDevice = inputDevice
+		inputDevice = inputDevice,
+		exitProgress = -1
 	}
 	scene.view:insert( sprite.group )
 end
@@ -116,6 +119,20 @@ local function onKeyEvent( event )
 		if player.canFire and controlDevice["fire"] == event.keyName then
 			createPew( player )
 		end
+		if controls[device]["start"] == event.keyName then
+			if event.phase == "down" then
+				if player.exitProgress<0 then
+					player.exitProgress = system.getTimer()
+				end
+			else
+				player.exitProgress = -1
+				if exitOnStartUp then
+					audio.play( sndClickHandle )
+					composer.gotoScene( "main-menu", { effect="slideUp", time=600 } )
+					return true
+				end
+			end
+		end
 	else
 		if controls[device] and controls[device]["start"] == event.keyName then
 			transition.to( startText, { time=280, alpha=0, transition=easing.outQuad } )
@@ -147,7 +164,7 @@ local function onAxisEvent( event )
 		for c, mod in pairs(controlButtons) do
 			if controlDevice[c] == axisName then
 				local val = math.abs(event.normalizedValue)
-				if val < 0.3 then
+				if val < accuracy then
 					val = 0
 				end
 				player.v.x = player.v.x*(1-math.abs(mod.x)) + math.abs(mod.x)*mod.x*val
@@ -161,6 +178,20 @@ local function onAxisEvent( event )
 		end
 		if player.canFire and controlDevice['fire'] == axisName and event.normalizedValue > accuracy then
 			createPew(player)
+		end
+		if controls[device]["start"] == axisName then
+			if math.abs(event.normalizedValue) > accuracy then
+				if player.exitProgress<0 then
+					player.exitProgress = system.getTimer()
+				end
+			else
+				player.exitProgress = -1
+				if exitOnStartUp then
+					audio.play( sndClickHandle )
+					composer.gotoScene( "main-menu", { effect="slideUp", time=600 } )
+					return true
+				end
+			end
 		end
 	else
 		if controls[device] and controls[device]["start"] == axisName and event.normalizedValue > accuracy then
@@ -176,7 +207,7 @@ local function getDeltaTime()
    local temp = system.getTimer()  -- Get current game time in ms
    local dt = (temp-runtime) / (1000/60)  -- 60fps or 30fps as base
    runtime = temp  -- Store game time
-   return dt
+   return dt, temp
 end
 
 
@@ -193,12 +224,18 @@ end
 
 local function onFrameEnter()
 
+	if exitOnStartUp then 
+		return
+	end
+
 	if not pewCounter then
 		-- pewCounter = display.newText( scene.view, "0", 10, 10)
 	end
 
-	local dt = getDeltaTime()
+	local dt, time = getDeltaTime()
 	local frameVelocity = dt*runFrameSpeed*1 -- instead of 1 should be frame time.
+	local maxExitProgress = -1
+	--tickPlayers
 	for device, player in pairs(players) do
 		player.sprite.group.x = clampToScreen(player.sprite.group.x + player.v.x*frameVelocity, 15, display.contentWidth-15)
 		player.sprite.group.y = clampToScreen(player.sprite.group.y + player.v.y*frameVelocity, 25, display.contentHeight-25)
@@ -230,7 +267,28 @@ local function onFrameEnter()
 				player.sprite.anim:play()
 			end
 			player.anim = anim
-		end		
+		end
+		if player.exitProgress>0 then
+			if maxExitProgress < 0 then
+				maxExitProgress = player.exitProgress
+			else
+				maxExitProgress = math.min( player.exitProgress, maxExitProgress )
+			end
+		end
+	end
+
+	if maxExitProgress < 0 then
+		exitButtonBackground.alpha = 0
+	else
+		local exitProgress = math.min(1, (time - maxExitProgress)/2000)
+		exitButtonBackground.alpha = 0.3
+		exitButtonBackground.width = exitButton.width * exitProgress
+		exitButtonBackground.x = exitButton.x - exitButton.width*0.5 + exitButtonBackground.width*0.5
+		if exitProgress >= 1 then
+			exitButtonBackground.alpha = 0.6
+			exitOnStartUp = true
+			return
+		end
 	end
 
 	-- Tick pew pews
@@ -249,18 +307,9 @@ local function onFrameEnter()
 					end
 					pew.dead = true
 					pew.sprite = nil
-					-- pew.player = nil
-					-- pewPews[i] = nil
 				else
 					for k, player in pairs(players) do
 						if player ~= pew.player and player.hp > 0 and pew.sprite and math.abs(player.sprite.group.x - pew.sprite.x) < 20 and math.abs(player.sprite.group.y - pew.sprite.y) < 20 then
-							-- local text = display.newText( scene.view, " +1 " , pew.player.sprite.x, pew.player.sprite.y )
-							-- transition.to( text, {alpha=0, y=pew.player.sprite.y-display.contentHeight, time=1500, onComplete = function (  )
-							-- 	text:removeSelf( )
-							-- end} )
-							-- pew.player.score = pew.player.score + 1
-							-- pew.player.sprite[2].text = pew.player.name .. ' (' .. tostring(pew.player.score) .. ')'
-							-- pew.player.sprite[2].text = tostring(pew.player.score)
 
 							if player.inputDevice then
 								player.inputDevice:vibrate()
@@ -329,7 +378,7 @@ function scene:create( event )
 	display.setDefault( "textureWrapY", textureWrapDefault )
 
 	-- Add back button
-	local exitButton = widget.newButton{
+	exitButton = widget.newButton{
 		label = "exit",
 		onPress = function()
 			audio.play( sndClickHandle )
@@ -349,6 +398,9 @@ function scene:create( event )
 	exitButton.x = exitButton.width*0.5 - composer.getVariable( "letterboxWidth" )
 	exitButton.y = display.contentHeight - exitButton.height*0.5 + composer.getVariable( "letterboxHeight" )
 	
+	exitButtonBackground = display.newRect( sceneGroup, exitButton.x, exitButton.y, exitButton.width, exitButton.height )
+	exitButtonBackground.alpha = 0
+
 	startText = display.newText{
 		parent = sceneGroup,
 		x = display.contentCenterX,
@@ -382,6 +434,8 @@ function scene:show( event )
 		startText.alpha = 1
 		spinner.alpha = 1
 		spinner:start()
+		exitButtonBackground.alpha = 0
+		exitOnStartUp = false
 
 	elseif event.phase == "did" then
 		-- Add listeners
