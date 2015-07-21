@@ -45,7 +45,7 @@ local function networkListener( event )
 end
 
 network.download( 
-	"http://www.coronalabs.com/links/demo/hello.png", 
+	"https://developer.coronalabs.com/demo/hello.png", 
 	"GET", 
 	networkListener, 
 	"helloCopy.png", 
@@ -69,7 +69,7 @@ local function networkListener2( event )
 end
 
 myImage2 = display.loadRemoteImage( 
-	"http://www.coronalabs.com/links/demo/hello.png", 
+	"https://v6developer.coronalabs.com/demo/hello.png", 
 	"GET", 
 	networkListener2, 
 	"helloCopy2.png", 
