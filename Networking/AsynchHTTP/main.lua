@@ -37,8 +37,10 @@ local url = "https://encrypted.google.com"
 
 local myTitle = display.newText("AsyncHTTP", display.contentCenterX, 15, native.systemFont, 20)
 local myText = display.newText("(Waiting for response)", display.contentCenterX, 45, native.systemFont, 14)
-local myInfo = native.newTextBox(display.contentCenterX, display.contentCenterY + 30, display.contentWidth - 20, 400)
-myInfo.font = native.newFont("Courier", 8)
+
+local myInfoBackground = display.newRect( display.contentCenterX, display.contentCenterY + 30, display.contentWidth - 20, 400 )
+local myInfo = display.newText("", myInfoBackground.x, myInfoBackground.y, myInfoBackground.width - 10, myInfoBackground.height - 10, "Courier New", 8)
+myInfo:setFillColor( 0, 0, 0 )
 
 local function networkListener( event )
 	if ( event.isError ) then
