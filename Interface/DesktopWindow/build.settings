@@ -1,0 +1,72 @@
+settings =
+{
+	-- If an orientation table is defined, then the width and height defined in the "config.lua"
+	-- and below will be relative to a portrait orientation like how it works on Android and iOS.
+	-- This means that for a landscape orientation, the width is the height and the height is the width.
+	-- This makes your Corona project settings portable on both desktop and mobile plaforms.
+	orientation =
+	{
+		default = "landscapeRight",
+		supported =
+		{
+			"landscapeLeft", "landscapeRight",
+		},
+	},
+
+	-- This table configures the desktop window for OS X and Win32 apps.
+	window =
+	{
+		-- Sets up how the window should be launched on startup. (Default is "normal".)
+		-- Supports: "normal", "minimized", "maximized", "fullscreen"
+		defaultMode = "fullscreen",
+
+		-- Sets the default launch width and height of the view/client area of the window.
+		-- This is the region within the borders of the window that Corona renders to.
+		-- Ideally, this should match your "config.lua" content width and height, or larger.
+		defaultViewWidth = 640,
+		defaultViewHeight = 960,
+
+		-- Set to true to allow the end-user to resize the window.
+		-- If true, then you may need to handle Corona's "resize" event to relayout your content.
+		-- The window is not resizable by default. You must opt-in by setting this to true.
+		resizable = true,
+
+		-- These settings only apply if "resizable" is set to true up above.
+		-- Prevents the user from resizing the window to a size smaller than these values.
+		-- This width and height is the region within the borders of the window.
+		-- The width and height should be set to your "config.lua" file's content width and height.
+		-- If settings not specified, then the window can be sized down to whatever the OS allows.
+		minViewWidth = 320,
+		minViewHeight = 480,
+
+		-- Enables/disables the window's close button. Enabled by default.
+		-- If disabled, then you must close the window yourself in Lua via native.requestExit().
+		-- Note: Corona does not currently provide an event when the close button is clicked on.
+		enableCloseButton = true,
+
+		-- Enables/disables the window's minimize button. Enabled by default.
+		enableMinimizeButton = true,
+
+		-- Enables/disables the window's maximize button. Disabled by default.
+		-- Note that the window will be resized when maximized and restored.
+		-- If enabled, you may need to handle Corona's "resize" event to relayout your content.
+		enableMaximizeButton = true,
+
+		-- Sets the window's title bar text. (No title bar text by default.)
+		-- See sample project "GettingStarted/HelloWorldLocalized" on how to localize this.
+		titleText =
+		{
+			default = "Desktop Window",
+		},
+	},
+
+	-- This makes the build exclude files from the app's "system.ResourceDirectory".
+	excludeFiles =
+	{
+		all = { "*.ico", "*.icns" },
+		android = { "Icon*.png", "Default-568h@2x.png" },
+		iphone = { "Icon*dpi.png" },
+		osx = { "Icon*.png", "Default-568h@2x.png" },
+		win32 = { "Icon*.png", "Default-568h@2x.png" },
+	},
+}
