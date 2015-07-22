@@ -30,6 +30,8 @@
 -- Supports Graphics 2.0
 ---------------------------------------------------------------------------------------
 
+display.setStatusBar( display.HiddenStatusBar )
+
 local json = require("json")
 
 -- Access Google over SSL:
