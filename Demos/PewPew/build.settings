@@ -23,5 +23,15 @@ settings =
 	{
 		default = "landscapeLeft",
 		supported = { "landscapeLeft", "landscapeRight" },
-	}
+	},
+	window =
+	{
+		suspendWhenMinimized = true,
+		defaultViewWidth = 640,
+		defaultViewHeight = 960,
+		titleText =
+		{
+			default = "Pew Pew!",
+		},
+	},
 }

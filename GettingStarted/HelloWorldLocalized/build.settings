@@ -35,4 +35,19 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		titleText =
+		{
+			default = "Hello World",
+			["fr"] = "Bonjour, le monde!",
+			["pt"] = "Olá mundo!",
+			["zh-hant"] = "世界你好！",
+			["zh-hans"] = "世界你好！",
+			["de"] = "Hallo, Welt!",
+			["it"] = "Salve, mondo!",
+			["ja"] = "世界よ、こんにちは！",
+			["es"] = "¡Hola mundo!",
+		},
+	},
 }

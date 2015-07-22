@@ -44,11 +44,18 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		titleText =
+		{
+			default = "Local Notifications",
+		},
+	},
 	plugins =
-    {
-        ["plugin.notifications"] =
-        {
-            publisherId = "com.coronalabs"
-        },
-    },
+	{
+		["plugin.notifications"] =
+		{
+			publisherId = "com.coronalabs"
+		},
+	},
 }

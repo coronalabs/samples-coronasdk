@@ -41,4 +41,11 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		titleText =
+		{
+			default = "Photo Picker",
+		},
+	},
 }

@@ -28,6 +28,15 @@ settings =
 				"Icon-Small@2x.png",
 				"Icon-Small@3x.png"
 			},
-		}
+		},
+	},
+	window =
+	{
+		defaultViewWidth = 640,
+		defaultViewHeight = 960,
+		titleText =
+		{
+			default = "Input Devices",
+		},
 	},
 }

@@ -8,9 +8,7 @@ settings =
 	orientation =
 	{
 		default = "portrait",
---		default = "landscapeRight",
 		supported = { "portrait" }
--- 		supported = { "landscapeLeft", "landscapeRight" }
 	},
 	android =
 	{
@@ -43,6 +41,14 @@ settings =
 				"Icon-Small-50.png", 
 				"Icon-Small-50@2x.png",
 			},
+		},
+	},
+	window =
+	{
+		suspendWhenMinimized = true,
+		titleText =
+		{
+			default = "Streaming Video (Portrait)",
 		},
 	},
 }

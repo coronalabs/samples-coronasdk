@@ -25,4 +25,11 @@ settings =
 			".permission.C2D_MESSAGE",
 		},
 	},
+	window =
+	{
+		titleText =
+		{
+			default = "Google Push Notifications",
+		},
+	},
 }

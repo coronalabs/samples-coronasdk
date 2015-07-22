@@ -37,4 +37,17 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		resizable = true,
+		enableMaximizeButton = true,
+		minViewWidth = 480,
+		minViewHeight = 480,
+		defaultViewWidth = 640,
+		defaultViewHeight = 640,
+		titleText =
+		{
+			default = "PNG-to-Box2D",
+		},
+	},
 }

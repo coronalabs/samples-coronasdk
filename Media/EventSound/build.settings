@@ -35,4 +35,12 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		suspendWhenMinimized = true,
+		titleText =
+		{
+			default = "Event Sound",
+		},
+	},
 }

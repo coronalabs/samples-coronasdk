@@ -36,4 +36,11 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		titleText =
+		{
+			default = "File Demo",
+		},
+	},
 }

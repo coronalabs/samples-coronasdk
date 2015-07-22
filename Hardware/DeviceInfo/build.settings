@@ -45,4 +45,11 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		titleText =
+		{
+			default = "Device Info",
+		},
+	},
 }
