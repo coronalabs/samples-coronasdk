@@ -42,4 +42,12 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		suspendWhenMinimized = true,
+		titleText =
+		{
+			default = "Streaming Video",
+		},
+	},
 }

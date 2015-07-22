@@ -54,6 +54,15 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		defaultViewWidth = 320,
+		defaultViewHeight = 480,
+		titleText =
+		{
+			default = "Flurry Sample",
+		},
+	},
 	plugins =
 	{
 		-- key is the name passed to Lua's 'require()'

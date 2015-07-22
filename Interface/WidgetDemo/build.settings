@@ -35,4 +35,13 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		defaultViewWidth = 320,
+		defaultViewHeight = 480,
+		titleText =
+		{
+			default = "Widget Demo",
+		},
+	},
 }

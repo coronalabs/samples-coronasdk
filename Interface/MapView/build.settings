@@ -60,4 +60,11 @@ settings =
 			NSLocationWhenInUseUsageDescription = "A description to the user of why you need access to location services."
 		},
 	},
+	window =
+	{
+		titleText =
+		{
+			default = "Map View",
+		},
+	},
 }

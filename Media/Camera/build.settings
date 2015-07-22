@@ -48,4 +48,11 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		titleText =
+		{
+			default = "Camera",
+		},
+	},
 }

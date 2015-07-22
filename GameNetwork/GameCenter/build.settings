@@ -36,6 +36,13 @@ settings =
 			CFBundleIdentifier = "com.appledts.GKTapper",	-- Apple's GameCenter Example (GKTapper)
 		},
 	},
+	window =
+	{
+		titleText =
+		{
+			default = "Game Center",
+		},
+	},
 	-- Required since build 2014.2455
 	plugins =
 	{

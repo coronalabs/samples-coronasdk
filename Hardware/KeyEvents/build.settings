@@ -10,4 +10,17 @@ settings =
 		default = "portrait", 
 		supported = { "landscapeLeft", "landscapeRight", "portrait", "portraitUpsideDown" },
 	},
+	window =
+	{
+		resizable = true,
+		enableMaximizeButton = true,
+		minViewWidth = 320,
+		minViewHeight = 480,
+		defaultViewWidth = 320,
+		defaultViewHeight = 480,
+		titleText =
+		{
+			default = "Key Events",
+		},
+	},
 }

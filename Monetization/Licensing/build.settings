@@ -5,17 +5,24 @@
 
 settings =
 {
-    orientation =
-    {
-            default = "portrait",
-			supported = { "portrait" }
-    },
-    android =
+	orientation =
+	{
+		default = "portrait",
+		supported = { "portrait" }
+	},
+	android =
 	{
 		usesPermissions =
 		{
 			"android.permission.INTERNET",
 			"com.android.vending.CHECK_LICENSE"
+		},
+	},
+	window =
+	{
+		titleText =
+		{
+			default = "Licensing",
 		},
 	},
 }

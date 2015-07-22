@@ -71,4 +71,11 @@ settings =
 			}
 		}
 	}
+	window =
+	{
+		titleText =
+		{
+			default = "Facebook",
+		},
+	},
 }

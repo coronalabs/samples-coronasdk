@@ -37,4 +37,11 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		titleText =
+		{
+			default = "Composer",
+		},
+	},
 }

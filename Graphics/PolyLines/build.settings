@@ -32,7 +32,14 @@ settings =
 				"Icon-Small-40@2x.png",
 				"Icon-Small-50.png", 
 				"Icon-Small-50@2x.png",
-            },
+			},
+		},
+	},
+	window =
+	{
+		titleText =
+		{
+			default = "PolyLines",
 		},
 	},
 }

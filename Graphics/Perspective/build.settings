@@ -35,4 +35,17 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		enableMaximizeButton = true,
+		resizable = true,
+		minViewWidth = 320,
+		minViewHeight = 480,
+		defaultViewWidth = 640,
+		defaultViewHeight = 960,
+		titleText =
+		{
+			default = "Perspective",
+		},
+	},
 }

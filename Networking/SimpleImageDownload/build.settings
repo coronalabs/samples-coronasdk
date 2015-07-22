@@ -42,4 +42,11 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		titleText =
+		{
+			default = "Simple Image Download",
+		},
+	},
 }

@@ -46,4 +46,18 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		suspendWhenMinimized = true,
+		resizable = true,
+		enableMaximizeButton = true,
+		minViewWidth = 320,
+		minViewHeight = 480,
+		defaultViewWidth = 320,
+		defaultViewHeight = 480,
+		titleText =
+		{
+			default = "System Events",
+		},
+	},
 }

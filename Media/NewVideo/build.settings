@@ -42,4 +42,13 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		defaultViewWidth = 640,
+		defaultViewHeight = 960,
+		titleText =
+		{
+			default = "New Video",
+		},
+	},
 }

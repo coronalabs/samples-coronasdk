@@ -43,12 +43,21 @@ settings =
 			},
 		},
 	},
+	window =
+	{
+		defaultViewWidth = 640,
+		defaultViewHeight = 960,
+		titleText =
+		{
+			default = "In-App Purchase",
+		},
+	},
 	plugins =
-    {
-        ["plugin.google.iap.v3"] =
-        {
-            publisherId = "com.coronalabs",
-            supportedPlatforms = { android=true }
-        },
-    },
+	{
+		["plugin.google.iap.v3"] =
+		{
+			publisherId = "com.coronalabs",
+			supportedPlatforms = { android=true }
+		},
+	},
 }
