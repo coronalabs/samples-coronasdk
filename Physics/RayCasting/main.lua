@@ -1,190 +1,170 @@
--- 
--- Abstract: Ray casting sample project
--- Demonstrates ray casting
--- 
+
+-- Abstract: RayCasting
 -- Version: 1.0
--- 
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
--- Copyright (C) 2013 Corona Labs Inc. All Rights Reserved.
---
---	Supports Graphics 2.0
+-- Sample code is MIT licensed; see http://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
-
-local centerX = display.contentCenterX
-local centerY = display.contentCenterY
-local _W = display.contentWidth
-local _H = display.contentHeight
-
-local physics = require( "physics" )
-physics.start()
 
 display.setStatusBar( display.HiddenStatusBar )
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Ray Casting", showBuildNum=true } )
 
--- We need this to make the object draggable.
-local gameUI = require("gameUI")
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local beamGroup = display.newGroup()
+local mirrorGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
 
---local instructionLabel = display.newText( "drag any object into the ray", 0, 0, native.systemFontBold, 20 )
-display.newText( "drag any object into the ray", centerX, 20, native.systemFontBold, 20 )
+-- Set up physics engine
+local physics = require("physics")
+physics.start()
+physics.setGravity( 0,0 )
+physics.setDrawMode( "normal" )
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
--- Add all the physics objects.
+-- Declare initial variables
+local turret
+local maxBeams = 50
+local turretSpeed = 50
 
-local ground = display.newImage( "ground.png", 160, 445 )
-ground.myName = "ground"
-physics.addBody( ground, "static", { friction=0.5, bounce=0.3 } )
+-- Load sound
+local sndLaserHandle = audio.loadSound( "laser-blast.wav" )
 
-local crate1 = display.newImage( "crate.png", 120, 392 )
-crate1.myName = "crate1"
-physics.addBody( crate1 )
-crate1:addEventListener( "touch", gameUI.dragBody ) -- Make the object draggable.
 
-local crate2 = display.newImage( "crate.png", 200, 424 )
-crate2.myName = "crate2"
-physics.addBody( crate2 )
-crate2:addEventListener( "touch", gameUI.dragBody ) -- Make the object draggable.
+local function clearObject( object )
+	display.remove( object )
+	object = nil
+end
 
-local crate3 = display.newImage( "crate.png", 160, 312 )
-crate3.myName = "crate3"
-physics.addBody( crate3 )
-crate3:addEventListener( "touch", gameUI.dragBody ) -- Make the object draggable.
 
-local crate4 = display.newImage( "crate.png", 160, 262 )
-crate4.myName = "crate4"
-physics.addBody( crate4 )
-crate4:addEventListener( "touch", gameUI.dragBody ) -- Make the object draggable.
+local function resetBeams()
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
-
-local ray
-
-local ray_from_x = 64
-local ray_from_y = 320
-local ray_to_x = 256
-local ray_to_y = 384
-
-local unbroken_ray = display.newLine( ray_from_x, ray_from_y, ray_to_x, ray_to_y )
-unbroken_ray.strokeWidth = 2
-unbroken_ray:setStrokeColor( 1, 0, 0 )
-
-local reflected_ray
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
-
-local order_label = {}
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
-
-local cleanup_at_start_of_gameloop = function()
-
-	-- Update their positions by removing their old instances
-	-- and creating a new one.
-	display.remove( ray )
-	ray = nil
-
-	display.remove( reflected_ray )
-	reflected_ray = nil
-
-	for i in pairs(order_label)
-	do
-		display.remove( order_label[i] )
+	-- Clear all beams/bursts from display
+	for i = beamGroup.numChildren,1,-1 do
+		local child = beamGroup[i]
+		display.remove( child )
+		child = nil
 	end
 
-	order_label = {}
+	-- Reset beam group alpha
+	beamGroup.alpha = 1
 
+	-- Restart turret rotating after firing is finished
+	turret.angularVelocity = turretSpeed
 end
 
-local debug_output_object_hit = function( hits )
 
-	-- There's at least one hit.
-	print( "Hit count: ", #hits )
+local function drawBeam( startX, startY, endX, endY )
 
-	-- Output all the results.
-	for i,v in ipairs(hits)
-	do
-		print( "Hit: ", i, v.object.myName, " Position: ", v.position.x, v.position.y, " Surface normal: ", v.normal.x, v.normal.y, " Fraction: ", v.fraction )
-	end
-
+	-- Draw a series of overlapping lines to represent the beam
+	local beam1 = display.newLine( beamGroup, startX, startY, endX, endY )
+	beam1.strokeWidth = 2 ; beam1:setStrokeColor( 1, 0.312, 0.157, 1 ) ; beam1.blendMode = "add" ; beam1:toBack()
+	local beam2 = display.newLine( beamGroup, startX, startY, endX, endY )
+	beam2.strokeWidth = 4 ; beam2:setStrokeColor( 1, 0.312, 0.157, 0.706 ) ; beam2.blendMode = "add" ; beam2:toBack()
+	local beam3 = display.newLine( beamGroup, startX, startY, endX, endY )
+	beam3.strokeWidth = 6 ; beam3:setStrokeColor( 1, 0.196, 0.157, 0.392 ) ; beam3.blendMode = "add" ; beam3:toBack()
 end
 
-local label_all_hits = function( hits )
 
-	for i,v in ipairs(hits)
-	do
-		order_label[i] = display.newText( tostring( i ), v.position.x, v.position.y, native.systemFontBold, 15 )
-	end
+local function castRay( startX, startY, endX, endY )
 
-end
+	-- Perform ray cast
+	local hits = physics.rayCast( startX, startY, endX, endY, "closest" )
 
-local draw_line_to_hit = function( hit )
+	-- There is a hit; calculate the entire ray sequence (initial ray and reflections)
+	if ( hits and beamGroup.numChildren <= maxBeams ) then
 
-	-- Draw a line to the hit.
-	ray = display.newLine( ray_from_x, ray_from_y, hit.position.x, hit.position.y )
+		-- Store first hit to variable (just the "closest" hit was requested, so use 'hits[1]')
+		local hitFirst = hits[1]
 
-end
+		-- Store the hit X and Y position to local variables
+		local hitX, hitY = hitFirst.position.x, hitFirst.position.y
 
-local draw_reflection_of_hit = function( hit )
+		-- Place a visual "burst" at the hit point and animate it
+		local burst = display.newImageRect( beamGroup, "burst.png", 64, 64 )
+		burst.x, burst.y = hitX, hitY
+		burst.blendMode = "add"
+		transition.to( burst, { time=1000, rotation=45, alpha=0, transition=easing.outQuad, onComplete=clearObject } )
 
-	-- Draw the reflection of the hit.
-	local reflected_ray_direction_x, reflected_ray_direction_y = physics.reflectRay( ray_from_x, ray_from_y, hit )
+		-- Draw the next beam
+		drawBeam( startX, startY, hitX, hitY )
 
-	--print( "Reflected direction: ", reflected_ray_direction_x, " ", reflected_ray_direction_y )
+		-- Check for and calculate the reflected ray
+		local reflectX, reflectY = physics.reflectRay( startX, startY, hitFirst )
+		local reflectLen = 1600
+		local reflectEndX = ( hitX + ( reflectX * reflectLen ) )
+		local reflectEndY = ( hitY + ( reflectY * reflectLen ) )
 
-	local reflected_ray_length = 64
+		-- If the ray is reflected, cast another ray
+		if ( reflectX and reflectY) then
+			timer.performWithDelay( 40, function() castRay( hitX, hitY, reflectEndX, reflectEndY ); end )
+		end
 
-	reflected_ray = display.newLine( hit.position.x,
-										hit.position.y,
-										( hit.position.x + ( reflected_ray_direction_x * reflected_ray_length ) ),
-										( hit.position.y + ( reflected_ray_direction_y * reflected_ray_length ) ) )
-	reflected_ray.strokeWidth = 2
-	reflected_ray:setStrokeColor( 0, 1, 0 )
-
-end
-
-local gameloop = function(event) 
-
-	cleanup_at_start_of_gameloop()
-
-	-- "closest" is the default behavior, when none are specified.
-	local hits = physics.rayCast( ray_from_x, ray_from_y, ray_to_x, ray_to_y )
-	--local hits = physics.rayCast( ray_from_x, ray_from_y, ray_to_x, ray_to_y, "closest" )
-	--local hits = physics.rayCast( ray_from_x, ray_from_y, ray_to_x, ray_to_y, "any" )
-	--local hits = physics.rayCast( ray_from_x, ray_from_y, ray_to_x, ray_to_y, "sorted" )
-	--local hits = physics.rayCast( ray_from_x, ray_from_y, ray_to_x, ray_to_y, "unsorted" )
-
-	if hits then
-
-		--debug_output_object_hit( hits )
-
-		label_all_hits( hits )
-
-		-- The first hit.
-		local hit = hits[ 1 ]
-		-- The last hit.
-		--local hit = hits[ #hits ]
-
-		draw_line_to_hit( hit )
-
-		draw_reflection_of_hit( hit )
-
+	-- Else, ray casting sequence is complete
 	else
 
-		-- There's no hit.
-		ray = display.newLine( ray_from_x, ray_from_y, ray_to_x, ray_to_y )
+		-- Draw the final beam
+		drawBeam( startX, startY, endX, endY )
 
+		-- Fade out entire beam group after a short delay
+		transition.to( beamGroup, { time=800, delay=400, alpha=0, onComplete=resetBeams } )
 	end
-
-	ray.strokeWidth = 2
-
 end
 
-Runtime:addEventListener("enterFrame", gameloop)
+
+local function fireOnTimer( event )
+
+	-- Ensure that all previous beams/bursts are cleared/complete before firing
+	if beamGroup.numChildren == 0 then
+
+		-- Stop rotating turret as it fires
+		turret.angularVelocity = 0
+
+		-- Play laser sound
+		audio.play( sndLaserHandle )
+
+		-- Calculate ending x/y of beam
+		local xDest = turret.x - (math.cos(math.rad(turret.rotation+90)) * 1600 )
+		local yDest = turret.y - (math.sin(math.rad(turret.rotation+90)) * 1600 )
+
+		-- Cast the initial ray
+		castRay( turret.x, turret.y, xDest, yDest )
+	end
+end
+
+
+-- Set up mirror positions
+local mirrorSet = {
+	{ 160, 90, 90 },    -- top
+	{ 280, 170, -35 },  -- right-upper
+	{ 280, 310, 35 },   -- right-lower
+	{ 160, 390, 90 },   -- bottom
+	{ 40, 310, -35 },   -- left-upper
+	{ 40, 170, 35 }     -- left-lower
+}
+
+-- Create mirrors
+for m = 1,#mirrorSet do
+	local mirror = display.newImageRect( mirrorGroup, "mirror.png", 20, 100 )
+	physics.addBody( mirror, "static", { shape={-9,-49,9,-49,9,49,-9,49} } )
+	mirror.x, mirror.y, mirror.rotation = mirrorSet[m][1], mirrorSet[m][2], mirrorSet[m][3]
+end
+
+-- Create turret
+turret = display.newImageRect( mirrorGroup, "turret.png", 48, 48 )
+physics.addBody( turret, "dynamic", { radius=18 } )
+turret.x, turret.y = display.contentCenterX, display.contentCenterY
+
+-- Start rotating turret
+turret.angularVelocity = turretSpeed
+
+-- Start repeating timer to fire beams
+timer.performWithDelay( 2000, fireOnTimer, 0 )

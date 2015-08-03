@@ -5,11 +5,11 @@
 
 settings =
 {
-	orientation =
-	{
+	orientation = {
 		default = "portrait",
-		supported = { "portrait" }
-	},
+		supported = { "portrait", "portraitUpsideDown" }
+		},
+
 	iphone =
 	{
 		plist =
@@ -35,6 +35,7 @@ settings =
 			},
 		},
 	},
+
 	window =
 	{
 		titleText =
