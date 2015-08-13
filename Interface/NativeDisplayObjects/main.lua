@@ -41,6 +41,7 @@
 --	v1.6	19/7/12		Updated with new textfield listener type.
 --  v1.7	11/4/2013	Added "Dismiss KB" button for Textbox
 --  v1.8	12/10/2014	Updated to support auto-sizing of text fields.
+--  v1.9	08/12/2015  Added TextField and TextBox support on Windows.
 --
 -- Comments: 
 --		The program detects it running in the Corona simulator and changes the
@@ -235,21 +236,8 @@ local textFieldButtonPress = function( event )
 		if textBox then return end	-- return if other object active
 		
 		-- Create Native Text Field
-		if isSimulator then
-			-- Simulator (simulate the textField area)
-			textField = display.newRect( 15, 80, 280, 30 )	
-			textField:setFillColor( 1, 1, 1 )
-			textMessage( "Native TextField not supported in Simulator", "Middle", 1, 16)
-
-			-- Show Dismiss Keyboard button if in portrait mode		
-			if isPortrait then
-				clrKbButton.isVisible = true
-			end
-		else
-			textField = native.newTextField( 15, 80, 280, 30 )
-			textField:addEventListener( "userInput", fieldHandler )
-		end		
-		
+		textField = native.newTextField( 15, 80, 280, 30 )
+		textField:addEventListener( "userInput", fieldHandler )
 --		textField.anchorX = 0
 		textField.anchorY = 0		
 		textField.isVisible = false
@@ -278,17 +266,9 @@ local textBoxButtonPress = function( event )
 		-- Only allow one text object at a time
 		if textField then return end	-- return if other object active
 		
-		-- Create Native Text Field
-		if isSimulator then	
-			-- Simulator (simulate the textBox area)
-			textBox = display.newRect( 15, 70, 280, 70 )	-- x,y,w,h
-			textBox:setFillColor( 255, 255, 255 )
-			textMessage( "Native TextBox not supported in Simulator", "Middle", 1, 16)
-		else
-			textBox = native.newTextBox( 15, 70, 280, 70 )
-			textBox:addEventListener( "userInput", fieldHandler )
-		end	
-
+		-- Create Native Text Box
+		textBox = native.newTextBox( 15, 70, 280, 70 )
+		textBox:addEventListener( "userInput", fieldHandler )
 --		textBox.anchorX = 0
 		textBox.anchorY = 0	
 		textBox.text = "This is information placed into the Text Box all on one line.\nThis is text forced to a new line.\nYou can now edit this box."

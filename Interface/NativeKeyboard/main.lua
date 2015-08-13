@@ -3,7 +3,7 @@
 --
 -- Date: November 30, 2010
 --
--- Version: 1.3
+-- Version: 1.6
 --
 -- File name: main.lua
 --
@@ -28,6 +28,7 @@
 --  v1.3	Increased native.textField height when running on Android device
 --	v1.4 	Updated with new textfield listener type.
 --  v1.5	Updated to support auto-sized text field heights.
+--  v1.6	Added native TexField and TextBox support on Windows.
 --
 -- Comments: Slight tweak added for Android textfields, which have more chrome
 --
@@ -230,18 +231,6 @@ local listener = function( event )
 	native.setKeyboardFocus( nil )
 	
 	return true
-end
-
--- Determine if running on Corona Simulator
---
-local isSimulator = "simulator" == system.getInfo("environment")
-if system.getInfo( "platformName" ) == "Mac OS X" then isSimulator = false; end
-
--- Native Text Fields not supported on Simulator
---
-if isSimulator then
-	msg = display.newText( "Native Text Fields not supported on Simulator!", display.contentCenterX, 280, native.systemFont, 12 )
-	msg:setFillColor( 1, 1, 0 )
 end
 
 -- Add listener to background for user "tap"
