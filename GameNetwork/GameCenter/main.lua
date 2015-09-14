@@ -1,357 +1,257 @@
---*********************************************************************************************
--- ====================================================================
--- Corona SDK "GameCenter Tapper" Sample Code
--- ====================================================================
---
--- File: main.lua
---
--- Version 1.0
---
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
--- Copyright (C) 2013 Corona Labs Inc. All Rights Reserved.
---
--- Supports Graphics 2.0
---*********************************************************************************************
 
-display.setStatusBar( display.DarkStatusBar )
+-- Abstract: Apple Game Center
+-- Version: 1.0
+-- Sample code is MIT licensed; see http://www.coronalabs.com/links/code/license
+---------------------------------------------------------------------------------------
 
--- Define reference points locations anchor ponts
-local TOP_REF = 0
-local BOTTOM_REF = 1
-local LEFT_REF = 0
-local RIGHT_REF = 1
-local CENTER_REF = 0.5
+display.setStatusBar( display.HiddenStatusBar )
 
-local centerX = display.contentCenterX
-local centerY = display.contentCenterY
-local _W = display.contentWidth
-local _H = display.contentHeight
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Apple Game Center", showBuildNum=true } )
 
--- create app background
-local bg = display.newImageRect( "assets/gcbg.jpg", 320, 480 )
-bg.x, bg.y = display.contentWidth*0.5, display.contentHeight*0.5
+-- The following property represents the bottom Y position of the sample title bar
+local titleBarBottom = sampleUI.titleBarBottom
 
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+
+local composer = require( "composer" )
+display.getCurrentStage():insert( sampleUI.backGroup )
+display.getCurrentStage():insert( composer.stage )
+display.getCurrentStage():insert( sampleUI.frontGroup )
+
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
+
+local gameNetwork = require( "gameNetwork" )
 local widget = require( "widget" )
-local composer = require "composer"
-local ui = require "userinterface"	-- handles various user-interface related tasks
-local gameNetwork = require "gameNetwork"
 
--- create toolbar to go at the top of the screen
-local titleBar = display.newImage( "assets/woodbg.png", centerX, 40 )
+composer.recycleOnSceneChange = false
 
--- create embossed text to go on toolbar
-local titleText = display.newEmbossedText( "Corona GCTapper", centerX, centerY, ui.boldFont, 20 )
-titleText:setFillColor( 1 )
-titleText.x, titleText.y = 160, titleBar.y
+composer.setVariable( "initializedGC", false )
+composer.setVariable( "leaderboardsData", {} )
+composer.setVariable( "achievementData", {} )
 
--- create a shadow underneath the titlebar
-local shadow = display.newImage( "assets/shadow.png" )
+composer.setVariable( "debugOutput", false )  -- Set true to enable console print output
 
-shadow.anchorX = 0
-shadow.anchorY = 0
-shadow.x, shadow.y = 0, 64
-shadow.xScale = 320 / shadow.contentWidth; shadow.yScale = 0.35
+local aliasGroup = display.newGroup()
 
--- setup composer scenes (non-external module scenes)
-local scoreScene = composer.newScene( "scoreScene" )
-local boardScene = composer.newScene( "boardScene" )
 
--- variables (and forward declarations)
-local requestCallback, userScoreText, currentBoardText, userBestText, bestLabel, bestText
-local leaderBoards, achievements = {}, {}
-	leaderBoards.Easy = "com.appledts.EasyTapList"
-	leaderBoards.Hard = "com.appledts.HardTapList"
-	leaderBoards.Awesome = "com.appledts.AwesomeTapList"
-	achievements.OneTap = "com.appletest.one_tap"
-	achievements.TwentyTaps = "com.appledts.twenty_taps"
-	achievements.OneHundredTaps = "com.appledts.one_hundred_taps"
-local currentBoard = "Easy"
-local userScore, userBest, bestTextValue, topScorer = 0, "0 Taps", "0 Taps", "???"
-
--- private functions --------------------------------------------------------------------
-
-local function setUserScore( value )
-	userScore = value
-	if userScoreText then
-		local scoreTapString = tostring( userScore ) .. " Taps"; if userScore == 1 then scoreTapString = "1 Tap"; end
-		ui.updateLabel( userScoreText, scoreTapString, display.contentWidth-25, 270, TOP_REF, RIGHT_REF )
-	end
-end
-
-local function offlineAlert() 
-	native.showAlert( "GameCenter Offline", "Please check your internet connection.", { "OK" } )
-end
-
--- button event handlers ----------------------------------------------------------------
-
-local function onIncrementScore( event )
-	setUserScore( userScore+1 )
-	
-	-- unlock achievements when specific tap requirement is met
-	if loggedIntoGC then
-		local message
-		
-		if userScore == 1 then
-			gameNetwork.request( "unlockAchievement", {
-				achievement = {
-					identifier=achievements["OneTap"],
-					percentComplete=100,
-					showsCompletionBanner=true,
-				}
-			}); message = "You completed the \"Just One Tap\" achievement!"
-		
-		elseif userScore == 10 then
-			gameNetwork.request( "unlockAchievement", {
-				achievement = {
-					identifier=achievements["TwentyTaps"],
-					percentComplete=50,
-					showsCompletionBanner=true,
-				}
-			}); message = "You achieved 50% of the \"Work the taps\" achievement!"
-		
-		elseif userScore == 20 then
-			gameNetwork.request( "unlockAchievement", {
-				achievement = {
-					identifier=achievements["TwentyTaps"],
-					percentComplete=100,
-					showsCompletionBanner=true,
-				}
-			}); message = "You completed the \"Work the taps\" achievement!"
-		
-		elseif userScore == 50 then
-			gameNetwork.request( "unlockAchievement", {
-				achievement = {
-					identifier=achievements["OneHundredTaps"],
-					percentComplete=50,
-					showsCompletionBanner=true,
-				}
-			}); message = "You completed 50% of the \"One Hundred Taps\" achievement!"
-		
-		elseif userScore == 75 then
-			gameNetwork.request( "unlockAchievement", {
-				achievement = {
-					identifier=achievements["OneHundredTaps"],
-					percentComplete=75,
-					showsCompletionBanner=true,
-				}
-			}); message = "You completed 75% of the \"One Hundred Taps\" achievement!"
-		
-		elseif userScore == 100 then
-			gameNetwork.request( "unlockAchievement", {
-				achievement = {
-					identifier=achievements["OneHundredTaps"],
-					percentComplete=100,
-					showsCompletionBanner=true,
-				}
-			}); message = "You completed the \"One Hundred Taps\" achievement!"
-		end
-		if message then native.showAlert( "Achievement Unlocked", message, { "OK" } ); end
-	end
-end
-
-local function onSubmitScore( event )
-	if loggedIntoGC then gameNetwork.request( "setHighScore", { localPlayerScore={ category=leaderBoards[currentBoard], value=userScore }, listener=requestCallback } ); else offlineAlert(); end
-end
-
-local function onChangeBoard( event )
-	local function alertCompletion( event )
-		if event.action == "clicked" and event.index ~= 4 then		
-			if 		event.index == 1 then currentBoard = "Awesome";
-			elseif 	event.index == 2 then currentBoard = "Easy";
-			elseif 	event.index == 3 then currentBoard = "Hard"; end
-			
-			-- reset current score and update current score and board labels
-			userScore = 0
-			ui.updateLabel( userScoreText, "0 Taps", display.contentWidth-25, 270, TOP_REF, RIGHT_REF )
-			ui.updateLabel( currentBoardText, currentBoard, display.contentWidth-25, 142, TOP_REF, RIGHT_REF )
-			
-			-- reload best score
-			if loggedIntoGC then gameNetwork.request( "loadScores", { leaderboard={ category=leaderBoards[currentBoard], playerScope="Global", timeScope="AllTime", range={1,3} }, listener=requestCallback } ); else offlineAlert(); end
-		end
-	end
-	native.showAlert( "Choose Leaderboard:", "", { "Awesome", "Easy", "Hard", "Cancel" }, alertCompletion )
-end
-
-local function onShowBoards( event )
-	if loggedIntoGC then gameNetwork.show( "leaderboards", { leaderboard={ category=leaderBoards[currentBoard], timeScope="Week" } } ); else offlineAlert(); end
-end
-
-local function onShowAchievements( event )
-	if loggedIntoGC then gameNetwork.show( "achievements" ); else offlineAlert(); end
-end
-
-local function onResetAchievements( event )
-	userScore = 0; userScoreText:setText( "0 Taps" )
-	userScoreText.anchorX = 1
-	userScoreText.anchorX = 0
-	userScoreText.x = display.contentWidth-25; userScoreText.y = 270
-	
-	if loggedIntoGC then gameNetwork.request( "resetAchievements" ); else offlineAlert(); end
-end
-
--- scoreScene (first tab) ---------------------------------------------------------------
-
-function scoreScene:create( event )
-	local sceneGroup = self.view
-	local logo = display.newImageRect( sceneGroup, "assets/corona_gc_logos.png", 264, 182 )
-	logo.x, logo.y = display.contentWidth * 0.5, 175
-	
-	local currentScoreLabel = ui.createLabel( sceneGroup, "Current Score:", 25, 270, TOP_REF, LEFT_REF, true )
-	
-	display.remove( userScoreText )
-	userScoreText = ui.createLabel( sceneGroup, "0 Taps", display.contentWidth-25, 270, TOP_REF, RIGHT_REF )
-	
-	local incrementScoreBtn = widget.newButton
-	{ 
-		left = 21,
-		top = 305,
-		width = 298,
-		height = 56,
-		label = "Increment Score",
-		onRelease = onIncrementScore 
-	}
-	sceneGroup:insert( incrementScoreBtn )
-	
-	local submitScoreBtn = widget.newButton
-	{ 
-		left = 21,
-		top = 360,
-		width = 298,
-		height = 56,
-		label = "Submit High Score",
-		onRelease=onSubmitScore 
-	}
-	sceneGroup:insert( submitScoreBtn )
-end
-scoreScene:addEventListener( "create", scoreScene )
-
--- boardScene (second tab) --------------------------------------------------------------
-
-function boardScene:create( event )
-	local sceneGroup = self.view
-	local changeBoardBtn = widget.newButton
-	{ 
-		left = 21,
-		top = 80,
-		width = 298,
-		height = 56,
-		label = "Change Leaderboard",
-		onRelease = onChangeBoard 
-	}
-	sceneGroup:insert( changeBoardBtn )
-	
-	local boardLabel = ui.createLabel( sceneGroup, "Leaderboard:", 25, 142, TOP_REF, LEFT_REF , true )
-	
-	display.remove( currentBoardText )
-	currentBoardText = ui.createLabel( sceneGroup, currentBoard, display.contentWidth-25, 142, TOP_REF, RIGHT_REF )
-	
-	local yourLabel = ui.createLabel( sceneGroup, "Your Best", 25, 177, TOP_REF, LEFT_REF, true )
-	
-	display.remove( userBestText )
-	userBestText = ui.createLabel( sceneGroup, userBest, display.contentWidth-25, 177, TOP_REF, RIGHT_REF  )
-	
-	display.remove( bestLabel )
-	bestLabel = ui.createLabel( sceneGroup, topScorer .. " got:", 25, 212, TOP_REF, LEFT_REF, true )
-	
-	display.remove( bestText )
-	bestText = ui.createLabel( sceneGroup, bestTextValue, display.contentWidth-25, 212, TOP_REF, RIGHT_REF  )
-	
-	local showBoardsBtn = widget.newButton
-	{ 
-		left = 21,
-		top = 255,
-		width = 298,
-		height = 56,
-		label = "Show Leaderboards",
-		onRelease = onShowBoards 
-		}
-	sceneGroup:insert( showBoardsBtn )
-	
-	local showAchBtn = widget.newButton
-	{ 
-		left = 21,
-		top = 310,
-		width = 298,
-		height = 56,
-		label = "Show Achievements",
-		onRelease = onShowAchievements 
-	}
-	sceneGroup:insert( showAchBtn )
-	
-	local resetBtn = widget.newButton
-	{ 
-		left = 21,
-		top = 365,
-		width = 298,
-		height = 56,
-		label = "Reset Score & Achievements", 
-		onRelease = onResetAchievements 
-	}
-	sceneGroup:insert( resetBtn )
-end
-boardScene:addEventListener( "create", boardScene )
-
--- gamenetwork callback listeners -------------------------------------------------------
-
-function requestCallback( event )
-	if event.type == "setHighScore" then
-		local function alertCompletion() gameNetwork.request( "loadScores", { leaderboard={ category=leaderBoards[currentBoard], playerScope="Global", timeScope="AllTime", range={1,3} }, listener=requestCallback } ); end
-		native.showAlert( "High Score Reported!", "", { "OK" }, alertCompletion )
-	
-	elseif event.type == "loadScores" then
-		if event.data then
-			local topRankID = event.data[1].playerID
-			local topRankScore = event.data[1].formattedValue
-			bestTextValue = string.sub( topRankScore, 1, 12 ) .. "..."
-			
-			if topRankID then gameNetwork.request( "loadPlayers", { playerIDs={ topRankID }, listener=requestCallback} ); end
-		end
-		
-		if event.localPlayerScore then
-			userBest = event.localPlayerScore.formattedValue
+-- Table printing function for Game Center debugging
+local function printTable( t )
+	if ( composer.getVariable( "debugOutput" ) == false ) then return end
+	print("--------------------------------")
+	local printTable_cache = {}
+	local function sub_printTable( t, indent )
+		if ( printTable_cache[tostring(t)] ) then
+			print( indent .. "*" .. tostring( t ) )
 		else
-			userBest = "Not ranked"
-		end
-		
-		if userBestText then ui.updateLabel( userBestText, userBest, display.contentWidth-25, 177, TOP_REF, RIGHT_REF ); end
-	
-	elseif event.type == "loadPlayers" then
-		if event.data then
-			local topRankAlias = event.data[1].alias
-			
-			if topRankAlias then
-				topScorer = topRankAlias
-				if bestLabel and bestText then
-					ui.updateLabel( bestLabel, topScorer .. " got:", 25, 212, TOP_REF, LEFT_REF )
-					ui.updateLabel( bestText, bestTextValue, display.contentWidth-25, 212, TOP_REF, RIGHT_REF )
+			printTable_cache[tostring(t)] = true
+			if ( type( t ) == "table" ) then
+				for pos,val in pairs(t) do
+					if ( type(val) == "table" ) then
+						print( indent .. "[" .. pos .. "] => " .. tostring(t).. " {" )
+						sub_printTable( val, indent .. string.rep( " ", string.len(pos)+8 ) )
+						print( indent .. string.rep( " ", string.len(pos)+6 ) .. "}" )
+					elseif ( type(val) == "string" ) then
+						print( indent .. "[" .. pos .. '] => "' .. val .. '"' )
+					else
+						print( indent .. "[" .. pos .. "] => " .. tostring(val) )
+					end
 				end
+			else
+				print( indent..tostring(t) )
 			end
 		end
 	end
+	if ( type(t) == "table" ) then
+		print( tostring(t) .. " {" )
+		sub_printTable( t, "  " )
+		print( "}" )
+	else
+		sub_printTable( t, "  " )
+	end
 end
 
+-- Reference "printTable" function as a Composer variable for usage in all scenes
+composer.setVariable( "printTable", printTable )
+
+
+-- Game Center request listener function
+local function requestCallback( event )
+
+	if ( event.data ) then
+
+		-- Event type of "loadLocalPlayer"
+		if ( event.type == "loadLocalPlayer" ) then
+	
+			if ( aliasGroup.numChildren == 0 ) then
+				-- Save player data to variable
+				composer.setVariable( "localPlayerData", event.data )
+				-- Display local player alias
+				local textGroup = display.newGroup()
+				aliasGroup:insert( textGroup )
+				composer.stage:insert( aliasGroup )
+				textGroup.anchorChildren = true
+				local back = display.newRect( aliasGroup, 0, 0, display.actualContentWidth, 36 )
+				back:setFillColor( 0.5,0.5,0.5,0.15 )
+				local alias = display.newText( textGroup, "Game Center Alias: ", 0, 0, "HelveticaNeue-Light", 15 )
+				alias:setFillColor( 0.5 )
+				alias.anchorX = 1
+				local name = display.newText( textGroup, event.data.alias, alias.x, 0, "HelveticaNeue-Light", 15 )
+				name:setFillColor( 0.7 )
+				name.anchorX = 0
+				aliasGroup.x = display.contentCenterX
+				aliasGroup.y = titleBarBottom + 42 - (aliasGroup.height*0.5)
+				transition.to( aliasGroup, { time=800, y=aliasGroup.y+aliasGroup.height, transition=easing.outQuad } )
+			end
+	
+		-- Event type of "loadLeaderboardCategories"
+		elseif ( event.type == "loadLeaderboardCategories" ) then
+	
+			if ( #event.data > 0 ) then
+				-- Store leaderboard categories in table
+				local ld = composer.getVariable( "leaderboardsData" )
+				for i = 1,#event.data do
+					ld[#ld+1] = { category=event.data[i].category, title=event.data[i].title }
+				end
+				-- Show leaderboards scene
+				composer.gotoScene( "leaderboards", { effect="slideUp", time=800 } )
+			else
+				native.showAlert( "Error", "Error in requesting app leaderboards.", { "OK" } )
+			end
+	
+		-- Event type of "loadAchievementDescriptions" (loads all achievements for the app)
+		elseif ( event.type == "loadAchievementDescriptions" ) then
+
+			if ( #event.data > 0 ) then
+				-- Store achievement descriptions
+				local ad = composer.getVariable( "achievementData" )
+				for i = 1,#event.data do
+					ad[#ad+1] = { identifier=event.data[i].identifier, title=event.data[i].title, isHidden=event.data[i].isHidden, maximumPoints=event.data[i].maximumPoints, percentComplete=0 }
+				end
+			else
+				native.showAlert( "Error", "Error in requesting app achievements.", { "OK" } )
+			end
+	
+		-- Event type of "loadAchievements" (loads achievement percentages for current player)
+		elseif ( event.type == "loadAchievements" ) then
+	
+			if ( #event.data > 0 ) then
+				-- Update achievement percentages
+				local ad = composer.getVariable( "achievementData" )
+				for i = 1,#ad do
+					for j = 1,#event.data do
+						if ( ad[i].identifier == event.data[j].identifier ) then
+							ad[i].percentComplete = event.data[j].percentComplete
+						end
+					end
+				end
+			else
+				native.showAlert( "Error", "Error in requesting achievements for current player.", { "OK" } )
+			end
+		end
+	end
+
+	local printTable = composer.getVariable( "printTable" )
+	printTable( event )
+end
+
+
+-- Scene buttons handler function
+local function handleSceneButton( event )
+	local target = event.target
+	local leaderboardsButton = composer.getVariable( "leaderboardsButton" )
+	local achievementsButton = composer.getVariable( "achievementsButton" )
+	
+	if ( target.id == "leaderboards" and composer.getSceneName( "current" ) == "achievements" ) then
+		composer.gotoScene( "leaderboards", { effect="slideRight", time=600 } )
+	elseif ( target.id == "achievements" and composer.getSceneName( "current" ) == "leaderboards" ) then
+		composer.gotoScene( "achievements", { effect="slideLeft", time=600 } )
+	end
+end
+
+
+-- Game Center initialization listener function
 local function initCallback( event )
-	-- "showSignIn" is only available on iOS 6+
-	if event.type == "showSignIn" then
-		-- This is an opportunity to pause your game or do other things you might need to do while the Game Center Sign-In controller is up.
-		-- For the iOS 6.0 landscape orientation bug, this is an opportunity to remove native objects so they won't rotate.
-	-- This is type "init" for all versions of Game Center.
-	elseif event.data then
-		loggedIntoGC = true
-		gameNetwork.request( "loadScores", { leaderboard={ category=leaderBoards[currentBoard], playerScope="Global", timeScope="AllTime", range={1,3} }, listener=requestCallback } )
-	end
 
+	if ( composer.getVariable( "initializedGC" ) == false ) then
+
+		if ( event.data ) then
+
+			-- Create "Leaderboards" scene button
+			local leaderboardsButton = widget.newButton{
+				id = "leaderboards",
+				label = "Leaderboards",
+				onRelease = handleSceneButton,
+				emboss = false,
+				fontSize = 18,
+				shape = "rectangle",
+				width = display.actualContentWidth/2,
+				height = 42,
+				fillColor = { default={ 33/255,87/255,122/255,1 }, over={ 33/255,87/255,122/255,0.8 } },
+				labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.7 } }
+			}
+			leaderboardsButton.anchorX = 1
+			leaderboardsButton.anchorY = 0
+			leaderboardsButton.x = display.contentCenterX
+			leaderboardsButton.y = titleBarBottom
+			composer.stage:insert( leaderboardsButton )
+			composer.setVariable( "leaderboardsButton", leaderboardsButton )
+
+			-- Create "Achievements" scene button
+			local achievementsButton = widget.newButton{
+				id = "achievements",
+				label = "Achievements",
+				onRelease = handleSceneButton,
+				emboss = false,
+				fontSize = 18,
+				shape = "rectangle",
+				width = display.actualContentWidth/2,
+				height = 42,
+				fillColor = { default={ 33/255,100/255,112/255,1 }, over={ 33/255,100/255,112/255,0.8 } },
+				labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.7 } }
+			}
+			achievementsButton.anchorX = 0
+			achievementsButton.anchorY = 0
+			achievementsButton.x = display.contentCenterX
+			achievementsButton.y = titleBarBottom
+			composer.stage:insert( achievementsButton )
+			composer.setVariable( "achievementsButton", achievementsButton )
+
+			-- Set initialized flag as true
+			composer.setVariable( "initializedGC", true )
+
+			-- Request local player information
+			gameNetwork.request( "loadLocalPlayer", { listener=requestCallback } )
+
+			-- Load leaderboard categories
+			gameNetwork.request( "loadLeaderboardCategories", { listener=requestCallback } )
+
+			-- Load achievement descriptions
+			gameNetwork.request( "loadAchievementDescriptions", { listener=requestCallback } )
+			
+			-- Load player achievements
+			gameNetwork.request( "loadAchievements", { listener=requestCallback } )
+		else
+			-- Display alert that Game Center cannot be initialized
+			native.showAlert( "Error", "Cannot initialize Game Center.", { "OK" } )
+		end
+
+		local printTable = composer.getVariable( "printTable" )
+		printTable( event )
+	end
 end
 
--- system event handler -----------------------------------------------------------------
 
-local function onSystemEvent( event ) 
-	if "applicationStart" == event.type then
-		loggedIntoGC = false
-		gameNetwork.init( "gamecenter", { listener=initCallback } )
-		return true
-	end
+-- Initialize Game Center if platform is an iOS device
+if ( system.getInfo( "platformName" ) == "iPhone OS" ) then
+	gameNetwork.init( "gamecenter", initCallback )
+else
+	native.showAlert( "Not Supported", "Apple Game Center is not supported on this platform. Please build and deploy to an iOS device.", { "OK" } )
 end
-Runtime:addEventListener( "system", onSystemEvent )
-ui.createTabs( widget )
-composer.gotoScene( "scoreScene" )
