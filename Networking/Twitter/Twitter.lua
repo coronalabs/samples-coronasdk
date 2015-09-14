@@ -14,7 +14,7 @@
 -- History:
 --	 March 5, 2013 for Twitter API 1.1 using oAuth 1.0a
 --
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010-2013 Corona Labs Inc. All Rights Reserved.
 --
 -- Supports Graphics 2.0
@@ -32,7 +32,7 @@ consumer_secret = nil -- secret string goes here
 -- The web URL address below can be anything
 -- Twitter sends the web address with the token back to your app and the code strips out the token to use to authorise it
 --
-webURL = "http://coronalabs.com/"
+webURL = "https://coronalabs.com/"
 
 -- Note: Once logged on, the access_token and access_token_secret should be saved so they can
 --	     be used for the next session without the user having to log in again.

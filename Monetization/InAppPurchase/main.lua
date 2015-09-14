@@ -42,7 +42,7 @@
 --  1.5    Refactored storeUI operations into storeUI.lua, interaction with product data into productData.lua
 --         and made our dummy products in the simulator follow a similar code path to actual products.
 --
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2015 Corona Labs Inc. All Rights Reserved.
 --
 --	Supports Graphics 2.0

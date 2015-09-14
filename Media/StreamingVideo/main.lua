@@ -28,7 +28,7 @@
 --
 -- Comments: 
 --
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2011 Corona Labs Inc. All Rights Reserved.
 --
 -- Video licensed as Creative Commons Attribute 3.0.
@@ -49,7 +49,7 @@ posterFrame:rotate(270)
 
 function posterFrame:tap( event )
 	timer.performWithDelay( 500, function() msg.text = "Video done"; end, 1 )		-- message will appear after the video finishes
-	media.playVideo( "http://www.coronalabs.com/video/bbb/BigBuckBunny_640x360.m4v", media.RemoteSource, true )
+	media.playVideo( "https://www.coronalabs.com/video/bbb/BigBuckBunny_640x360.m4v", media.RemoteSource, true )
 end
 
 -- Video is not supported on Windows Simulator

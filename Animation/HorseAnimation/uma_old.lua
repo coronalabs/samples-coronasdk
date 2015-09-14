@@ -10,7 +10,7 @@ module(...)
 -- 			local data = zwoptexData.getSpriteSheetData()
 --			local spriteSheet = sprite.newSpriteSheetFromData( "Untitled.png", data )
 --
--- For more details, see http://www.coronalabs.com/links/content/game-edition-sprite-sheets
+-- For more details, see https://www.coronalabs.com/links/content/game-edition-sprite-sheets
 
 function getSpriteSheetData()
 

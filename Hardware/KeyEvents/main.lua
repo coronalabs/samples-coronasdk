@@ -18,7 +18,7 @@
 --	7/14/2011	1.1		Added "volumeUp" exception code / removed splash screen
 --	7/12/2011	1.0		Initial version
 --
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2011 Corona Labs Inc. All Rights Reserved.
 --
 -- Supports Graphics 2.0

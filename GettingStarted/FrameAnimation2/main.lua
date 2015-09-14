@@ -3,7 +3,7 @@
 -- 
 -- Version: 1.2 (uses new viewableContentHeight, viewableContentWidth properties)
 -- 
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 
 -- Demonstrates how to use table listeners for event handling, for more of an object-oriented

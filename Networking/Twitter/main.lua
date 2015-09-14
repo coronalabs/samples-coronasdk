@@ -19,7 +19,7 @@
 -- Requires API key and application secret key from Twitter. To begin, log into your Twiter
 -- account and add the "Developer" application, from which you can create additional apps.
 --
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2012-2013 Corona Labs Inc. All Rights Reserved.
 --
 -- Supports Graphics 2.0

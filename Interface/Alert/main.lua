@@ -32,7 +32,7 @@ local function onComplete( event )
 	if "clicked" == event.action then
 		if 2 == event.index then
 			-- Open url if "Learn More" was clicked by the user
-			system.openURL( "http://www.coronalabs.com" )
+			system.openURL( "https://www.coronalabs.com" )
 		end
 	elseif "cancelled" == event.action then
 		-- our cancelAlert timer function dismissed the alert so do nothing

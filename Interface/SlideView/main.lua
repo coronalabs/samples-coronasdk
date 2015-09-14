@@ -3,7 +3,7 @@
 --  
 -- Version: 1.0
 -- 
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 --
 -- Demonstrates how to display a set of images in a series that 

@@ -2,9 +2,9 @@
 -- Abstract: slider component
 -- 
 -- Version: 0.1
--- To make your own sliders, please use the widget library: http://docs.coronalabs.com/api/library/widget/newSlider.html
+-- To make your own sliders, please use the widget library: https://docs.coronalabs.com/api/library/widget/newSlider.html
 -- 
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 -- TODO
 -- setvalue

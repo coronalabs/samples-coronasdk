@@ -35,9 +35,9 @@
 --
 -- IMPORTANT: Please ensure your app is compatible with Facebook Single Sign-On or your
 --			  Facebook implementation will fail! See the following blog post for more details:
---			  http://www.coronalabs.com/links/facebook-sso
+--			  https://www.coronalabs.com/links/facebook-sso
 --
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 --
 -- Supports Graphics 2.0
@@ -195,10 +195,10 @@ local function listener( event )
 		if fbCommand == POST_PHOTO then
 			local attachment = {
 				name = "Developing a Facebook Connect app using the Corona SDK!",
-				link = "http://www.coronalabs.com/links/forum",
+				link = "https://www.coronalabs.com/links/forum",
 				caption = "Link caption",
 				description = "Corona SDK for developing iOS and Android apps with the same code base.",
-				picture = "http://www.coronalabs.com/links/demo/Corona90x90.png",
+				picture = "https://www.coronalabs.com/links/demo/Corona90x90.png",
 				actions = json.encode( { { name = "Learn More", link = "http://coronalabs.com" } } )
 			}
 		

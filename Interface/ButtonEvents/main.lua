@@ -4,7 +4,7 @@
 -- 
 -- Version: 1.1
 -- 
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 
 -- This example shows you how to create buttons in various ways by using the widget library.

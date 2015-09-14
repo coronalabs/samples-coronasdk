@@ -4,7 +4,7 @@
 -- 
 -- Version: 1.2 (revised for Alpha 3)
 -- 
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 --
 --	Supports Graphics 2.0

@@ -30,7 +30,7 @@
 -- This can be addressed using Lua coroutines for a more "threaded" structure; 
 -- future example code should demonstrate this.
 --
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 --
 -- Supports Graphics 2.0

@@ -24,7 +24,7 @@
 -- This example shows you how to access the various properties of the "location" events, which
 -- are returned by the GPS listener. Devices without GPS will have less accurate location data
 --
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 --
 -- Supports Graphics 2.0
@@ -76,7 +76,7 @@ display.setDefault( "anchorX", 0.5 )	-- default to Center anchor point
 
 local buttonPress = function( event )
 	-- Show location on map
-	mapURL = "http://maps.google.com/maps?q=Hello,+Corona!@" .. currentLatitude .. "," .. currentLongitude
+	mapURL = "https://maps.google.com/maps?q=Hello,+Corona!@" .. currentLatitude .. "," .. currentLongitude
 	system.openURL( mapURL )
 end
 

@@ -2,7 +2,7 @@
 --
 -- Version: 1.0
 -- 
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 --
 -- This sample app will not work correctly unless it is built and uploaded to the google play store, although you don't have to publish it.

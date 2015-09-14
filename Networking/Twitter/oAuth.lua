@@ -9,7 +9,7 @@
 -- History
 --	March 5, 2013	Uses network.request to access twitter.com (https)
 --
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010-2013 Corona Labs Inc. All Rights Reserved.
 -----------------------------------------------------------------------------------------
 

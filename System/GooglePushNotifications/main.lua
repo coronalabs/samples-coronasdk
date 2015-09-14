@@ -9,11 +9,11 @@
 -- See the "build.settings" file to see what Android permissions are required.
 -- See the "config.lua" file on how to register for push notifications with Google.
 -- See the following website on how to set up your app for Google's push notification system.
---   http://developer.android.com/google/gcm/gs.html
+--   https://developer.android.com/google/gcm/gs.html
 --
 -- Limitations: This sample app only works on an Android device with "Google Play" installed.
 --
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2012 Corona Labs Inc. All Rights Reserved.
 --
 --	Supports Graphics 2.0

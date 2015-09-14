@@ -3,7 +3,7 @@
 -- 
 -- Version: 1.3 (uses new viewableContentHeight, viewableContentWidth properties)
 -- 
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 
 -- Demonstrates a simple way to perform animation, using an "enterFrame" listener to trigger updates.

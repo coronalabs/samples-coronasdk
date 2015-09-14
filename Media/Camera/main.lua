@@ -9,7 +9,7 @@
 -- 	v1.1	Fixed logic problem where it said "session was cancelled".
 --	v1.2	Added Android support.
 --
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2011 Corona Labs Inc. All Rights Reserved.]
 --
 -- Supports Graphics 2.0

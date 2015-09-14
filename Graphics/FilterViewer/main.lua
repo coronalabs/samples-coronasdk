@@ -1,7 +1,7 @@
 -- 
 -- Abstract: FilterViewer sample app
 -- 
--- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2013 Corona Labs Inc. All Rights Reserved.
 --
 -- Supports Graphics 2.0

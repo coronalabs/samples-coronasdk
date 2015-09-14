@@ -1,7 +1,7 @@
 
 -- Abstract: PhysicsContact
 -- Version: 1.0
--- Sample code is MIT licensed; see http://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
 
 display.setStatusBar( display.HiddenStatusBar )
