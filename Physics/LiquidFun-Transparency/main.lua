@@ -86,7 +86,7 @@ local function dragBody( event )
 			event.target:setLinearVelocity( 0,0 )
 			event.target.angularVelocity = 0
 			body.tempJoint:removeSelf()
-			body.isFixedRotation = false
+			--body.isFixedRotation = false  -- Use this line if the eye should rotate in the water
 		end
 	end
 	return true
