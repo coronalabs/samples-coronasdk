@@ -92,7 +92,7 @@ local function updateControlsTable( device, status, deviceName )
 		elseif status == "disconnected" then
 			for i=1,controllersTableView:getNumRows() do
 				local row = controllersTableView:getRowAtIndex( i )
-				if row.params.id == device then
+				if row ~= nil and row.params.id == device then
 					controllersTableView:deleteRows( { i }, { slideLeftTransitionTime=0, slideUpTransitionTime=320 } )
 				end
 			end

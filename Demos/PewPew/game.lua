@@ -156,7 +156,7 @@ local function onAxisEvent( event )
 		axisName = event.axis.type .. "-"
 	end
 
-	local accuracy = math.max(event.axis.accuracy, 0.3)
+	local accuracy = 0.3
 	
 	local player = players[device]
 	if player ~= nil then
