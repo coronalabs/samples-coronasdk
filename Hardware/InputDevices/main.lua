@@ -272,7 +272,6 @@ Runtime:addEventListener( "key", onKeyEvent )
 if ( getHasJoystick ) then
 	-- Detect axis event updates
 	local function onAxisEvent( event )
-		local accuracy = event.axis.accuracy
 		local value = event.normalizedValue
 		local axis = event.axis.type
 		local descriptor = event.axis.descriptor
@@ -283,13 +282,8 @@ if ( getHasJoystick ) then
 			return
 		end
 
-		-- OSX does not support accuracy at present, and always returns zero.
-		if ( accuracy == 0 ) then
-			accuracy = 0.15
-		end
-
-		-- Detect zero movement based on device accuracy
-		if ( math.abs(value) < accuracy ) then
+		-- Detect zero movement at a certain cutoff so we don't get the character moving very, very slowly
+		if ( math.abs(value) < 0.15 ) then
 			value = 0
 		end
 
