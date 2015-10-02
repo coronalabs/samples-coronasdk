@@ -23,18 +23,23 @@ display.setDefault( "background", 80/255 )
 local label = display.newText( "portrait", display.contentCenterX, display.contentCenterY, nil, 30 )
 label:setFillColor( 1, 1, 1 )
 
-local currentAngle = 0		-- **new
+-- Rotation values for the main four orientations
+local orientationAngles = {
+	portrait = 0,
+	landscapeRight = 90,
+	portraitUpsideDown = 180,
+	landscapeLeft = 270,
+}
 
 local function onOrientationChange( event )
-	-- change text to reflect current orientation
-	label.text = event.type
 	local direction = event.type
 
-	local newAngle = currentAngle - event.delta
-	currentAngle = newAngle
+	-- change text to reflect current orientation
+	label.text = event.type
 
 	-- rotate text so it remains upright
-	transition.to( label, { time=150, rotation=newAngle } )
+	local newAngle = ( orientationAngles[direction] or 0 )
+	transition.to( label, { time = 150, rotation = newAngle } )
 end
 
 Runtime:addEventListener( "orientation", onOrientationChange )
