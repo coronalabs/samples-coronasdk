@@ -1,9 +1,9 @@
 -- 
 -- Project: Facebook Connect sample app
 --
--- Date: December 24, 2010
+-- Date: July 14, 2015
 --
--- Version: 1.6
+-- Version: 1.8
 --
 -- File name: main.lua
 --
@@ -25,8 +25,10 @@
 --  v1.2		Modified for new Facebook Connect API (from build #243)
 --  v1.3		Added buttons to: Post Message, Post Photo, Show Dialog, Logout
 --  v1.4		Added  ...{"publish_stream"} .. permissions setting to facebook.login() calls.
---	v1.5		Added single sign-on support in build.settings (must replace XXXXXXXXX with valid facebook appId)
---	v1.6		Modified the build.settings file to get the plugin for iOS.
+--  v1.5		Added single sign-on support in build.settings (must replace XXXXXXXXX with valid facebook appId)
+--  v1.6		Modified the build.settings file to get the plugin for iOS.
+--  v1.7		Added more buttons to test features. Upgraded sample to use Facebook v4 plugin.
+--  v1.8		Uses new login model introduced in Facebook v4 plugin.
 
 --
 -- Comments:
@@ -34,8 +36,8 @@
 -- account and add the "Developer" application, from which you can create additional apps.
 --
 -- IMPORTANT: Please ensure your app is compatible with Facebook Single Sign-On or your
---			  Facebook implementation will fail! See the following blog post for more details:
---			  https://www.coronalabs.com/links/facebook-sso
+--            Facebook implementation will fail! See the following blog post for more details:
+--            http://www.coronalabs.com/links/facebook-sso
 --
 -- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
@@ -49,10 +51,10 @@ local _W = display.contentWidth
 local _H = display.contentHeight
 
 -- Comment out the next line when through debugging your app.
-io.output():setvbuf('no') 		-- **debug: disable output buffering for Xcode Console **tjn
+io.output():setvbuf('no') 		-- debug: disable output buffering for Xcode Console
 
 local widget = require("widget")
-local facebook = require("facebook")
+local facebook = require("plugin.facebook.v4")
 local json = require("json")
 
 display.setStatusBar( display.HiddenStatusBar )
@@ -60,18 +62,31 @@ display.setStatusBar( display.HiddenStatusBar )
 -- Facebook Commands
 local fbCommand			-- forward reference
 local LOGOUT = 1
-local SHOW_DIALOG = 2
-local POST_MSG = 3
-local POST_PHOTO = 4
-local GET_USER_INFO = 5
-local GET_PLATFORM_INFO = 6
+local SHOW_FEED_DIALOG = 2
+local SHARE_LINK_DIALOG = 3
+local POST_MSG = 4
+local POST_PHOTO = 5
+local GET_USER_INFO = 6
+local PUBLISH_INSTALL = 7
 
 -- Layout Locations
-local ButtonOrigY = 175
-local ButtonYOffset = 45
+local ButtonOrigX = 160
+local ButtonOrigY = 160
+local ButtonYOffset = 35
 local StatusMessageY = 420		-- position of status message
 
 local background = display.newImage( "facebook_bkg.png", centerX, centerY, true ) -- flag overrides large image downscaling
+
+-- Check for an item inside the provided table
+-- Based on implementation at: https://www.omnimaga.org/other-computer-languages-help/(lua)-check-if-array-contains-given-value/
+local function inTable( table, item )
+	for k,v in pairs( table ) do
+		if v == item then
+			return true
+		end
+	end
+	return false
+end
 
 -- This function is useful for debugging problems with using FB Connect's web api,
 -- e.g. you passed bad parameters to the web api and get a response table back
@@ -119,13 +134,67 @@ end
 
 local statusMessage = createStatusMessage( "   Not connected  ", centerX, StatusMessageY )
 
+-- Runs the desired facebook command
+local function processFBCommand( )
+	-- The following displays a Facebook dialog box for posting to your Facebook Wall
+	if fbCommand == SHOW_FEED_DIALOG then
+		-- "feed" is the standard "post status message" dialog
+		local response = facebook.showDialog( "feed" )
+		printTable(response)
+	end
+
+	-- This displays a Facebook Dialog for posting a link with a photo to your Facebook Wall
+	if fbCommand == SHARE_LINK_DIALOG then
+		local response = facebook.showDialog( "link", {
+			name = "Facebook v4 Corona plugin on iOS!",
+			link = "https://coronalabs.com/blog/2015/09/01/facebook-v4-plugin-ios-beta-improvements-and-new-features/",
+			description = "More Facebook awesomeness for Corona!",
+			picture = "https://www.facebookbrand.com/img/fb-art.jpg",
+		})
+		printTable(response)
+	end
+
+	-- Request the current logged in user's info
+	if fbCommand == GET_USER_INFO then
+		local response = facebook.request( "me" )
+		printTable(response)
+		-- facebook.request( "me/friends" )		-- Alternate request
+	end
+
+	-- This code posts a photo image to your Facebook Wall
+	if fbCommand == POST_PHOTO then
+		local attachment = {
+			name = "Developing a Facebook Connect app using the Corona SDK!",
+			link = "http://www.coronalabs.com/links/forum",
+			caption = "Link caption",
+			description = "Corona SDK for developing iOS and Android apps with the same code base.",
+			picture = "http://www.coronalabs.com/links/demo/Corona90x90.png",
+			actions = json.encode( { { name = "Learn More", link = "http://coronalabs.com" } } )
+		}
+	
+		local response = facebook.request( "me/feed", "POST", attachment )		-- posting the photo
+		printTable(response)
+	end
+	
+	-- This code posts a message to your Facebook Wall
+	if fbCommand == POST_MSG then
+		local time = os.date("*t")
+		local postMsg = {
+			message = "Posting from Corona SDK! " ..
+				os.date("%A, %B %e")  .. ", " .. time.hour .. ":"
+				.. time.min .. "." .. time.sec
+		}
+	
+		local response = facebook.request( "me/feed", "POST", postMsg )		-- posting the message
+		printTable(response)
+	end
+end
+
 -- New Facebook Connection listener
---
 local function listener( event )
 
---- Debug Event parameters printout --------------------------------------------------
---- Prints Events received up to 20 characters. Prints "..." and total count if longer
----
+-- Debug Event parameters printout --------------------------------------------------
+-- Prints Events received up to 20 characters. Prints "..." and total count if longer
 	print( "Facebook Listener events:" )
 	
 	local maxStr = 20		-- set maximum string length
@@ -140,83 +209,31 @@ local function listener( event )
 		end
 		print( "   " .. tostring( k ) .. "(" .. tostring( string.sub(valueString, 1, maxStr ) ) .. endStr )
 	end
---- End of debug Event routine -------------------------------------------------------
+-- End of debug Event routine -------------------------------------------------------
 
     print( "event.name", event.name ) -- "fbconnect"
     print( "event.type:", event.type ) -- type is either "session" or "request" or "dialog"
 	print( "isError: " .. tostring( event.isError ) )
-	print( "didComplete: " .. tostring( event.didComplete) )
+	print( "didComplete: " .. tostring( event.didComplete ) )
+	print( "response: " .. tostring( event.response ) )
 -----------------------------------------------------------------------------------------
-	-- After a successful login event, send the FB command
+	-- Process the response to the FB command
 	-- Note: If the app is already logged in, we will still get a "login" phase
-	--
+-----------------------------------------------------------------------------------------
+
     if ( "session" == event.type ) then
         -- event.phase is one of: "login", "loginFailed", "loginCancelled", "logout"
-		statusMessage.textObject.text = event.phase		-- tjn Added
+		statusMessage.textObject.text = event.phase
 		
 		print( "Session Status: " .. event.phase )
 		
 		if event.phase ~= "login" then
 			-- Exit if login error
 			return
+		else
+			-- Run the desired command
+			processFBCommand()
 		end
-		
-		-- The following displays a Facebook dialog box for posting to your Facebook Wall
-		if fbCommand == SHOW_DIALOG then
-
-			-- "feed" is the standard "post status message" dialog
-			facebook.showDialog( "feed", {
-				name = "Test name",
-				description = "Example description.",
-				link = "http://www.coronasdk.com/"
-			})
-
-			-- for "apprequests", message is required; other options are supported
-			--[[
-			facebook.showDialog( "apprequests", {
-				message = "Example message."
-			})
-			--]]
-		end
-	
-		-- Request the Platform information (FB information)
-		if fbCommand == GET_PLATFORM_INFO then
-			facebook.request( "platform" )		-- **tjn Displays info about Facebook platform
-		end
-
-		-- Request the current logged in user's info
-		if fbCommand == GET_USER_INFO then
-			facebook.request( "me" )
---			facebook.request( "me/friends" )		-- Alternate request
-		end
-
-		-- This code posts a photo image to your Facebook Wall
-		--
-		if fbCommand == POST_PHOTO then
-			local attachment = {
-				name = "Developing a Facebook Connect app using the Corona SDK!",
-				link = "https://www.coronalabs.com/links/forum",
-				caption = "Link caption",
-				description = "Corona SDK for developing iOS and Android apps with the same code base.",
-				picture = "https://www.coronalabs.com/links/demo/Corona90x90.png",
-				actions = json.encode( { { name = "Learn More", link = "http://coronalabs.com" } } )
-			}
-		
-			facebook.request( "me/feed", "POST", attachment )		-- posting the photo
-		end
-		
-		-- This code posts a message to your Facebook Wall
-		if fbCommand == POST_MSG then
-			local time = os.date("*t")
-			local postMsg = {
-				message = "Posting from Corona SDK! " ..
-					os.date("%A, %B %e")  .. ", " .. time.hour .. ":"
-					.. time.min .. "." .. time.sec
-			}
-		
-			facebook.request( "me/feed", "POST", postMsg )		-- posting the message
-		end
------------------------------------------------------------------------------------------
 
     elseif ( "request" == event.type ) then
         -- event.response is a JSON object from the FB server
@@ -225,6 +242,8 @@ local function listener( event )
 		if ( not event.isError ) then
 	        response = json.decode( event.response )
 	        
+			print( "Facebook Command: " .. fbCommand )
+
 	        if fbCommand == GET_USER_INFO then
 				statusMessage.textObject.text = response.name
 				printTable( response, "User Info", 3 )
@@ -252,154 +271,213 @@ local function listener( event )
 		
 	elseif ( "dialog" == event.type ) then
 		-- showDialog response
-		--
 		print( "dialog response:", event.response )
 		statusMessage.textObject.text = event.response
     end
 end
 
+local function enforceFacebookLogin( )
+	if facebook.isActive then
+		local accessToken = facebook.getCurrentAccessToken()
+		if accessToken == nil then
+
+			print( "Need to log in" )
+			facebook.login( listener )
+
+		elseif not inTable( accessToken.grantedPermissions, "publish_actions" ) then
+
+			print( "Logged in, but need permissions" )
+			printTable( accessToken, "Access Token Data" )
+			facebook.login( listener, {"publish_actions"} )
+
+		else
+
+			print( "Already logged in with needed permissions" )
+			printTable( accessToken, "Access Token Data" )
+			statusMessage.textObject.text = "login"
+			processFBCommand()
+
+		end
+	else
+		print( "Please wait for facebook to finish initializing before checking the current access token" );
+	end
+end
 ---------------------------------------------------------------------------------------------------
 -- NOTE: To create a mobile app that interacts with Facebook Connect, first log into Facebook
--- and create a new Facebook application. That will give you the "API key" and "application secret" 
--- that should be used in the following lines:
-
-local appId  = nil	-- Add  your App ID here (also go into build.settings and replace XXXXXXXXX with your appId under CFBundleURLSchemes)
-local apiKey = nil	-- Not needed at this time
+-- and create a new Facebook application. That will give you the "API key" and "application secret".
 ---------------------------------------------------------------------------------------------------
 
+enforceFacebookLogin()
 
--- NOTE: You must provide a valid application id provided from Facebook
-
-if ( appId ) then
-	facebook.login( appId, listener )
-	-- ***
-	-- ************************ Buttons Functions ********************************
-	-- ***
-	local function postPhoto_onRelease( event )
-		-- call the login method of the FB session object, passing in a handler
-		-- to be called upon successful login.
-		fbCommand = POST_PHOTO
-		facebook.login( appId, listener,  {"publish_actions"}  )
-	end
-	
-	local function getInfo_onRelease( event )
-		-- call the login method of the FB session object, passing in a handler
-		-- to be called upon successful login.
-		fbCommand = GET_USER_INFO
-		facebook.login( appId, listener, {"publish_actions"}  )
-	end
-	
-	local function postMsg_onRelease( event )
-		-- call the login method of the FB session object, passing in a handler
-		-- to be called upon successful login.
-		fbCommand = POST_MSG
-		facebook.login( appId, listener, {"publish_actions"} )
-	end
-	
-	local function showDialog_onRelease( event )
-		-- call the login method of the FB session object, passing in a handler
-		-- to be called upon successful login.
-		fbCommand = SHOW_DIALOG
-		facebook.login( appId, listener, {"publish_actions"}  )
-	end
-	
-	local function logOut_onRelease( event )
-		-- call the login method of the FB session object, passing in a handler
-		-- to be called upon successful login.
-		fbCommand = LOGOUT
-		facebook.logout()
-	end
-
-	-- ***
-	-- ************************ Create Buttons ********************************
-	-- ***
-	
-	-- "Post Photo with Facebook" button
-	local fbButton = widget.newButton
-	{
-		defaultFile = "fbButton184.png",
-		overFile = "fbButtonOver184.png",
-		label = "  Post Photo",
-		labelColor = 
-		{ 
-			default = { 255, 255, 255 }, 
-		},
-		onRelease = postPhoto_onRelease,
-	}
-	fbButton.x = 160
-	fbButton.y = ButtonOrigY
-	
-	
-	-- "Post Message with Facebook" button
-	local fbButton2 = widget.newButton
-	{
-		defaultFile = "fbButton184.png",
-		overFile = "fbButtonOver184.png",
-		label = "Post Msg",
-		labelColor = 
-		{ 
-			default = { 255, 255, 255 }, 
-		},
-		onRelease = postMsg_onRelease,
-	}
-	fbButton2.x = 160
-	fbButton2.y = ButtonOrigY + ButtonYOffset * 1
-	
-	
-	-- "Show Dialog Info with Facebook" button
-	local fbButton3 = widget.newButton
-	{
-		defaultFile = "fbButton184.png",
-		overFile = "fbButtonOver184.png",
-		label = "    Show Dialog",
-		labelColor = 
-		{ 
-			default = { 255, 255, 255 }, 
-		},
-		onRelease = showDialog_onRelease,
-	}
-	fbButton3.x = 160
-	fbButton3.y = ButtonOrigY + ButtonYOffset * 2
-
-	
-	-- "Get User Info with Facebook" button
-	local fbButton4 = widget.newButton
-	{
-		defaultFile = "fbButton184.png",
-		overFile = "fbButtonOver184.png",
-		label = "Get User",
-		labelColor = 
-		{ 
-			default = { 255, 255, 255 }, 
-		},
-		onRelease = getInfo_onRelease,
-	}
-	fbButton4.x = 160
-	fbButton4.y = ButtonOrigY + ButtonYOffset * 3
-	
-	-- "Logout with Facebook" button
-	local fbButton5 = widget.newButton
-	{
-		defaultFile = "fbButton184.png",
-		overFile = "fbButtonOver184.png",
-		label = "Logout",
-		labelColor = 
-		{ 
-			default = { 255, 255, 255 }, 
-		},
-		onRelease = logOut_onRelease,
-	}
-	fbButton5.x = 160
-	fbButton5.y = ButtonOrigY + ButtonYOffset * 4
-else
-	-- Handle the response from showAlert dialog boxbox
-	--
-	local function onComplete( event )
-		if event.index == 1 then
-			system.openURL( "http://developers.facebook.com/docs/guides/canvas/" )
-		end
-	end
-
-	native.showAlert( "Error", "To develop for Facebook Connect, you need to get an API key and application secret. This is available from Facebook's website.",
-		{ "Learn More", "Cancel" }, onComplete )
+-- ***
+-- ************************ Buttons Functions ********************************
+-- ***
+-- This code posts a photo image to your Facebook Wall
+local function postPhoto_onRelease( event )
+	-- call the login method of the FB session object, passing in a handler
+	-- to be called upon successful login.
+	fbCommand = POST_PHOTO
+	enforceFacebookLogin()
 end
+
+-- Request the current logged in user's info
+local function getInfo_onRelease( event )
+	-- call the login method of the FB session object, passing in a handler
+	-- to be called upon successful login.
+	fbCommand = GET_USER_INFO
+	enforceFacebookLogin()
+end
+
+-- This code posts a message to your Facebook Wall
+local function postMsg_onRelease( event )
+	-- call the login method of the FB session object, passing in a handler
+	-- to be called upon successful login.
+	fbCommand = POST_MSG
+	enforceFacebookLogin()
+end
+
+-- The following displays a Facebook dialog box for posting to your Facebook Wall
+local function showFeedDialog_onRelease( event )
+	-- call the login method of the FB session object, passing in a handler
+	-- to be called upon successful login.
+	fbCommand = SHOW_FEED_DIALOG
+	enforceFacebookLogin()
+end
+
+-- This displays a Facebook Dialog for posting a link with a photo to your Facebook Wall
+local function shareLinkDialog_onRelease( event )
+	-- call the login method of the FB session object, passing in a handler
+	-- to be called upon successful login.
+	fbCommand = SHARE_LINK_DIALOG
+	enforceFacebookLogin()
+end
+
+local function publishInstall_onRelease( event )
+	fbCommand = PUBLISH_INSTALL
+	facebook.publishInstall()
+end
+
+local function logOut_onRelease( event )
+	-- call the login method of the FB session object, passing in a handler
+	-- to be called upon successful login.
+	fbCommand = LOGOUT
+	facebook.logout()
+end
+
+-- ***
+-- ************************ Create Buttons ********************************
+-- ***
+
+-- "Post Photo with Facebook" button
+local postPhotoButton = widget.newButton
+{
+	defaultFile = "fbButton184.png",
+	overFile = "fbButtonOver184.png",
+	label = "Post Photo",
+	labelColor = 
+	{ 
+		default = { 255, 255, 255 }, 
+	},
+	fontSize = 12,
+	onRelease = postPhoto_onRelease,
+}
+postPhotoButton.x = ButtonOrigX
+postPhotoButton.y = ButtonOrigY
+
+
+-- "Post Message with Facebook" button
+local postMessageButton = widget.newButton
+{
+	defaultFile = "fbButton184.png",
+	overFile = "fbButtonOver184.png",
+	label = "Post Msg",
+	labelColor = 
+	{ 
+		default = { 255, 255, 255 }, 
+	},
+	fontSize = 12,
+	onRelease = postMsg_onRelease,
+}
+postMessageButton.x = ButtonOrigX
+postMessageButton.y = ButtonOrigY + ButtonYOffset
+
+
+-- "Show Feed Dialog Info with Facebook" button
+local showFeedDialogButton = widget.newButton
+{
+	defaultFile = "fbButton184.png",
+	overFile = "fbButtonOver184.png",
+	label = "Show Feed Dialog",
+	labelColor = 
+	{ 
+		default = { 255, 255, 255 }, 
+	},
+	fontSize = 12,
+	onRelease = showFeedDialog_onRelease,
+}
+showFeedDialogButton.x = ButtonOrigX
+showFeedDialogButton.y = ButtonOrigY + ButtonYOffset * 2
+
+-- "Share Link with Facebook" button
+local shareLinkDialogButton = widget.newButton
+{
+	defaultFile = "fbButton184.png",
+	overFile = "fbButtonOver184.png",
+	label = "Share Link Dialog",
+	labelColor = 
+	{ 
+		default = { 255, 255, 255 }, 
+	},
+	fontSize = 12,
+	onRelease = shareLinkDialog_onRelease,
+}
+shareLinkDialogButton.x = ButtonOrigX
+shareLinkDialogButton.y = ButtonOrigY + ButtonYOffset * 3
+
+-- "Get User Info with Facebook" button
+local getInfoButton = widget.newButton
+{
+	defaultFile = "fbButton184.png",
+	overFile = "fbButtonOver184.png",
+	label = "Get User",
+	labelColor = 
+	{ 
+		default = { 255, 255, 255 }, 
+	},
+	fontSize = 12,
+	onRelease = getInfo_onRelease,
+}
+getInfoButton.x = ButtonOrigX
+getInfoButton.y = ButtonOrigY + ButtonYOffset * 4
+
+-- "Publish Install with Facebook" button
+local publishInstallButton = widget.newButton
+{
+	defaultFile = "fbButton184.png",
+	overFile = "fbButtonOver184.png",
+	label = "Publish Install",
+	labelColor = 
+	{ 
+		default = { 255, 255, 255 }, 
+	},
+	fontSize = 12,
+	onRelease = publishInstall_onRelease,
+}
+publishInstallButton.x = ButtonOrigX
+publishInstallButton.y = ButtonOrigY + ButtonYOffset * 5
+
+-- "Logout with Facebook" button
+local logoutButton = widget.newButton
+{
+	defaultFile = "fbButton184.png",
+	overFile = "fbButtonOver184.png",
+	label = "Logout",
+	labelColor = 
+	{ 
+		default = { 255, 255, 255 }, 
+	},
+	fontSize = 12,
+	onRelease = logOut_onRelease,
+}
+logoutButton.x = ButtonOrigX
+logoutButton.y = ButtonOrigY + ButtonYOffset * 6
