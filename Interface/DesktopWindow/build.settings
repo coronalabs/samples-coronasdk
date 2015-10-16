@@ -1,7 +1,7 @@
 settings =
 {
 	-- If an orientation table is defined, then the width and height defined in the "config.lua"
-	-- and below will be relative to a portrait orientation like how it works on Android and iOS.
+	-- will be relative to a portrait orientation like how it works on Android and iOS.
 	-- This means that for a landscape orientation, the width is the height and the height is the width.
 	-- This makes your Corona project settings portable on both desktop and mobile plaforms.
 	orientation =
@@ -23,8 +23,8 @@ settings =
 		-- Sets the default launch width and height of the view/client area of the window.
 		-- This is the region within the borders of the window that Corona renders to.
 		-- Ideally, this should match your "config.lua" content width and height, or larger.
-		defaultViewWidth = 640,
-		defaultViewHeight = 960,
+		defaultViewWidth = 960,
+		defaultViewHeight = 640,
 
 		-- Set to true to allow the end-user to resize the window.
 		-- If true, then you may need to handle Corona's "resize" event to relayout your content.
@@ -36,8 +36,8 @@ settings =
 		-- This width and height is the region within the borders of the window.
 		-- The width and height should be set to your "config.lua" file's content width and height.
 		-- If settings not specified, then the window can be sized down to whatever the OS allows.
-		minViewWidth = 320,
-		minViewHeight = 480,
+		minViewWidth = 480,
+		minViewHeight = 320,
 
 		-- Enables/disables the window's close button. Enabled by default.
 		-- If disabled, then you must close the window yourself in Lua via native.requestExit().

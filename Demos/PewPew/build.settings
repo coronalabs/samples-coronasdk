@@ -27,8 +27,8 @@ settings =
 	window =
 	{
 		suspendWhenMinimized = true,
-		defaultViewWidth = 640,
-		defaultViewHeight = 960,
+		defaultViewWidth = 960,
+		defaultViewHeight = 640,
 		titleText =
 		{
 			default = "Pew Pew!",
