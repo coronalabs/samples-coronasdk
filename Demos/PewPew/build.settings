@@ -19,6 +19,20 @@ settings =
 			},
 		}
 	},
+	excludeFiles =
+	{
+		-- Exclude all Android icon files and .ogg files
+		iphone = { "Icon-*dpi.png", "*.ogg" },
+
+		-- Exclude iOS "retina" image files and .aac files
+		android = { "Icon.png", "*@2x.png", "*.aac" },
+
+		-- Exclude unnecessary assets from OS X desktop apps
+		osx = { "Default*.png", "Icon*.png", "Icon*.ico", "Icon*.icns", "*.aac" },
+
+		-- Exclude unnecessary assets from Win32 desktop apps
+		win32 = { "Default*.png", "Icon*.png", "Icon*.ico", "Icon*.icns", "*.aac" },
+	},
 	orientation =
 	{
 		default = "landscapeLeft",

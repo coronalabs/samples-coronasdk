@@ -10,12 +10,18 @@ local controllersTableView
 local buttonGroup
 local focusIndex
 
+-- Change audio format based on the target platform
+local audioFileFormat = "ogg"
+if ( system.getInfo( "platformName" ) == "iPhone OS" ) then
+	audioFormat = "aac"
+end
+
 -- Scene button handler function
 local function handleSceneButton( nextScene )
 	if nextScene == "game" and next( composer.getVariable("controls") ) == nil then
 		print( "You must have at least one player connected!" )
 	elseif nextScene == "exit" then
-		os.exit()
+		native.requestExit()
 	else
 		audio.play( sndClickHandle )
 		composer.gotoScene( nextScene, { effect="slideDown", time=600 } )
@@ -247,8 +253,8 @@ function scene:create( event )
 	sceneGroup:insert( controllersTableView )
 
 	-- Load sounds
-	sndClickHandle = audio.loadSound( "click.ogg" )
-	sndBackgroundHandle = audio.loadSound( "background_menu.ogg" )
+	sndClickHandle = audio.loadSound( "click." .. audioFileFormat )
+	sndBackgroundHandle = audio.loadSound( "background_menu." .. audioFileFormat )
 
 	timer.performWithDelay( 1, function (  )
 		focusIndex = 1
