@@ -1,13 +1,17 @@
 
 local json = require( "json" )
 
+local platformName = system.getInfo( "platformName" )
+
 local presetControls = {}
 
 local configFile
-if system.getInfo( "platformName" ) == "Mac OS X" then
-	configFile = system.pathForFile( "control_presets_mac.json" )
-elseif system.getInfo( "platformName" ) == "Android" then
+if platformName == "Android" then
 	configFile = system.pathForFile( "control_presets_android.json" )
+elseif platformName == "Win" then
+	configFile = system.pathForFile( "control_presets_windows.json" )
+elseif platformName == "Mac OS X" then
+	configFile = system.pathForFile( "control_presets_osx.json" )
 end
 
 
@@ -44,21 +48,17 @@ end
 
 -- Initialize controllers from presets
 function presetControlsModule.presetForDevice( device )
+	local productName = device.productName
 
-	--print( device.displayName )
-	if ( "joystick" == device.type ) then
-		local name = device.displayName
+	-- Find variously named Xbox controllers
+	if ( not presetControls[productName] and string.find( productName, "360" ) and string.find( productName, "Microsoft" ) ) then
+		productName = "Xbox Controller"
+	end
 
-		-- Find variously named Xbox controllers
-		if ( not presetControls[name] and string.find( name, "360" ) and string.find( name, "Microsoft" ) ) then
-			name = "Xbox Controller"
-		end
-
-		if ( presetControls[name] ) then
-			local ret = presetControls[name]
-			ret.name = device.displayName
-			return ret
-		end
+	if ( presetControls[productName] ) then
+		local ret = presetControls[productName]
+		ret.name = device.displayName
+		return ret
 	end
 end
 
