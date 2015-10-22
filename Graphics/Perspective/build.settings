@@ -39,10 +39,10 @@ settings =
 	{
 		enableMaximizeButton = true,
 		resizable = true,
-		minViewWidth = 320,
-		minViewHeight = 480,
-		defaultViewWidth = 640,
-		defaultViewHeight = 960,
+		minViewWidth = 480,
+		minViewHeight = 320,
+		defaultViewWidth = 960,
+		defaultViewHeight = 640,
 		titleText =
 		{
 			default = "Perspective",

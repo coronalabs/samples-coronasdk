@@ -22,14 +22,7 @@ local translations =
 	["es"] = "¡Hola mundo!",
 }
 
-local language = "en"
-
-local os = system.getInfo("platformName")
-if os == "Android" then
-	print( "system.getPreference is not implemented on Android yet" )
-else
-	language = system.getPreference( "ui", "language" )
-end
+local language = system.getPreference( "locale", "language" )
 
 -- Other localization-related system properties:
 --  system.getPreference( "locale", "country" )

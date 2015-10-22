@@ -21,6 +21,12 @@ local sndPewHandle, sndPew2Handle, sndDamageHandle, sndDeathHandle, sndBackgroun
 local exitButtonBackground, exitButton
 local exitOnStartUp = false
 
+-- Change audio format based on the target platform
+local audioFileFormat = "ogg"
+if ( system.getInfo( "platformName" ) == "iPhone OS" ) then
+	audioFormat = "aac"
+end
+
 local function onInputDeviceStatusChanged( event )
 
 	if event.connectionStateChanged then
@@ -411,12 +417,12 @@ function scene:create( event )
 	}
 
 	-- Load sounds
-	sndClickHandle = audio.loadSound( "click.ogg" )
-	sndBackgroundMusicHandle = audio.loadStream( "background_fight.ogg" )
-	sndDamageHandle = audio.loadSound( "damage.ogg" )
-	sndDeathHandle = audio.loadSound( "death.ogg" )
-	sndPewHandle = audio.loadSound( "pew.ogg" )
-	sndPew2Handle = audio.loadSound( "pew2.ogg" )
+	sndClickHandle = audio.loadSound( "click." .. audioFileFormat )
+	sndBackgroundMusicHandle = audio.loadStream( "background_fight." .. audioFileFormat )
+	sndDamageHandle = audio.loadSound( "damage." .. audioFileFormat )
+	sndDeathHandle = audio.loadSound( "death." .. audioFileFormat )
+	sndPewHandle = audio.loadSound( "pew." .. audioFileFormat )
+	sndPew2Handle = audio.loadSound( "pew2." .. audioFileFormat )
 
 	-- Create spinner
 	spinner = widget.newSpinner{

@@ -60,8 +60,8 @@ local model = system.getInfo("model")
 local environment = system.getInfo("environment") 
 local platformName = system.getInfo("platformName")
 
--- Only perform the magic if on an iOS device or simulating one
-if (environment == "simulator" and (model == "iPad" or model == "iPhone")) or platformName == "iPhone OS" then
+-- this is only supported on iOS (simulated or device) or Android (device only)
+if platformName == "Android" or platformName == "iPhone OS" or (environment == "simulator" and (model == "iPad" or model == "iPhone")) then
 	label = display.newText( "Statusbar mode changes every 2 seconds", 0, 0, native.systemFontBold, 12 )
 	label:setFillColor( 1, 1, 1 )
 	-- center text

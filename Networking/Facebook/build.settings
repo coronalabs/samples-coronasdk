@@ -10,33 +10,64 @@ settings =
 		default = "portrait",
 		supported = { "portrait" }
 	},
+	plugins =
+	{
+		-- This section is only required for builds > 2015.2668
+		["plugin.facebook.v4"] =
+		{
+			publisherId = "com.coronalabs",
+		},
+	},
 	android =
 	{
 		usesPermissions =
 		{
 			"android.permission.INTERNET",
 		},
-	},
-	plugins =
-	{
-		-- This section is only required for builds > 2014.2430
-		["facebook"] =
-		{
-			-- required
-			publisherId = "com.coronalabs",
-		},
-		--[[ This section is only required for builds > 2014.2165
-		["facebook"] =
-		{
-			-- required
-			publisherId = "com.coronalabs",
-			supportedPlatforms = { iphone = true, ["iphone-sim"] = true },
-		},--]]
+		facebookAppId = "1435768153407403" --"XXXXXXXXX",	-- replace XXXXXXXXX with your facebook appId
 	},
 	iphone =
 	{
 		plist =
 		{
+			-- For iOS 9+ only
+			NSAppTransportSecurity = 
+			{
+				NSExceptionDomains = 
+				{
+					["fbcdn.net"] = 
+					{
+						NSIncludesSubdomains = true,
+						NSExceptionRequiresForwardSecrecy = false,
+					},
+					["facebook.com"] = 
+					{
+						NSIncludesSubdomains = true,
+						NSExceptionRequiresForwardSecrecy = false,
+					},
+					["akamaihd.net"] = 
+					{
+						NSIncludesSubdomains = true,
+						NSExceptionRequiresForwardSecrecy = false,
+					},
+				},
+			},
+
+			LSApplicationQueriesSchemes = 
+			{
+				"fb",
+				"fbapi20130214",
+				"fbapi20130410",
+				"fbapi20140410",
+				"fbapi20140116",
+				"fbapi20150313",
+				"fbapi20150629",
+				"fbauth",
+				"fbauth2",
+				"fb-messenger-api20140430",
+			},
+
+			-- For all version of iOS.
 			CFBundleIconFiles =
 			{
 				"Icon.png", 
@@ -57,15 +88,14 @@ settings =
 				"Icon-Small-50@2x.png",
 			},
 			UIApplicationExitsOnSuspend = false,	-- must be false for single sign-on to work
-			FacebookAppID = "XXXXXXXXX",	-- replace XXXXXXXXX with your facebook appId
+			FacebookAppID = "1435768153407403", --"XXXXXXXXX",	-- replace XXXXXXXXX with your facebook appId
 
 			CFBundleURLTypes =
 			{
 				{
 					CFBundleURLSchemes =
 					{
-						"fbXXXXXXXXX",	-- replace XXXXXXXXX with your facebook appId
-						
+						"fb1435768153407403",	-- replace XXXXXXXXX with your facebook appId
 					}
 				}
 			}
