@@ -1,18 +1,5 @@
--- This file is for use with Corona SDK
---
--- It is intended for use with the image sheet and sprite API's
--- 
+
 -- This module writes no global values, not even the module table
---
--- Usage example:
---			local options =
---			{
---				frames = require("uma").frames,
---			}
--- 			local imageSheet = graphics.newImageSheet( "uma.png", options )
--- 			local spriteOptions = { name="uma", start=1, count=8, time=1000 }
--- 			local spriteInstance = display.newSprite( imageSheet, spriteOptions )
--- 
 
 local sheetData = {}
 
