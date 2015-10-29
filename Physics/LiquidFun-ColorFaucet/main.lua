@@ -57,19 +57,18 @@ local box
 -- Function to create/move/remove box
 local function onTouch( event )
 
-	touchX = event.x
-	touchY = event.y
-
 	local timeDelta = ( event.time / 1000.0 ) - previousTime
-	previousTime = ( event.time / 1000.0 )
-
-	local positionDeltaX = touchX - previousX
-	local positionDeltaY = touchY - previousY
-	previousX = touchX
-	previousY = touchY
-
-	velocityX = ( positionDeltaX / timeDelta )
-	velocityY = ( positionDeltaY / timeDelta )
+	if timeDelta > 0 then
+		touchX = event.x
+		touchY = event.y
+		previousTime = ( event.time / 1000.0 )
+		local positionDeltaX = touchX - previousX
+		local positionDeltaY = touchY - previousY
+		previousX = touchX
+		previousY = touchY
+		velocityX = ( positionDeltaX / timeDelta )
+		velocityY = ( positionDeltaY / timeDelta )
+	end
 
 	----------------------------------------------------------------------------
 
@@ -115,8 +114,6 @@ local particleParams_red =
 	linearVelocityX = 256,
 	linearVelocityY = -480,
 	color = { 1, 0, 0.1, 1 },
-	x = 0,
-	x = display.contentWidth * 0.15,
 	x = display.contentWidth * -0.15,
 	y = 0,
 	lifetime = 8.0,

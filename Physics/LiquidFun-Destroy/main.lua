@@ -31,40 +31,15 @@ right_side_piece.rotation = -80
 
 -- Forward declarations
 local touchIsActive = false
-local previousTime = 0.0
-local previousX = 0.0
-local previousY = 0.0
-local touchX = 0.0
-local touchY = 0.0
-local velocityX = 0.0
-local velocityY = 0.0
 local box
 
 
 -- Function to create/move/remove box
 local function onTouch( event )
 
-	touchX = event.x
-	touchY = event.y
-
-	local timeDelta = ( event.time / 1000.0 ) - previousTime
-	previousTime = ( event.time / 1000.0 )
-
-	local positionDeltaX = touchX - previousX
-	local positionDeltaY = touchY - previousY
-	previousX = touchX
-	previousY = touchY
-
-	velocityX = ( positionDeltaX / timeDelta )
-	velocityY = ( positionDeltaY / timeDelta )
-
-	----------------------------------------------------------------------------
-
 	if "began" == event.phase then
 
 		touchIsActive = true
-		velocityX = 0.0
-		velocityY = 0.0
 
 		box = display.newRect( event.x, event.y, 32, 32 )
 		box.strokeWidth = 1
