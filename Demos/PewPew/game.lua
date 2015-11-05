@@ -21,10 +21,12 @@ local sndPewHandle, sndPew2Handle, sndDamageHandle, sndDeathHandle, sndBackgroun
 local exitButtonBackground, exitButton
 local exitOnStartUp = false
 
+local platformName = system.getInfo( "platformName" )
+
 -- Change audio format based on the target platform
 local audioFileFormat = "ogg"
-if ( system.getInfo( "platformName" ) == "iPhone OS" ) then
-	audioFormat = "aac"
+if ( platformName == "iPhone OS" or platformName == "tvOS" ) then
+	audioFileFormat = "aac"
 end
 
 local function onInputDeviceStatusChanged( event )
@@ -100,7 +102,46 @@ local function createPew( player )
 end
 
 
+local gamePaused = false
+local function setPaused( paused )
+	gamePaused = paused
+
+	if ( not paused ) then
+		runtime = system.getTimer()
+	end
+
+	if ( spinner ) then
+		if ( paused ) then
+			spinner.alpha = 1
+			spinner:start()
+		else
+			spinner.alpha = 0
+			spinner:stop()
+		end
+	end
+end
+
+
+local function showPauseMenu( player )
+	setPaused( true )
+	native.showAlert( "Pew Pew!", "", { "Resume", "Quit to Menu" }, function( event )
+			setPaused( false )
+			if ( event.action == "clicked" and event.name == "completion" ) then
+				if ( event.index == 2 ) then
+					audio.play( sndClickHandle )
+					composer.gotoScene( "main-menu", { effect="slideUp", time=600 } )
+					return true
+				end
+			end
+		end )
+end
+
+
 local function onKeyEvent( event )
+
+	if ( gamePaused ) then
+		return true
+	end
 
 	local getEventDevice = composer.getVariable( "getEventDevice" )
 	local device = getEventDevice( event )
@@ -127,16 +168,7 @@ local function onKeyEvent( event )
 		end
 		if controls[device]["start"] == event.keyName then
 			if event.phase == "down" then
-				if player.exitProgress<0 then
-					player.exitProgress = system.getTimer()
-				end
-			else
-				player.exitProgress = -1
-				if exitOnStartUp then
-					audio.play( sndClickHandle )
-					composer.gotoScene( "main-menu", { effect="slideUp", time=600 } )
-					return true
-				end
+				showPauseMenu( player )
 			end
 		end
 	else
@@ -150,6 +182,10 @@ end
 
 
 local function onAxisEvent( event )
+
+	if ( gamePaused ) then
+		return true
+	end
 
 	local getEventDevice = composer.getVariable( "getEventDevice" )
 	local device = getEventDevice( event )
@@ -186,18 +222,7 @@ local function onAxisEvent( event )
 			createPew(player)
 		end
 		if controls[device]["start"] == axisName then
-			if math.abs(event.normalizedValue) > accuracy then
-				if player.exitProgress<0 then
-					player.exitProgress = system.getTimer()
-				end
-			else
-				player.exitProgress = -1
-				if exitOnStartUp then
-					audio.play( sndClickHandle )
-					composer.gotoScene( "main-menu", { effect="slideUp", time=600 } )
-					return true
-				end
-			end
+			showPauseMenu( player )
 		end
 	else
 		if controls[device] and controls[device]["start"] == axisName and event.normalizedValue > accuracy then
@@ -230,6 +255,10 @@ end
 
 local function onFrameEnter()
 
+	if ( gamePaused ) then
+		return true
+	end
+
 	if exitOnStartUp then 
 		return
 	end
@@ -240,7 +269,6 @@ local function onFrameEnter()
 
 	local dt, time = getDeltaTime()
 	local frameVelocity = dt*runFrameSpeed*1 -- instead of 1 should be frame time.
-	local maxExitProgress = -1
 	--tickPlayers
 	for device, player in pairs(players) do
 		player.sprite.group.x = clampToScreen(player.sprite.group.x + player.v.x*frameVelocity, 15, display.contentWidth-15)
@@ -280,20 +308,6 @@ local function onFrameEnter()
 			else
 				maxExitProgress = math.min( player.exitProgress, maxExitProgress )
 			end
-		end
-	end
-
-	if maxExitProgress < 0 then
-		exitButtonBackground.alpha = 0
-	else
-		local exitProgress = math.min(1, (time - maxExitProgress)/2000)
-		exitButtonBackground.alpha = 0.3
-		exitButtonBackground.width = exitButton.width * exitProgress
-		exitButtonBackground.x = exitButton.x - exitButton.width*0.5 + exitButtonBackground.width*0.5
-		if exitProgress >= 1 then
-			exitButtonBackground.alpha = 0.6
-			exitOnStartUp = true
-			return
 		end
 	end
 
@@ -425,11 +439,13 @@ function scene:create( event )
 	sndPew2Handle = audio.loadSound( "pew2." .. audioFileFormat )
 
 	-- Create spinner
-	spinner = widget.newSpinner{
-		x = display.contentCenterX,
-		y = display.contentCenterY
-	}
-	sceneGroup:insert( spinner )
+	if ( system.getInfo("platformName") ~= "tvOS" ) then
+		spinner = widget.newSpinner{
+			x = display.contentCenterX,
+			y = display.contentCenterY
+		}
+		sceneGroup:insert( spinner )
+	end
 end
 
 
@@ -438,10 +454,13 @@ function scene:show( event )
 	if event.phase == "will" then
 		-- Re-show and start spinner
 		startText.alpha = 1
-		spinner.alpha = 1
-		spinner:start()
 		exitButtonBackground.alpha = 0
 		exitOnStartUp = false
+
+		if ( spinner ) then
+			spinner.alpha = 1
+			spinner:start()
+		end
 
 	elseif event.phase == "did" then
 		-- Add listeners
@@ -495,7 +514,9 @@ function scene:hide( event )
 		numPlayers = 0
 
 		-- Stop spinner
-		spinner:stop()
+		if ( spinner ) then
+			spinner:stop()
+		end
 	end
 end
 

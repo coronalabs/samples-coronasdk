@@ -47,11 +47,13 @@ function scene:create( event )
 		fontSize = 17
 	}
 
-	spinner = widget.newSpinner{
-		x = display.contentCenterX,
-		y = display.contentCenterY
-	}
-	sceneGroup:insert( spinner )
+	if ( system.getInfo("platformName") ~= "tvOS" ) then
+		spinner = widget.newSpinner{
+			x = display.contentCenterX,
+			y = display.contentCenterY
+		}
+		sceneGroup:insert( spinner )
+	end
 end
 
 
@@ -61,7 +63,9 @@ function scene:show( event )
 		Runtime:addEventListener( "axis", onAxisEvent )
 		Runtime:addEventListener( "key", onKeyEvent )
 	elseif event.phase == "will" then
-		spinner:start()
+		if ( spinner ) then 
+			spinner:start()
+		end
 	end
 end
 
@@ -72,7 +76,9 @@ function scene:hide( event )
 		Runtime:removeEventListener( "axis", onAxisEvent )
 		Runtime:removeEventListener( "key", onKeyEvent )
 	elseif event.phase == "did" then
-		spinner:stop()
+		if ( spinner ) then
+			spinner:stop()
+		end
 	end
 end
 

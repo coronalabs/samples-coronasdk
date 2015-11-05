@@ -1,0 +1,18 @@
+{
+  "Remote": {
+    "up": "y+",
+    "down": "y-",
+    "left": "x-",
+    "right": "x+",
+    "fire": "buttonA",
+    "start": "buttonX",
+  },
+  "Controller": {
+  	"up": "leftY-",
+  	"down": "leftY+",
+  	"left": "leftX-",
+  	"right": "leftX+",
+    "fire": "buttonA",
+    "start": "mediaPause",
+  },
+}

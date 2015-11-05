@@ -32,6 +32,9 @@ settings =
 
 		-- Exclude unnecessary assets from Win32 desktop apps
 		win32 = { "Default*.png", "Icon*.png", "Icon*.ico", "Icon*.icns", "*.aac" },
+
+		-- Exclude all Android icon files and .ogg files
+		tvos = { "Icon-*dpi.png", "*.ogg" },
 	},
 	orientation =
 	{

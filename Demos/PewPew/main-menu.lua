@@ -10,10 +10,12 @@ local controllersTableView
 local buttonGroup
 local focusIndex
 
+local platformName = system.getInfo( "platformName" )
+
 -- Change audio format based on the target platform
 local audioFileFormat = "ogg"
-if ( system.getInfo( "platformName" ) == "iPhone OS" ) then
-	audioFormat = "aac"
+if ( platformName == "iPhone OS" or platformName == "tvOS" ) then
+	audioFileFormat = "aac"
 end
 
 -- Scene button handler function
@@ -216,27 +218,30 @@ function scene:create( event )
 	buttonGroup.y =  0 - composer.getVariable("letterboxHeight") + buttonGroup.contentHeight/2 + 45
 	sceneGroup:insert( buttonGroup )
 	
-	-- Exit button
-	local configureButton = widget.newButton{
-		x = display.contentCenterX,
-		y = 84,
-		id = "exit",
-		label = "Exit",
-		onPress = widgetHandleSceneButton,
-		emboss = false,
-		font = composer.getVariable("appFont"),
-		fontSize = 17,
-		shape = "rectangle",
-		width = 250,
-		height = 32,
-		fillColor = {
-			default={ (55/255)+(0.15), (68/255)+(0.15), (77/255)+(0.15), 1 },
-			over={ (55/255)+(0.1), (68/255)+(0.1), (77/255)+(0.1), 0.8 }
-		},
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } }
-	}
-	buttonGroup:insert( configureButton )
-	buttonGroup.y =  0 - composer.getVariable("letterboxHeight") + buttonGroup.contentHeight/2
+	-- Exit button. Do not show on iOS or tvOS, as per Apple's guidelines
+	if ( platformName ~= "iPhone OS" and platformName ~= "tvOS" ) then
+		local exitButton = widget.newButton{
+			x = display.contentCenterX,
+			y = 84,
+			id = "exit",
+			label = "Exit",
+			onPress = widgetHandleSceneButton,
+			emboss = false,
+			font = composer.getVariable("appFont"),
+			fontSize = 17,
+			shape = "rectangle",
+			width = 250,
+			height = 32,
+			fillColor = {
+				default={ (55/255)+(0.15), (68/255)+(0.15), (77/255)+(0.15), 1 },
+				over={ (55/255)+(0.1), (68/255)+(0.1), (77/255)+(0.1), 0.8 }
+			},
+			labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } }
+		}
+		buttonGroup:insert( exitButton )
+	end
+
+	buttonGroup.y =  0 - composer.getVariable("letterboxHeight") + 64
 	sceneGroup:insert( buttonGroup )
 
 	-- Create tableView showing controllers
