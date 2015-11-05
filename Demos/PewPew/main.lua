@@ -66,3 +66,5 @@ end
 composer.setVariable( "controls", controls )
 
 composer.gotoScene( "main-menu" )
+
+system.setIdleTimer( false )
