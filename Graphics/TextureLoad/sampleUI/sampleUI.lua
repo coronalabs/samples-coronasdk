@@ -204,8 +204,14 @@ function M:newUI( options )
 				screenShade.isHitTestable = false
 				infoBoxState = "canOpen"
 				infoShowing = false
-				if self.photoTimers[1] then timer.resume( self.photoTimers[1] ) end
-				self.spinner:start()
+				if self.photoTimers then
+					if self.photoTimers[1] then
+						timer.resume( self.photoTimers[1] )
+					end
+				end
+				if self.spinner then
+					self.spinner:start()
+				end
 			end
 		end
 
@@ -214,8 +220,14 @@ function M:newUI( options )
 				if ( infoBoxState == "canOpen" ) then
 					infoBoxState = "opening"
 					infoShowing = true
-					if self.photoTimers[1] then timer.pause( self.photoTimers[1] ) end
-					self.spinner:stop()
+					if self.photoTimers then
+						if self.photoTimers[1] then
+							timer.pause( self.photoTimers[1] )
+						end
+					end
+					if self.spinner then
+						self.spinner:stop()
+					end
 					textGroupContainer.x = display.contentCenterX
 					textGroupContainer.y = objPos["infoBoxOffY"]
 					textGroupContainer:insert( infoTextGroup )
