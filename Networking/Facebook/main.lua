@@ -149,7 +149,7 @@ local function processFBCommand( )
 			name = "Facebook v4 Corona plugin on iOS!",
 			link = "https://coronalabs.com/blog/2015/09/01/facebook-v4-plugin-ios-beta-improvements-and-new-features/",
 			description = "More Facebook awesomeness for Corona!",
-			picture = "https://www.facebookbrand.com/img/fb-art.jpg",
+			picture = "https://coronalabs.com/wp-content/uploads/2014/11/Corona-Icon.png",
 		})
 		printTable(response)
 	end

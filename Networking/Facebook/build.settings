@@ -24,7 +24,7 @@ settings =
 		{
 			"android.permission.INTERNET",
 		},
-		facebookAppId = "1435768153407403" --"XXXXXXXXX",	-- replace XXXXXXXXX with your facebook appId
+		facebookAppId = "XXXXXXXXX",	-- replace XXXXXXXXX with your facebook appId
 	},
 	iphone =
 	{
@@ -89,14 +89,14 @@ settings =
 				"Icon-Small-50@2x.png",
 			},
 			UIApplicationExitsOnSuspend = false,	-- must be false for single sign-on to work
-			FacebookAppID = "1435768153407403", --"XXXXXXXXX",	-- replace XXXXXXXXX with your facebook appId
+			FacebookAppID = "XXXXXXXXX",	-- replace XXXXXXXXX with your facebook appId
 
 			CFBundleURLTypes =
 			{
 				{
 					CFBundleURLSchemes =
 					{
-						"fb1435768153407403",	-- replace XXXXXXXXX with your facebook appId
+						"fbXXXXXXXXX",	-- replace XXXXXXXXX with your facebook appId
 					}
 				}
 			}
