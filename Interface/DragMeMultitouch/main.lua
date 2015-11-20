@@ -19,36 +19,53 @@ else
 	system.activate( "multitouch" )
 end
 
+local function getFormattedPressure( pressure )
+	if pressure then
+		return math.floor( pressure * 1000 + 0.5 ) / 1000
+	end
+	return "unsupported"
+end
+
 local arguments =
 {
---	{ x=100, y=60, w=100, h=100, r=10, red=255/255, green=0/255, blue=128/255 },
---	{ x=60, y=100, w=100, h=100, r=10, red=0/255, green=128/255, blue=255/255 },
---	{ x=140, y=140, w=100, h=100, r=10, red=255/255, green=255/255, blue=0/255 }
-	
-	{ x=75, y=135, w=50, h=50, r=10, red=255/255, green=0/255, blue=128/255 },
-	{ x=47, y=175, w=75, h=50, r=10, red=0/255, green=128/255, blue=255/255 },
-	{ x=140, y=215, w=100, h=50, r=10, red=255/255, green=255/255, blue=0/255 }
-
---	{ x=50, y=110, w=50, h=50, r=10, red=255/255, green=0/255, blue=128/255 },
---	{ x=10, y=150, w=75, h=50, r=10, red=0/255, green=128/255, blue=255/255 },
---	{ x=90, y=190, w=100, h=50, r=10, red=255/255, green=255/255, blue=0/255 }
+	{ x=75, y=135, w=50, h=50, r=10, red=1, green=0, blue=0 },
+	{ x=47, y=175, w=75, h=50, r=10, red=0, green=1, blue=0 },
+	{ x=140, y=215, w=100, h=50, r=10, red=0, green=0, blue=1 },
 }
 
-local eventInfoText1 = display.newText(" ", 100,300, native.systemFont, 12) 
-eventInfoText1:setFillColor(100,255,255)
-local eventInfoText2 = display.newText(" ", 100,320, native.systemFont, 12) 
-eventInfoText2:setFillColor(100,255,255)
+local touchText = {}
+
+local function getTouchTextDisplay( touchId, index )
+	local texts = touchText[touchId]
+	if ( not texts ) then
+		texts = {
+			basics = display.newText(" ", 100, 300, native.systemFont, 12),
+			bounds = display.newText(" ", 100, 320, native.systemFont, 12),
+		}
+		touchText[touchId] = texts
+	end
+	return texts[index]
+end
 
 local function printTouch( event )
  	if event.target then 
  		local bounds = event.target.contentBounds
-		print( "event(" .. event.phase .. ") ("..event.x..","..event.y..") bounds: "..bounds.xMin..","..bounds.yMin..","..bounds.xMax..","..bounds.yMax )
-		eventInfoText1.x = event.x
-		eventInfoText1.y = bounds.yMin - 30
-		eventInfoText1.text = "event(" .. event.phase .. ") ("..event.x..","..event.y..")"
-		eventInfoText2.x = event.x
-		eventInfoText2.y = bounds.yMin - 10
-		eventInfoText2.text = "bounds: "..bounds.xMin..","..bounds.yMin..","..bounds.xMax..","..bounds.yMax
+ 		local pressure = getFormattedPressure(event.pressure)
+
+		print( event.name.."(" .. event.phase .. ") "..tostring(event.id).." ("..event.x..","..event.y..") bounds: "..bounds.xMin..","..bounds.yMin..","..bounds.xMax..","..bounds.yMax.."; pressure: "..pressure )
+
+ 		local dataText = getTouchTextDisplay( event.id, "basics" )
+		dataText.x = event.x
+		dataText.y = bounds.yMin - 30
+		dataText.text = "event(" .. event.phase .. ") ("..event.x..","..event.y..")"
+		if event.pressure then
+			dataText.text = dataText.text .. " (" .. pressure .. ")"
+		end
+
+ 		local boundsText = getTouchTextDisplay( event.id, "bounds" )
+		boundsText.x = event.x
+		boundsText.y = bounds.yMin - 10
+		boundsText.text = "bounds: "..bounds.xMin..","..bounds.yMin..","..bounds.xMax..","..bounds.yMax
 	end 
 end
 
@@ -81,10 +98,22 @@ local function onTouch( event )
 			-- relative to initial grab point, rather than object "snapping").
 			t.x = event.x - t.x0
 			t.y = event.y - t.y0
+			
+			-- Gradually show the shape's stroke depending on how much pressure is applied.
+			if ( event.pressure ) then
+				t:setStrokeColor( 1, 1, 1, event.pressure )
+			end
 		elseif "ended" == phase or "cancelled" == phase then
 			display.getCurrentStage():setFocus( t, nil )
+			t:setStrokeColor( 1, 1, 1, 0 )
 			t.isFocus = false
 		end
+	end
+
+	if "ended" == phase or "cancelled" == phase then
+		getTouchTextDisplay( event.id, "basics" ):removeSelf()
+		getTouchTextDisplay( event.id, "bounds" ):removeSelf()
+		touchText[event.id] = nil
 	end
 
 	-- Important to return true. This tells the system that the event
@@ -97,7 +126,7 @@ for _,item in ipairs( arguments ) do
 	local button = display.newRoundedRect( item.x, item.y, item.w, item.h, item.r )
 	button:setFillColor( item.red, item.green, item.blue )
 	button.strokeWidth = 6
-	button:setStrokeColor( 200,200,200,255 )
+	button:setStrokeColor( 1, 1, 1, 0 )
 
 	-- Make the button instance respond to touch events
 	button:addEventListener( "touch", onTouch )
@@ -106,11 +135,26 @@ end
 -- listener used by Runtime object. This gets called if no other display object
 -- intercepts the event.
 local function printTouch2( event )
-	print( "event(" .. event.phase .. ") ("..event.x..","..event.y..")" )
-	eventInfoText1.x = event.x
-	eventInfoText1.y = event.y
-	eventInfoText1.text = "event(" .. event.phase .. ") ("..event.x..","..event.y..")"
-	eventInfoText2.text = " "
+	local id = event.id
+	local phase = event.phase
+
+	local message = event.name.."(" .. phase .. ") "..tostring(id).." ("..event.x..","..event.y..") " .. "(" .. getFormattedPressure( event.pressure ) .. ")"
+	print( message )
+
+	if "ended" ~= phase and "cancelled" ~= phase then
+	 	local dataText = getTouchTextDisplay( id, "basics" )
+		dataText.x = event.x
+		dataText.y = event.y
+		dataText.text = message
+
+		getTouchTextDisplay( id, "bounds" ).text = ""
+	else
+		getTouchTextDisplay( id, "basics" ):removeSelf()
+		getTouchTextDisplay( id, "bounds" ):removeSelf()
+		touchText[event.id] = nil
+	end
+	
+	return true
 end
 
 Runtime:addEventListener( "touch", printTouch2 )
