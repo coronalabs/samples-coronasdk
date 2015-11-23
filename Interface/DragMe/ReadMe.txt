@@ -1,1 +1,1 @@
-Demonstrates how to create draggable objects and how to move an object to the top layer.
+Demonstrates how to create draggable objects, how to move an object to the top layer, and how to read the pressure given to a touch.

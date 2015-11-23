@@ -7,7 +7,7 @@
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 
 -- Demonstrates how to use create draggable objects with multitouch. Also shows how to move
--- an object to the front of the display hierarchy.
+-- an object to the front of the display hierarchy, and how to read a given touch's pressure.
 --
 -- Supports Graphics 2.0
 

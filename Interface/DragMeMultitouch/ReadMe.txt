@@ -1,1 +1,1 @@
-Demonstrates how to create draggable objects with multitouch and prioritized layering.
+Demonstrates how to create draggable objects with multitouch and prioritized layering. Also demonstrates how to read the pressure applied to a touch.

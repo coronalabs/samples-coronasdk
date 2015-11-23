@@ -25,7 +25,7 @@
 -- Supports Graphics 2.0
 
 -- Demonstrates how to use create draggable objects. Also shows how to move
--- an object to the top.
+-- an object to the top, and how to use touch pressure sensitivity.
 
 local arguments =
 {
