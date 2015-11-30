@@ -1,7 +1,7 @@
 {
   "Remote": {
-    "up": "y+",
-    "down": "y-",
+    "up": "y-",
+    "down": "y+",
     "left": "x-",
     "right": "x+",
     "fire": "buttonA",
