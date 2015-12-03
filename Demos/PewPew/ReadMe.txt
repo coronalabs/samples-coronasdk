@@ -2,7 +2,7 @@ This is a simple game where you can run around using a gamepad/joystick or the k
 
 Each player uses a unique device. Connect the device and press "configure a controller" from the main menu. Once in the configuration screen, press buttons or use axes to set up the controls. Note that some controllers are pre-configured.
 
-Note that only the Corona Simulator for OS X and Android devices support gamepads/joysticks.
+This project also demonstrates how to use tvOS art assets in your Corona app.
 
 CREDITS/ASSETS
 
@@ -20,8 +20,7 @@ Background music:
 
 Damage sound:
     LittleRobotSoundFactory
-    www.freesound.org/people/
-    LittleRobotSoundFactory
+    www.freesound.org/people/LittleRobotSoundFactory
 	
 Death sound:
     noirenex
