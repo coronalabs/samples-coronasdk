@@ -121,10 +121,15 @@ local function setPaused( paused )
 	end
 end
 
-
+local pauseAlert = nil
 local function showPauseMenu( player )
 	setPaused( true )
-	native.showAlert( "Pew Pew!", "", { "Resume", "Quit to Menu" }, function( event )
+
+	if ( pauseAlert ) then
+		native.cancelAlert( pauseAlert )
+	end
+	
+	pauseAlert = native.showAlert( "Pew Pew!", "", { "Resume", "Quit to Menu" }, function( event )
 			setPaused( false )
 			if ( event.action == "clicked" and event.name == "completion" ) then
 				if ( event.index == 2 ) then
