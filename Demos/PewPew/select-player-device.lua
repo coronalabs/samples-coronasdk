@@ -18,10 +18,17 @@ end
 
 
 local function onKeyEvent( event )
+	if event.keyName == "back" or event.keyName == "mediaPause" then
+		composer.setVariable( "userDevice", nil )
+		composer.gotoScene( "main-menu", { effect="slideUp", time=600 } )
+		return true
+	end
 
 	local getEventDevice = composer.getVariable( "getEventDevice" )
 	local getNiceDeviceName = composer.getVariable( "getNiceDeviceName" )
 	selectDevice( getEventDevice(event), getNiceDeviceName(event) )
+
+	return true
 end
 
 

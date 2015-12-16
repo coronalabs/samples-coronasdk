@@ -139,7 +139,12 @@ end
 
 local function onKeyEvent( event )
 
-	if ( gamePaused ) then
+	if gamePaused then
+		return true
+	end
+
+	if event.keyName == "back" then
+		showPauseMenu( player )
 		return true
 	end
 

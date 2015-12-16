@@ -28,6 +28,15 @@ local function processKey( keyName )
 
 	local device = composer.getVariable( "userDevice" )
 
+	-- Do not allow users to set the mediaPause button to the fire button.
+	if controlButtons[i] == "fire" and keyName == "mediaPause" then
+		titleText.alpha = 1
+		titleText.text = "invalid fire button"
+		titleText:setFillColor( 0.8, 0.2, 0.2 )
+		transition.to( titleText, { time=280, delay=1500, alpha=0, transition=easing.outQuad } )
+		return false
+	end
+
 	if currentInputIndex > 0 then
 		local controls = composer.getVariable( "controls" )
 
@@ -46,7 +55,7 @@ local function processKey( keyName )
 			titleText.text = "control already selected"
 			titleText:setFillColor( 0.8, 0.2, 0.2 )
 			transition.to( titleText, { time=280, delay=1500, alpha=0, transition=easing.outQuad } )
-			return
+			return false
 		end
 
 		-- Set key to current control
@@ -63,12 +72,18 @@ local function processKey( keyName )
 			updateControlHighlight( )
 		end )
 	end
+
+	return true
 end
 
 
 local function onKeyEvent( event )
 	if event.phase ~= "up" then
-		return
+		return false
+	end
+
+	if  event.keyName == "back" then
+		return true
 	end
 
 	local getEventDevice = composer.getVariable( "getEventDevice" )
@@ -78,18 +93,18 @@ local function onKeyEvent( event )
 		composer.setVariable( "userDevice", nil )
 		print( require("json").encode(composer.getVariable( "controls" )) )
 		composer.gotoScene( "main-menu", { effect="slideUp", time=600 } )
-		return
+		return false
 	end		
 
 	if getEventDevice(event) ~= device then
-		return
+		return false
 	end
-	processKey( event.keyName )
+
+	return processKey( event.keyName )
 end
 
 
 local function onAxisEvent( event )
-
 	local getEventDevice = composer.getVariable( "getEventDevice" )
 	local device = composer.getVariable( "userDevice" )
 

@@ -273,8 +273,13 @@ function math.clamp(n, low, high) return math.min(math.max(n, low), high) end
 
 local function onKeyEvent( event )
 
-	if event.phase ~= "up" then
-		return
+	if event.phase ~= "down" then
+		return false
+	end
+
+	-- Let Android/tvOS exit here rather than closing the app mid-handling.
+	if event.keyName == "back" or event.keyName == "mediaPause" then
+		return false
 	end
 
 	local getEventDevice = composer.getVariable( "getEventDevice" )
@@ -284,7 +289,7 @@ local function onKeyEvent( event )
 	local device = getEventDevice( event )
 
 	if controls[device] then
-		if controls[device]["start"] == event.keyName or controls[device]["fire"] == event.keyName then
+		if controls[device]["fire"] == event.keyName then
 			if focusIndex>0 then
 				timer.performWithDelay( 1, function ()
 					audio.play( sndClickHandle )
@@ -326,7 +331,7 @@ local function onAxisEvent( event )
 	
 	if math.abs(event.normalizedValue) > 0.6 then
 		if controls[device] then
-			if controls[device]["start"] == axisName or controls[device]["fire"] == axisName then
+			if controls[device]["fire"] == axisName then
 				if focusIndex>0 then
 					timer.performWithDelay( 1, function ()
 						audio.play( sndClickHandle )
@@ -376,6 +381,8 @@ function scene:show( event )
 
 		audio.rewind( sndBackgroundHandle )
 		sndBackground = audio.play( sndBackgroundHandle, { loops=-1 } )
+
+		system.activate("controllerUserInteraction")
 	end
 end
 
@@ -388,6 +395,7 @@ function scene:hide( event )
 		Runtime:removeEventListener( "axis", onAxisEvent )
 		Runtime:removeEventListener( "inputDeviceStatus", onInputDeviceStatusChanged )
 	elseif event.phase == "did" then
+		system.deactivate("controllerUserInteraction")
 	end
 end
 
