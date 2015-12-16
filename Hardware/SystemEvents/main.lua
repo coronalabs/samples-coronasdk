@@ -1,9 +1,5 @@
 -- Project: SytemEvents
 --
--- Date: August 19, 2010
---
--- Version: 1.0
---
 -- File name: main.lua
 --
 -- Author: Corona Labs
@@ -37,22 +33,34 @@
 --		applicationExit event. A message is displayed if found and the file deleted.
 --
 -- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
+-- Copyright (C) 2010-2015 Corona Labs Inc. All Rights Reserved.
 --
--- Supports Graphics 2.0
+-- History
+--	August 19, 2010		Initial version
+--  December 12, 2015	Modified for tvOS (landscape)
+--						Changed file write to Temporary directory for tvOS (actual device)
 ---------------------------------------------------------------------------------------
 
 local centerX = display.contentCenterX		-- find center of screen
 local centerY = display.contentCenterY		-- find center of screen
-	
+local _W = display.contentWidth
+local _H = display.contentHeight
+
 io.output():setvbuf('no') 		-- **debug: disable output buffering for Xcode Console
 
 display.setDefault( "background", 80/255 )
 
 -- forward references
-local eventTxt, eventLabel, OEventLabel
+local eventTxt, eventLabel, OEventLabel, buildText
 local previousEvent = nil
 
+local	WHLabel_Y
+local	pWHLabel_Y
+local	eventTxt_Y
+local	OEventLabel_Y
+local	title_Y
+local	pEventLabel_Y
+local   didExitText
 -----------------------------------------------------------
 -- textMessage() --
 -----------------------------------------------------------
@@ -121,7 +129,7 @@ end	-- textMessage()
 -- The following file is created when the app receives an applicationExit event.
 -- The file is used to determine if the app received the event the last time it was run.
 --
-local filePath = system.pathForFile( "ExitState.txt", system.DocumentsDirectory )
+local filePath = system.pathForFile( "ExitState.txt", system.TemporaryDirectory )
 
 -- Check if ExitFile exists
 --
@@ -151,6 +159,7 @@ function createExitFile()
     -- create the ExitState file
 --  print( "Creating file..." )
     file = io.open( filePath, "w" )
+    print( "file status ", file, filePath)	-- **debug
 	io.close( file )
 end
 
@@ -180,7 +189,7 @@ function onSystemEvent( event )
 		if isExitFile() then
 			print ("Found ExitState.txt from last Run!")
 			-- str, location, scrTime, size, color, font
-			textMessage( "App Did Exit After Last Run!", 160, 3, 16, {255, 0, 255} )
+			didExitText = textMessage( "App Did Exit After Last Run!", 70, 3, 16, {255, 0, 255} )
 		end
 		
 	end
@@ -189,7 +198,7 @@ function onSystemEvent( event )
 	-- (This may have occurred during a suspend event)
 	--
 	if not pEventLabel then
-		pEventLabel = display.newText( "x", centerX, centerY+30, nil, 18 )
+		pEventLabel = display.newText( "x", centerX, pEventLabel_Y, nil, 18 )
 		pEventLabel:setFillColor( 1, 1, 0 )
 	end
 	
@@ -211,53 +220,109 @@ function onSystemEvent( event )
 	
 end
 
------------------------------------------------------------------------
--- Come here on Orientation Events
--- Display the Orientation Message on the screen
------------------------------------------------------------------------
+-----------------------------------------------
+-- *** Locate the buttons on the screen ***
+-----------------------------------------------
+
+-- Adjust objects for Portrait or Landscape mode
 --
-function onOrientationEvent( event ) 
+-- Enter: mode = orientation mode
+
+function changeOrientation( mode ) 
 	
 	centerX = display.contentCenterX		-- find new center of screen
 	centerY = display.contentCenterY		-- find new center of screen
+	_W = display.contentWidth
+	_H = display.contentHeight
+	_WV = display.viewableContentWidth
+	_HV = display.viewableContentHeight
 
-	print ("onOrientationEvent: " .. event.name .. ", " .. event.type)
-		
+	-- Update label positions based on new orientation
+	WHLabel_Y = centerY+60
+	pWHLabel_Y = centerY+90
+	eventTxt_Y = centerY-30
+	OEventLabel_Y = 100
+	title_Y = 40
+	pEventLabel_Y = centerY+30
+
+	buildText.x = _WV-30			-- display build number
+	buildText.y = _HV-15
+
 	-- Display the Orientation message on the screen
 	if not OEventLabel then
-		OEventLabel = display.newText("x", centerX, 100, nil, 20 )
+		OEventLabel = display.newText("x", 0, 0, nil, 20 )
 		OEventLabel:setFillColor( 1, 1, 0 )
 	end
 	 
-	OEventLabel.text = event.type
+	OEventLabel.text = mode
 	
 	-- Display the Width and Height of the screen
 	if not WHLabel then
-		WHLabel = display.newText("x", centerX, 130, nil, 16 )
+		WHLabel = display.newText("", centerX, WHLabel_Y, nil, 16 )
 		WHLabel:setFillColor( 1, 1, 1 )
+
+		pWHLabel = display.newText("", centerX, WHLabel_Y, nil, 16 )
+		pWHLabel:setFillColor( 1, 1, 1 )
 	end
 	 
 	WHLabel.text = "Width: " .. display.contentWidth .. ", Height: " .. display.contentHeight
-	
+	pWHLabel.text = "Pixel Width: " .. display.pixelWidth .. ", Pixel Height: " .. display.pixelHeight
+
 	-- Since our orientation changed, center the text on the screen
-	pEventLabel.x = centerX
-	OEventLabel.x = centerX
-	eventLabel.x = centerX
+	if pEventLabel then
+		pEventLabel.x = centerX
+		pEventLabel.y = pEventLabel_Y
+
+	end
+	if eventLabel then
+		eventLabel.x = centerX
+		eventLabel.y = centerY
+	end
+
+	if didExitText then
+		didExitText.x = centerX
+	end
+
 	eventTxt.x = centerX
-	WHLabel.x = centerX	
+	eventTxt.y = eventTxt_Y
 	title.x = centerX	
+	title.y = title_Y	
+	OEventLabel.x = centerX
+	OEventLabel.y = OEventLabel_Y
+	WHLabel.x = centerX	
+	WHLabel.y = WHLabel_Y
+	pWHLabel.x = centerX	
+	pWHLabel.y = pWHLabel_Y
 
 	return true
 	
 end
 
 -----------------------------------------------------------------------
+-- Come here on Orientation Events
+-- Display the Orientation Message on the screen
+-----------------------------------------------------------------------
+--
+function onOrientationEvent( event ) 
+
+	print ("onOrientationEvent: " .. event.name .. ", " .. event.type)
+	changeOrientation( event.type )
+
+end
+
+-----------------------------------------------------------------------
 -- Create text message label
 --
-eventTxt = display.newText( "Last Callback Event:", centerX, centerY-30, nil, 20 )
+eventTxt = display.newText( "Last Callback Event:", 0, 0, nil, 20 )
 eventTxt:setFillColor( 1, 1, 1 )
 
+-- Display the build number on the scree
+buildText = display.newText( system.getInfo( "build" ), 0, 0, native.systemFont, 12 )
+
 title = textMessage( "** SystemEvents **", 40, 0, 24, {1, 1, 1} )	-- str, location, scrTime, size, color, font
+
+-- Set up the display after the app starts
+changeOrientation( system.orientation )
 
 -- Add the System callback event
 Runtime:addEventListener( "system", onSystemEvent );
