@@ -44,6 +44,9 @@ local params = {
 --	newBall{ radius=10, xdir=-1, ydir=1, xspeed=3.8, yspeed=1.2 }
 }
 
+-- local s = display.newRect( display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentHeight )
+-- s:setFillColor( 1, 1, 0, 0.5 )
+
 local collection = {}
 
 -- Iterate through params array and add new balls into an array
@@ -52,11 +55,13 @@ for _,item in ipairs( params ) do
 	collection[ #collection + 1 ] = ball
 end
 
--- Get current edges of visible screen (accounting for the areas cropped by "zoomEven" scaling mode in config.lua)
+-- Get current edges of visible screen
 local screenTop = display.screenOriginY
-local screenBottom = display.viewableContentHeight + display.screenOriginY
+local screenBottom = display.actualContentHeight + display.screenOriginY
 local screenLeft = display.screenOriginX
-local screenRight = display.viewableContentWidth + display.screenOriginX
+local screenRight = display.actualContentWidth + display.screenOriginX
+
+local bounceBack = nil
 
 function collection:enterFrame( event )
 	for _,ball in ipairs( collection ) do

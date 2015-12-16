@@ -26,11 +26,11 @@ local yspeed = 6.4
 
 local fruit = display.newImage( "fruit.png", xpos, ypos )
 
--- Get current edges of visible screen (accounting for the areas cropped by "zoomEven" scaling mode in config.lua)
-local screenTop = display.screenOriginY
-local screenBottom = display.viewableContentHeight + display.screenOriginY
-local screenLeft = display.screenOriginX
-local screenRight = display.viewableContentWidth + display.screenOriginX
+-- Get current edges of visible screen
+local screenTop = 0
+local screenBottom = display.contentHeight
+local screenLeft = 0
+local screenRight = display.contentWidth
 
 local function animate(event)
 	xpos = xpos + ( xspeed * xdirection );

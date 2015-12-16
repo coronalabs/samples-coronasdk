@@ -54,6 +54,7 @@ orientationLabel:setFillColor( 240/255, 240/255, 90/255 )
 
 local function onOrientationChange( event )
 	orientationLabel.text = "Orientation: " .. system.orientation
+	print( "Pixels (WxH): " .. display.pixelWidth .. "x" .. display.pixelHeight )
 end
-
+onOrientationChange()
 Runtime:addEventListener( "orientation", onOrientationChange )

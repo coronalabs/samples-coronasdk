@@ -4,6 +4,6 @@ application =
 	{ 
 		width = 320,
 		height = 480, 
-		scale = "zoomEven"
+		scale = "letterbox"
 	}
 }
