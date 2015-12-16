@@ -18,7 +18,7 @@ end
 
 
 local function onKeyEvent( event )
-	if event.keyName == "back" or event.keyName == "mediaPause" then
+	if event.keyName == "back" or event.keyName == "menu" then
 		composer.setVariable( "userDevice", nil )
 		composer.gotoScene( "main-menu", { effect="slideUp", time=600 } )
 		return true

@@ -5,7 +5,7 @@
     "left": "x-",
     "right": "x+",
     "fire": "buttonA",
-    "start": "mediaPause",
+    "start": "menu",
   },
   "Controller": {
   	"up": "leftY-",
@@ -13,6 +13,6 @@
   	"left": "leftX-",
   	"right": "leftX+",
     "fire": "buttonA",
-    "start": "mediaPause",
+    "start": "menu",
   },
 }

@@ -28,8 +28,8 @@ local function processKey( keyName )
 
 	local device = composer.getVariable( "userDevice" )
 
-	-- Do not allow users to set the mediaPause button to the fire button.
-	if controlButtons[i] == "fire" and keyName == "mediaPause" then
+	-- Do not allow users to set the menu button to the fire button.
+	if controlButtons[i] == "fire" and keyName == "menu" then
 		titleText.alpha = 1
 		titleText.text = "invalid fire button"
 		titleText:setFillColor( 0.8, 0.2, 0.2 )

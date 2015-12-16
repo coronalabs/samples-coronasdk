@@ -278,7 +278,7 @@ local function onKeyEvent( event )
 	end
 
 	-- Let Android/tvOS exit here rather than closing the app mid-handling.
-	if event.keyName == "back" or event.keyName == "mediaPause" then
+	if event.keyName == "back" or event.keyName == "menu" then
 		return false
 	end
 
