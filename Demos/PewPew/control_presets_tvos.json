@@ -5,7 +5,7 @@
     "left": "x-",
     "right": "x+",
     "fire": "buttonA",
-    "start": "buttonX",
+    "start": "mediaPause",
   },
   "Controller": {
   	"up": "leftY-",
