@@ -31,4 +31,12 @@
     "fire": "buttonA",
     "start": "buttonStart"
   },
+  "NVIDIA Corporation NVIDIA Controller v01.01": {
+    "up": "y-",
+    "down": "y+",
+    "left": "x-",
+    "right": "x+",
+    "fire": "buttonA",
+    "start": "buttonStart"
+  }
 }
