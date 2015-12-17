@@ -59,12 +59,6 @@ for _,item in ipairs( params ) do
 	collection[ #collection + 1 ] = ball
 end
 
--- Get current edges of visible screen (accounting for the areas cropped by "zoomEven" scaling mode in config.lua)
--- local screenTop = display.screenOriginY
--- local screenBottom = display.viewableContentHeight + display.screenOriginY
--- local screenLeft = display.screenOriginX
--- local screenRight = display.viewableContentWidth + display.screenOriginX
-
 function collection:enterFrame( event )
 	for _,ball in ipairs( collection ) do
 		local dx = ( ball.xspeed * ball.xdir );

@@ -138,17 +138,10 @@ end
 
 -- Function to animate all the fish
 function bounceAnimation:enterFrame( event )
-	local container = display.getCurrentStage()		-- **changed
-	-- local container = self.container
-	local containerBounds = container.contentBounds
 	local xMin = 0
 	local xMax = display.contentWidth
 	local yMin = 0
 	local yMax = display.contentHeight
-	-- local xMin = containerBounds.xMin
-	-- local xMax = containerBounds.xMax
-	-- local yMin = containerBounds.yMin
-	-- local yMax = containerBounds.yMax
 
 	local reflectX = nil ~= self.reflectX
 	local reflectY = nil ~= self.reflectY
