@@ -1,10 +1,8 @@
 -- 
 -- Abstract: FrameAnimation2 -- bouncing balls animated with table listeners for the "enterFrame" event
 -- 
--- Version: 1.2 (uses new viewableContentHeight, viewableContentWidth properties)
--- 
 -- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
+-- Copyright (C) 2010-2015 Corona Labs Inc. All Rights Reserved.
 
 -- Demonstrates how to use table listeners for event handling, for more of an object-oriented
 -- approach. This is an example of one convenient way to structure and organize code.
@@ -16,12 +14,21 @@
 -- Like "FrameAnimation1", this is frame-based animation. See "TimeAnimation" for an example of
 -- how to do time-based, framerate-independent animation.
 --
--- Supports Graphics 2.0
-------------------------------------------------------------
+-- History
+--	12/15/2015		Modified for landscape/portrait modes for tvOS
+---------------------------------------------------------------------
 
 display.setStatusBar( display.HiddenStatusBar )
 
 display.setDefault( "background", 80/255 )
+
+local screenTop 
+local screenBottom 
+local screenLeft
+local screenRight
+
+local xpos = display.contentCenterX		-- find new center of screen
+local ypos = display.contentCenterY		-- find new center of screen
 
 local function newBall( params )
 	local xpos = display.contentWidth*0.5
@@ -44,9 +51,6 @@ local params = {
 --	newBall{ radius=10, xdir=-1, ydir=1, xspeed=3.8, yspeed=1.2 }
 }
 
--- local s = display.newRect( display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentHeight )
--- s:setFillColor( 1, 1, 0, 0.5 )
-
 local collection = {}
 
 -- Iterate through params array and add new balls into an array
@@ -55,13 +59,11 @@ for _,item in ipairs( params ) do
 	collection[ #collection + 1 ] = ball
 end
 
--- Get current edges of visible screen
-local screenTop = display.screenOriginY
-local screenBottom = display.actualContentHeight + display.screenOriginY
-local screenLeft = display.screenOriginX
-local screenRight = display.actualContentWidth + display.screenOriginX
-
-local bounceBack = nil
+-- Get current edges of visible screen (accounting for the areas cropped by "zoomEven" scaling mode in config.lua)
+-- local screenTop = display.screenOriginY
+-- local screenBottom = display.viewableContentHeight + display.screenOriginY
+-- local screenLeft = display.screenOriginX
+-- local screenRight = display.viewableContentWidth + display.screenOriginX
 
 function collection:enterFrame( event )
 	for _,ball in ipairs( collection ) do
@@ -80,6 +82,50 @@ function collection:enterFrame( event )
 		ball:translate( dx, dy )
 	end
 end
+
+-----------------------------------------------------------------------
+-- Change the orientation of the app here
+--
+-- Adjust objects for Portrait or Landscape mode
+--
+-- Enter: mode = orientation mode
+-----------------------------------------------------------------------
+--
+function changeOrientation( mode ) 
+	print( "changeOrientation ...", mode )
+
+	xpos = display.contentCenterX		-- find new center of screen
+	ypos = display.contentCenterY		-- find new center of screen
+
+-- Get current edges of visible screen (accounting for the areas cropped by "zoomEven" scaling mode in config.lua)
+	screenTop = display.screenOriginY
+	screenBottom = display.viewableContentHeight + display.screenOriginY
+	screenLeft = display.screenOriginX
+	screenRight = display.viewableContentWidth + display.screenOriginX
+
+	-- Iterate through the ball array and reset the location to center of the screen
+	for i = 1, #collection  do
+		collection[ i ].x = xpos
+		collection[ i ].y = ypos
+	end
+
+end
+
+-----------------------------------------------------------------------
+-- Come here on Resize Events
+-- Display the Orientation Message on the screen
+-----------------------------------------------------------------------
+--
+function onResizeEvent( event ) 
+	print ("onResizeEvent: " .. event.name)
+	changeOrientation( system.orientation )
+end
+
+-- Set up the display after the app starts
+changeOrientation( system.orientation )
+
+-- Add the Orientation callback event
+Runtime:addEventListener( "resize", onResizeEvent )
 
 Runtime:addEventListener( "enterFrame", collection );
     

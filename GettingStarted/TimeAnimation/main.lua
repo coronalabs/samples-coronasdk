@@ -1,13 +1,12 @@
 -- 
 -- Abstract: Bouncing ball (function listener) sample app (time-based animation)
 --			 Drag the ball and flick it to bounce it off of the edges of the screen.
--- 
--- Version: 1.1
 --
 -- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
+-- Copyright (C) 2010-2015 Corona Labs Inc. All Rights Reserved.
 --
--- Supports Graphics 2.0
+-- History
+--	12/15/2015		Modified for landscape/portrait modes for tvOS
 ---------------------------------------------------------------------------------------
 
 local screenW, screenH = display.contentWidth, display.contentHeight
@@ -16,18 +15,17 @@ local gravity = .09
 local speedX, speedY, prevX, prevY, lastTime, prevTime = 0, 0, 0, 0, 0, 0
 
 local background = display.newImage( "metal_bg.jpg", true )
-background.x = screenW / 2
-background.y = screenH / 2
 
 local infoLabel = display.newText( "Drag or fling ball to bounce", 0, 0, native.systemFontBold, 20 )
-infoLabel:setFillColor( 0, 0, 0 )
-infoLabel.x = screenW / 2
 infoLabel.y = 60
+
+if "tvOS" == system.getInfo( "platformName" ) then
+	warningText = display.newText( "(Not supported on Apple TV)", 0, 0, native.systemFontBold, 20 )
+	warningText.y = 85
+end
 
 local ball = display.newCircle( 0, 0, 40)
 ball:setFillColor( 1, 1, 1, 166/255 )
-ball.x = screenW * 0.5
-ball.y = ball.height
 
 function onMoveCircle(event) 
 	local timePassed = event.time - lastTime
@@ -109,6 +107,51 @@ function trackVelocity(event)
 	prevX = ball.x
 	prevY = ball.y
 end			
+
+-----------------------------------------------------------------------
+-- Change the orientation of the app here
+--
+-- Adjust objects for Portrait or Landscape mode
+--
+-- Enter: mode = orientation mode
+-----------------------------------------------------------------------
+--
+function changeOrientation( mode ) 
+	print( "changeOrientation ...", mode )
+
+	screenW, screenH = display.contentWidth, display.contentHeight
+	background.x = screenW / 2
+	background.y = screenH / 2
+	infoLabel.x = screenW / 2
+	ball.x = screenW * 0.5
+	ball.y = ball.height
+
+	if warningText then
+		warningText.x = screenW / 2
+	end
+
+	if string.find( mode, "portrait") then 
+		background.rotation = 0
+	elseif string.find( mode, "landscape") then
+		background.rotation = 90
+	end
+end
+
+-----------------------------------------------------------------------
+-- Come here on Resize Events
+-- Display the Orientation Message on the screen
+-----------------------------------------------------------------------
+--
+function onResizeEvent( event ) 
+	print ("onResizeEvent: " .. event.name)
+	changeOrientation( system.orientation )
+end
+
+-- Set up the display after the app starts
+changeOrientation( system.orientation )
+
+-- Add the Orientation callback event
+Runtime:addEventListener( "resize", onResizeEvent )
 
 ball:addEventListener("touch", startDrag)
 Runtime:addEventListener("enterFrame", onMoveCircle)

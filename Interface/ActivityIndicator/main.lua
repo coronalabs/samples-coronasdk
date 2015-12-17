@@ -1,12 +1,11 @@
 -- 
 -- Abstract: Activity Indicator sample app
 -- 
--- Version: 1.1
--- 
--- Copyright (C) 2011 Corona Labs Inc. All Rights Reserved.
+-- Copyright (C) 2011-2015 Corona Labs Inc. All Rights Reserved.
 --
 -- Update History:
---  v1.1	Android: Added ActivityIndicator support.
+--  v1.1				Android: Added ActivityIndicator support.
+--	v1.2  12/15/2015	Modified for landscape/portrait modes for tvOS
 --
 -- Permission is hereby granted, free of charge, to any person obtaining a copy of 
 -- this software and associated documentation files (the "Software"), to deal in the 
@@ -139,12 +138,17 @@ end
 
 -- Function to animate all the fish
 function bounceAnimation:enterFrame( event )
-	local container = self.container
+	local container = display.getCurrentStage()		-- **changed
+	-- local container = self.container
 	local containerBounds = container.contentBounds
-	local xMin = containerBounds.xMin
-	local xMax = containerBounds.xMax
-	local yMin = containerBounds.yMin
-	local yMax = containerBounds.yMax
+	local xMin = 0
+	local xMax = display.contentWidth
+	local yMin = 0
+	local yMax = display.contentHeight
+	-- local xMin = containerBounds.xMin
+	-- local xMax = containerBounds.xMax
+	-- local yMin = containerBounds.yMin
+	-- local yMax = containerBounds.yMax
 
 	local reflectX = nil ~= self.reflectX
 	local reflectY = nil ~= self.reflectY
@@ -193,5 +197,49 @@ function bounceAnimation:enterFrame( event )
 		object:translate( dx, dy )
 	end
 end
+
+-----------------------------------------------------------------------
+-- Change the orientation of the app here
+--
+-- Adjust objects for Portrait or Landscape mode
+--
+-- Enter: mode = orientation mode
+-----------------------------------------------------------------------
+--
+function changeOrientation( mode ) 
+	print( "changeOrientation ...", mode )
+
+	xpos = display.contentCenterX		-- find new center of screen
+	ypos = display.contentCenterY		-- find new center of screen
+
+	label.x = xpos
+	counter.x = xpos
+	
+	if string.find( mode, "portrait") then 
+		display.remove( backgroundPortrait )
+		backgroundPortrait = display.newImage( "aquariumbackgroundIPhone.jpg", xpos, ypos )
+	elseif string.find( mode, "landscape") then
+		display.remove( backgroundPortrait )
+		backgroundPortrait = display.newImage( "aquariumbackgroundIPhoneLandscape.jpg", xpos, ypos )
+	end
+
+	backgroundPortrait:toBack()	
+end
+
+-----------------------------------------------------------------------
+-- Come here on Resize Events
+-- Display the Orientation Message on the screen
+-----------------------------------------------------------------------
+--
+function onResizeEvent( event ) 
+	print ("onResizeEvent: " .. event.name)
+	changeOrientation( system.orientation )
+end
+
+-- Set up the display after the app starts
+changeOrientation( system.orientation )
+
+-- Add the Orientation callback event
+Runtime:addEventListener( "resize", onResizeEvent )
 
 Runtime:addEventListener( "enterFrame", bounceAnimation );

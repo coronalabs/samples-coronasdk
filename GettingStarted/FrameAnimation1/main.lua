@@ -1,20 +1,25 @@
 -- 
 -- Abstract: Bouncing fruit, using enterFrame listener for animation
 -- 
--- Version: 1.3 (uses new viewableContentHeight, viewableContentWidth properties)
--- 
 -- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
+-- Copyright (C) 2010-2015 Corona Labs Inc. All Rights Reserved.
 
 -- Demonstrates a simple way to perform animation, using an "enterFrame" listener to trigger updates.
 --
--- Supports Graphics 2.0
-------------------------------------------------------------
+-- History
+--	12/15/2015		Modified for landscape/portrait modes for tvOS
+------------------------------------------------------------------------------
+
+local screenTop
+local screenBottom
+local screenLeft
+local screenRight
+local background
 
 local xpos = display.contentCenterX
 local ypos = display.contentCenterY
 
-local background = display.newImage( "grass.png", xpos, ypos )
+-- local background = display.newImage( "grass.png", xpos, ypos )
 
 local radius = 40
 
@@ -25,12 +30,6 @@ local xspeed = 7.5
 local yspeed = 6.4
 
 local fruit = display.newImage( "fruit.png", xpos, ypos )
-
--- Get current edges of visible screen
-local screenTop = 0
-local screenBottom = display.contentHeight
-local screenLeft = 0
-local screenRight = display.contentWidth
 
 local function animate(event)
 	xpos = xpos + ( xspeed * xdirection );
@@ -46,5 +45,53 @@ local function animate(event)
 	fruit:translate( xpos - fruit.x, ypos - fruit.y)
 end
 
-Runtime:addEventListener( "enterFrame", animate );
-    
+-----------------------------------------------------------------------
+-- Change the orientation of the app here
+--
+-- Adjust objects for Portrait or Landscape mode
+--
+-- Enter: mode = orientation mode
+-----------------------------------------------------------------------
+--
+function changeOrientation( mode ) 
+	print( "changeOrientation ...", mode )
+
+	xpos = display.contentCenterX		-- find new center of screen
+	ypos = display.contentCenterY		-- find new center of screen
+
+-- Get current edges of visible screen (accounting for the areas cropped by "zoomEven" scaling mode in config.lua)
+	screenTop = display.screenOriginY
+	screenBottom = display.viewableContentHeight + display.screenOriginY
+	screenLeft = display.screenOriginX
+	screenRight = display.viewableContentWidth + display.screenOriginX
+
+	if string.find( mode, "portrait") then 
+		display.remove( background )
+		background = display.newImage( "grass.png", xpos, ypos )
+	elseif string.find( mode, "landscape") then
+		display.remove( background )
+		background = display.newImage( "grass_landscape.png", xpos, ypos )
+	end
+
+	fruit.x = xPos
+	fruit.y = yPos
+	fruit:toFront()
+end
+
+-----------------------------------------------------------------------
+-- Come here on Resize Events
+-- Display the Orientation Message on the screen
+-----------------------------------------------------------------------
+--
+function onResizeEvent( event ) 
+	print ("onResizeEvent: " .. event.name)
+	changeOrientation( system.orientation )
+end
+
+-- Set up the display after the app starts
+changeOrientation( system.orientation )
+
+-- Add the Orientation callback event
+Runtime:addEventListener( "resize", onResizeEvent )
+
+Runtime:addEventListener( "enterFrame", animate )

@@ -1,9 +1,5 @@
 -- Abstract: Accelerometer sample
 --
--- Date: August 24, 2010
---
--- Version: 1.1
---
 -- File name: main.lua
 --
 -- Author: Corona Labs
@@ -25,10 +21,12 @@
 -- Comments: 
 --
 -- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
+-- Copyright (C) 2010-2015 Corona Labs Inc. All Rights Reserved.
 --
--- Supports Graphics 2.0
+-- History
+--	12/15/2015		Modified for landscape/portrait modes for tvOS
 ---------------------------------------------------------------------------------------
+
 display.setStatusBar( display.HiddenStatusBar )		-- hide status bar
 
 display.setDefault( "background", 80/255 )
@@ -37,7 +35,7 @@ local centerX = display.contentCenterX
 local centerY = display.contentCenterY
 
 -- Displays App title
-title = display.newText( "Accelerator / Shake", centerX, 20, native.systemFontBold, 20 )
+title = display.newText( "Accelerometer / Shake", centerX, 20, native.systemFontBold, 20 )
 title:setFillColor( 1,1,0 )
 
 --
@@ -48,10 +46,12 @@ if not system.hasEventSource( "accelerometer" ) then
 	msg:setFillColor( 1,1,0 )
 end
 
+local msg, box
+
 if system.getInfo("environment") == "simulator" then
 	local boxY = display.contentHeight - 40
-	local msg = display.newText( "Choose 'Shake' in the Hardware menu", centerX, boxY, native.systemFontBold, 13 )
-	local box = display.newRoundedRect( centerX, boxY, display.contentWidth - 20, 30, 6 )
+	msg = display.newText( "Choose 'Shake' in the Hardware menu", centerX, boxY, native.systemFontBold, 13 )
+	box = display.newRoundedRect( centerX, boxY, display.contentWidth - 20, 30, 6 )
 	box:setFillColor( 0.5, 0.5, 0.5, 0.5 )
 	msg.x = display.contentWidth / 2
 	msg:setFillColor( 1, 0, 0 )
@@ -68,7 +68,7 @@ local soundID = audio.loadSound ("beep_wav.wav")
 -- Text parameters
 local labelx = 50
 local x = 220
-local y = 95
+local y = 80
 local fontSize = 24
 
 local frameUpdate = false					-- used to update our Text Color (once per frame)
@@ -137,7 +137,7 @@ local textMessage = function( str, location, scrTime, size, color, font )
 	local x, t
 	
 	size = tonumber(size) or 24
-	color = color or {255, 255, 255}
+	color = color or {1, 1, 1}
 	font = font or native.systemFont
 
 	-- Determine where to position the text on the screen
@@ -257,7 +257,7 @@ local function onAccelerate( event )
 	--
 	if event.isShake == true then
 		-- str, location, scrTime, size, color, font
-		textMessage( "Shake!", 400, 3, 52, {1, 1, 0} )
+		textMessage( "Shake!", 55, 3, 52, {1, 1, 0} )
 		audio.play( soundID )
 	end
 end
@@ -280,6 +280,50 @@ end
 -- Set up the accelerometer to provide measurements 60 times per second.
 -- Note that this matches the frame rate set in the "config.lua" file.
 system.setAccelerometerInterval( 60 )
+
+-----------------------------------------------------------------------
+-- Change the orientation of the app here
+--
+-- Adjust objects for Portrait or Landscape mode
+--
+-- Enter: mode = orientation mode
+-----------------------------------------------------------------------
+--
+function changeOrientation( mode ) 
+	print( "changeOrientation ...", mode )
+
+	centerX = display.contentCenterX		-- find new center of screen
+	centerY = display.contentCenterY		-- find new center of screen
+
+	title.x = centerX
+	Circle.x = centerX
+	Circle.y = centerY
+
+	if msg then
+		print( "found msg")
+		msg.x = centerX
+		msg.y = display.contentHeight - 20
+		box.x = centerX
+		box.y = display.contentHeight - 20
+	end
+
+end
+
+-----------------------------------------------------------------------
+-- Come here on Resize Events
+-- Display the Orientation Message on the screen
+-----------------------------------------------------------------------
+--
+function onResizeEvent( event ) 
+	print ("onResizeEvent: " .. event.name)
+	changeOrientation( system.orientation )
+end
+
+-- Set up the display after the app starts
+changeOrientation( system.orientation )
+
+-- Add the Orientation callback event
+Runtime:addEventListener( "resize", onResizeEvent )
 
 -- Add runtime listeners
 --

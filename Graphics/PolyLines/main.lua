@@ -1,16 +1,17 @@
 -- 
 -- Abstract: PolyLines sample app, demonstrating how to draw shapes using line segments
 -- 
--- Version: 1.0
--- 
 -- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
+-- Copyright (C) 2010-2015 Corona Labs Inc. All Rights Reserved.
 --
--- Supports Graphics 2.0
-------------------------------------------------------------
+-- History
+--	12/15/2015		Modified for landscape/portrait modes for tvOS
+---------------------------------------------------------------------------------------
 
 
 display.setStatusBar( display.HiddenStatusBar )
+
+display.setDefault( "background", 0.2 )
 
 -- Example of shape drawing function
 local function newStar()
@@ -18,7 +19,6 @@ local function newStar()
 	-- To prevent odd stroke graphics, have the start/end point of the star be a flat, level area.
 	return display.newLine( -50,-35, -27,-35, 0,-110, 27,-35, 105,-35, 43,16, 65,90, 0,45, -65,90, -43,15, -105,-35, -50,-35 )
 end
-
 
 -- Create stars with random color and position
 local stars = {}
@@ -58,6 +58,41 @@ function stars:enterFrame( event )
 		v.rotation = ( v.rotation + v.dr ) % 360
 	end
 end
+
+-----------------------------------------------------------------------
+-- Change the orientation of the app here
+--
+-- Adjust objects for Portrait or Landscape mode
+--
+-- Enter: mode = orientation mode
+-----------------------------------------------------------------------
+--
+function changeOrientation( mode ) 
+	print( "changeOrientation ...", mode )
+
+	-- Iterate through the ball array and reset the location to center of the screen
+	for i = 1, #stars  do
+		stars[ i ].x = math.random( display.contentWidth )
+		stars[ i ].y = math.random( display.contentHeight )
+	end
+
+end
+
+-----------------------------------------------------------------------
+-- Come here on Resize Events
+-- Display the Orientation Message on the screen
+-----------------------------------------------------------------------
+--
+function onResizeEvent( event ) 
+	print ("onResizeEvent: " .. event.name)
+	changeOrientation( system.orientation )
+end
+
+-- Set up the display after the app starts
+changeOrientation( system.orientation )
+
+-- Add the Orientation callback event
+Runtime:addEventListener( "resize", onResizeEvent )
 
 Runtime:addEventListener( "enterFrame", stars )
 

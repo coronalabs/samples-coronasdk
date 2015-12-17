@@ -1,6 +1,5 @@
 -- Project: DeviceInfo
 --
---
 -- File name: main.lua
 --
 -- Author: Corona Labs
@@ -17,15 +16,15 @@
 --
 -- Update History:
 --	v1.1				Fixed UDID display problem
---  v1.2	2010.10.07			Add system.getPreference() API
+--  v1.2	2010.10.07	Add system.getPreference() API
 --  v1.3	2013.03.26	Added store.target field
+--  v1.4	2015.12.15	Modified for landscape/portrait modes for tvOS
 --
 -- Comments:
 --
 -- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
+-- Copyright (C) 2010-2015 Corona Labs Inc. All Rights Reserved.
 --
--- Supports Graphics 2.0
 ---------------------------------------------------------------------------------
 
 display.setStatusBar( display.HiddenStatusBar )		-- hide status bar
@@ -50,8 +49,9 @@ local x = 20		-- x value for label fields
 local y = 30		-- y value for label fields	
 local yOffset = 30	-- y offset between fields
 
-local itemLabel = display.newText( "Device Info",100, 15, native.systemFont, 24 )
-itemLabel:setFillColor( 1, 1, 1)
+local title = display.newText( "Device Info",0, 15, native.systemFont, 24 )
+title:setFillColor( 1, 1, 1)
+title.anchorX = 0.5
 
 itemLabel = display.newText( "name:", x+85, y+yOffset*1, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
@@ -160,6 +160,48 @@ itemText = display.newText( store.target,
 	xText, y+yOffset*14, native.systemFont, 16 )
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
+display.setDefault( "anchorX", 0.5 )	-- set back to default values (center)
+display.setDefault( "anchorY", 0.5 )
 
+-----------------------------------------------------------------------
+-- Change the orientation of the app here
+--
+-- Adjust objects for Portrait or Landscape mode
+--
+-- Enter: mode = orientation mode
+-----------------------------------------------------------------------
+--
+function changeOrientation( mode ) 
+	print( "changeOrientation ...", mode )
+
+	_W = display.contentWidth
+	_H = display.contentHeight
+
+	background.x = _W / 2
+	background.y = _H / 2
+	title.x = _W / 2
+
+	if string.find( mode, "portrait") then 
+		background.rotation = 0
+	elseif string.find( mode, "landscape") then
+		background.rotation = 90
+	end
+end
+
+-----------------------------------------------------------------------
+-- Come here on Resize Events
+-- Display the Orientation Message on the screen
+-----------------------------------------------------------------------
+--
+function onResizeEvent( event ) 
+	print ("onResizeEvent: " .. event.name)
+	changeOrientation( system.orientation )
+end
+
+-- Set up the display after the app starts
+changeOrientation( system.orientation )
+
+-- Add the Orientation callback event
+Runtime:addEventListener( "resize", onResizeEvent )
 
 
