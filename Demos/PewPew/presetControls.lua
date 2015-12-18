@@ -12,6 +12,8 @@ elseif platformName == "Win" then
 	configFile = system.pathForFile( "control_presets_windows.json" )
 elseif platformName == "Mac OS X" then
 	configFile = system.pathForFile( "control_presets_osx.json" )
+elseif platformName == "iPhone OS" then
+	configFile = system.pathForFile( "control_presets_ios.json" )
 elseif platformName == "tvOS" then
 	configFile = system.pathForFile( "control_presets_tvos.json" )
 end
@@ -61,7 +63,7 @@ function presetControlsModule.presetForDevice( device )
 		local ret = presetControls[productName]
 		ret.name = device.displayName
 		return ret
-	elseif ( platformName == "tvOS" ) then
+	elseif ( platformName == "tvOS" or platformName == "iPhone OS") then
 		-- If we get this far on tvOS without any presets define, use the default controller preset.
 		local ret = presetControls.Controller
 		ret.name = device.displayName
