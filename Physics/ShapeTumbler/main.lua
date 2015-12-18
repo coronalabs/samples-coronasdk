@@ -10,6 +10,27 @@
 --	Supports Graphics 2.0
 ---------------------------------------------------------------------------------------
 
+display.setStatusBar( display.HiddenStatusBar )
+
+math.randomseed( system.getTimer() )
+
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Shape Tumbler", showBuildNum=true } )
+
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local tumblingGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
+
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
+
 local centerX = display.contentCenterX
 local centerY = display.contentCenterY
 local _W = display.contentWidth
@@ -20,80 +41,132 @@ physics.start()
 
 physics.setScale( 60 )
 physics.setGravity( 0, 9.8 ) -- initial gravity points downwards
+--physics.setDrawMode( "hybrid" )
 
-system.setAccelerometerInterval( 100 ) -- set accelerometer to maximum responsiveness
-
--- Build this demo for iPhone to see accelerometer-based gravity
-function onTilt( event )
-	physics.setGravity( ( 9.8 * event.xGravity ), ( -9.8 * event.yGravity ) )
-end
-
-Runtime:addEventListener( "accelerometer", onTilt )
-
-display.setStatusBar( display.HiddenStatusBar )
-
-local bkg = display.newImage( "bkg_wood.png", centerX, centerY )
-
+-- Create physical borders
+local borderThickeness = 30
 borderBodyElement = { friction=0.5, bounce=0.3 }
 
-display.setDefault( "anchorX", 0.0 )	-- default to TopLeft anchor point for new objects
-display.setDefault( "anchorY", 0.0 )
-
-local borderTop = display.newRect( 0, 0, 320, 20 )
+local borderTop = display.newRect( display.contentCenterX, 0 + borderThickeness/2, display.contentWidth, borderThickeness )
 borderTop:setFillColor( 0, 0, 0, 0)		-- make invisible
 physics.addBody( borderTop, "static", borderBodyElement )
 
-local borderBottom = display.newRect( 0, 460, 320, 20 )
+local borderBottom = display.newRect( display.contentCenterX, display.contentHeight + borderThickeness/2, display.contentWidth, borderThickeness )
 borderBottom:setFillColor( 0, 0, 0, 0)		-- make invisible
 physics.addBody( borderBottom, "static", borderBodyElement )
 
-local borderLeft = display.newRect( 0, 20, 20, 460 )
+local borderLeft = display.newRect( 0 - borderThickeness/2, display.contentCenterY, 0 - borderThickeness, display.contentHeight )
 borderLeft:setFillColor( 0, 0, 0, 0)		-- make invisible
 physics.addBody( borderLeft, "static", borderBodyElement )
 
-local borderRight = display.newRect( 300, 20, 20, 460 )
+local borderRight = display.newRect( display.contentWidth + borderThickeness/2, display.contentCenterY, borderThickeness, display.contentHeight )
 borderRight:setFillColor( 0, 0, 0, 0)		-- make invisible
 physics.addBody( borderRight, "static", borderBodyElement )
 
-display.setDefault( "anchorX", 0.5 )	-- restore anchor points for new objects to center anchor point
-display.setDefault( "anchorY", 0.5 )
 
-local triangle = display.newImage("triangle.png", 80, 160 )
+-- Create objects
+local spawnMinX = borderThickeness/2 + 25
+local spawnMaxX = borderThickeness/-2 - 25 + display.contentWidth
+local spawnMinY = borderThickeness/2 + 25
+local spawnMaxY = borderThickeness/-2 - 25 + display.contentHeight
 
-local triangle2 = display.newImage("triangle.png", 170, 160)
+-- Create a triangle object.
+local triangleShape = { 0,-35, 37,30, -37,30 }
+local function createTriangle()
+	local triangle = display.newImage( tumblingGroup, "triangle.png", math.random( spawnMinX, spawnMaxX ), math.random( spawnMinY, spawnMaxY ) )
+	physics.addBody( triangle, { density=0.9, friction=0.5, bounce=0.3, shape=triangleShape } )
+	return triangle
+end
 
-local pentagon = display.newImage("pentagon.png", 80, 70)
+-- Create pentagon object.
+local pentagonShape = { 0,-37, 37,-10, 23,34, -23,34, -37,-10 }
+local function createPentagon()
+	local pentagon = display.newImage( tumblingGroup, "pentagon.png", math.random( spawnMinX, spawnMaxX ), math.random( spawnMinY, spawnMaxY ) )
+	physics.addBody( pentagon, { density=0.9, friction=0.5, bounce=0.4, shape=pentagonShape } )
+	return pentagon
+end
 
-local pentagon2 = display.newImage("pentagon.png", 170, 70)
+-- Create box
+local function createBox()
+	local box = display.newImage( tumblingGroup, "box.png", math.random( spawnMinX, spawnMaxX ), math.random( spawnMinY, spawnMaxY ) )
+	physics.addBody( box, { density=2, friction=0.5, bounce=0.4 } )
+	return box
+end
 
-local crate = display.newImage("crate.png", 150, 250)
+-- Create crate
+local function createCrate()
+	local crate = display.newImage( tumblingGroup, "crate.png", math.random( spawnMinX, spawnMaxX ), math.random( spawnMinY, spawnMaxY ) )
+	physics.addBody( crate, { density=4, friction=0.5, bounce=0.4 } )
+	return crate
+end
 
-local crateB = display.newImage("crateB.png", 250, 250)
+-- Create cell
+local function createCell()
+	local cell = display.newImage( tumblingGroup, "cell.png", math.random( spawnMinX, spawnMaxX ), math.random( spawnMinY, spawnMaxY ) )
+	physics.addBody( cell, { density=1, friction=0.5, bounce=0.4 } )
+	return cell
+end
 
-local crateC = display.newImage("crateC.png", 260, 50)
+-- Create superball
+local function createSuperball()
+	local superball = display.newImage( tumblingGroup, "super_ball.png", math.random( spawnMinX, spawnMaxX ), math.random( spawnMinY, spawnMaxY ) )
+	physics.addBody( superball, { density=0.9, friction=0.5, bounce=0.8, radius=24 } )
+	return superball
+end
 
-local soccerball = display.newImage("soccer_ball.png", 80, 320)
+-- Create soccerball
+local function createSoccerball()
+	local soccerball = display.newImage( tumblingGroup, "soccer_ball.png", math.random( spawnMinX, spawnMaxX ), math.random( spawnMinY, spawnMaxY ) )
+	physics.addBody( soccerball, { density=0.9, friction=0.5, bounce=0.6, radius=38 } )
+	return soccerball
+end
 
-local superball = display.newImage("super_ball.png", 260, 340)
+-- Create a random shape for the canvas.
+local shapeTypes = 7
+local function createRandomObject()
+	local r = math.random( 1, shapeTypes )
+	local object = nil
 
-local superball2 = display.newImage("super_ball.png", 240, 130)
+	if ( r == 1 ) then
+		object = createTriangle()
+	elseif ( r == 2 ) then
+		object = createPentagon()
+	elseif ( r == 3 ) then
+		object = createBox()
+	elseif ( r == 4 ) then
+		object = createCrate()
+	elseif ( r == 5 ) then
+		object = createCell()
+	elseif ( r == 6 ) then
+		object = createSuperball()
+	elseif ( r == 7 ) then
+		object = createSoccerball()
+	end
 
-local superball3 = display.newImage("super_ball.png", 250, 180)
+	-- Prevent physics objects from sleeping.
+	object.isSleepingAllowed = false
 
-triangleShape = { 0,-35, 37,30, -37,30 }
-pentagonShape = { 0,-37, 37,-10, 23,34, -23,34, -37,-10 }
+	return object
+end
 
-physics.addBody( crate, { density=2, friction=0.5, bounce=0.4 } )
-physics.addBody( crateB, { density=4, friction=0.5, bounce=0.4 } )
-physics.addBody( crateC, { density=1, friction=0.5, bounce=0.4 } )
+-- Fill the canvas with some objects! We'll create one object per 20,000 square content units.
+local objectsToCreate = math.floor( display.contentWidth * display.contentHeight / 20000 )
+for i = 1, objectsToCreate do
+	createRandomObject()
+end
 
-physics.addBody( triangle, { density=0.9, friction=0.5, bounce=0.3, shape=triangleShape } )
-physics.addBody( triangle2, { density=0.9, friction=0.5, bounce=0.3, shape=triangleShape } )
+-- Set accelerometer to maximum responsiveness
+system.setAccelerometerInterval( 100 )
 
-physics.addBody( pentagon, { density=0.9, friction=0.5, bounce=0.4, shape=pentagonShape } )
-physics.addBody( pentagon2, { density=0.9, friction=0.5, bounce=0.4, shape=pentagonShape } )
+-- Build this demo for Android, iOS, or tvOS to see accelerometer-based gravity
+function onTilt( event )
+	-- Gravity is in portrait orientation on Android/iOS/Windows Phone.
+	-- On tvOS, gravity is in the orientation of the device attached to the event.
+	if ( event.device ) then
+		physics.setGravity( ( 9.8 * event.xGravity ), ( -9.8 * event.yGravity ) )
+	else
+		physics.setGravity( ( -9.8 * event.yGravity ), ( -9.8 * event.xGravity ) )
+	end
+end
 
-physics.addBody( soccerball, { density=0.9, friction=0.5, bounce=0.6, radius=38 } )
-physics.addBody( superball, { density=0.9, friction=0.5, bounce=0.8, radius=24 } )
-physics.addBody( superball2, { density=0.9, friction=0.5, bounce=0.8, radius=24 } )
-physics.addBody( superball3, { density=0.9, friction=0.5, bounce=0.8, radius=24 } )
+Runtime:addEventListener( "accelerometer", onTilt )

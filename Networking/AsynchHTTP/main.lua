@@ -40,7 +40,7 @@ local url = "https://encrypted.google.com"
 local myTitle = display.newText("AsyncHTTP", display.contentCenterX, 15, native.systemFont, 20)
 local myText = display.newText("(Waiting for response)", display.contentCenterX, 45, native.systemFont, 14)
 
-local myInfoBackground = display.newRect( display.contentCenterX, display.contentCenterY + 30, display.contentWidth - 20, 400 )
+local myInfoBackground = display.newRect( display.contentCenterX, display.contentCenterY + 30, display.contentWidth - 20, display.contentHeight - 80 )
 local myInfo = display.newText("", myInfoBackground.x, myInfoBackground.y, myInfoBackground.width - 10, myInfoBackground.height - 10, "Courier New", 8)
 myInfo:setFillColor( 0, 0, 0 )
 
@@ -64,3 +64,30 @@ end
 myInfo.text = "Requesting " .. url .. " ..."
 
 network.request( url, "GET", networkListener )
+
+-- Update the app layout on resize event.
+local function onResize( event )
+	-- Update title.
+	myTitle.x = display.contentCenterX
+	myText.x = display.contentCenterX
+
+	-- Update response field background.
+	myInfoBackground.x = display.contentCenterX
+	myInfoBackground.y = display.contentCenterY + 30
+	myInfoBackground.width = display.contentWidth - 20
+	myInfoBackground.height = display.contentHeight - 80
+
+	-- Update response field. This does not update cleanly, and needs to be recreated.
+	local myInfoText = myInfo.text
+	myInfo:removeSelf()
+	myInfo = display.newText(myInfoText, myInfoBackground.x, myInfoBackground.y, myInfoBackground.width - 10, myInfoBackground.height - 10, "Courier New", 8)
+	myInfo:setFillColor( 0, 0, 0 )
+end
+Runtime:addEventListener( "resize", onResize )
+
+-- On tvOS, we want to make sure we stay awake.
+-- We also want to ensure that the menu button exits the app.
+if system.getInfo( "platformName" ) == "tvOS" then
+	system.activate( "controllerUserInteraction" )
+	system.setIdleTimer( false )
+end

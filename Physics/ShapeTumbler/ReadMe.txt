@@ -1,1 +1,1 @@
-Demonstrates polygon body constructor and tilt-based gravity effects (on device only).
+Demonstrates polygon body constructor and tilt-based gravity effects for Android, iOS, tvOS, and Windows Phone.

@@ -141,21 +141,27 @@ local function fireOnTimer( event )
 end
 
 
--- Set up mirror positions
+-- Set up mirror positions. X/Y values are relative to the center of the content area.
 local mirrorSet = {
-	{ 160, 90, 90 },    -- top
-	{ 280, 170, -35 },  -- right-upper
-	{ 280, 310, 35 },   -- right-lower
-	{ 160, 390, 90 },   -- bottom
-	{ 40, 310, -35 },   -- left-upper
-	{ 40, 170, 35 }     -- left-lower
+--    320 480
+	{ 0, -120, 90 },    -- top
+	{ 120, -70, -35 },  -- right-upper
+	{ 120, 70, 35 },   -- right-lower
+	{ 0, 120, 90 },   -- bottom
+	{ -120, -70, 35 },   -- left-upper
+	{ -120, 70, -35 }     -- left-lower
 }
+
+local mirrors = {}
 
 -- Create mirrors
 for m = 1,#mirrorSet do
 	local mirror = display.newImageRect( mirrorGroup, "mirror.png", 20, 100 )
 	physics.addBody( mirror, "static", { shape={-9,-49,9,-49,9,49,-9,49} } )
-	mirror.x, mirror.y, mirror.rotation = mirrorSet[m][1], mirrorSet[m][2], mirrorSet[m][3]
+	mirror.x = display.contentCenterX + mirrorSet[m][1]
+	mirror.y = display.contentCenterY + mirrorSet[m][2]
+	mirror.rotation = mirrorSet[m][3]
+	mirrors[m] = mirror
 end
 
 -- Create turret
@@ -168,3 +174,26 @@ turret.angularVelocity = turretSpeed
 
 -- Start repeating timer to fire beams
 timer.performWithDelay( 2000, fireOnTimer, 0 )
+
+-- Update the app layout on resize event.
+local function onResize( event )
+	-- Change turret location.
+	turret.x, turret.y = display.contentCenterX, display.contentCenterY
+
+	-- Update mirror locations.
+	for index, mirror in pairs(mirrors) do
+		mirror.x = display.contentCenterX + mirrorSet[index][1]
+		mirror.y = display.contentCenterY + mirrorSet[index][2]
+	end
+
+	-- Reset any beams, as they are drawn in the incorrect location now.
+	resetBeams()
+end
+Runtime:addEventListener( "resize", onResize )
+
+-- On tvOS, we want to make sure we stay awake.
+-- We also want to ensure that the menu button exits the app.
+if system.getInfo( "platformName" ) == "tvOS" then
+	system.activate( "controllerUserInteraction" )
+	system.setIdleTimer( false )
+end
