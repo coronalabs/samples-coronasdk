@@ -342,6 +342,7 @@ function makeButtons()
 	        fontSize = 16,
 		    emboss = item.emboss,
 			onPress = item.onPress,
+			labelColor = { default={ 1, 1, 1 }, over={ 0, 0, 0 } }
 		}
         myButton.x = item.x
         myButton.y = item.y
