@@ -4,9 +4,7 @@ settings =
 	{
 		usesFeatures =
 		{
-			{ name="android.hardware.touchscreen", required=false },
 			{ name="android.hardware.gamepad", required=false },
-			{ name="android.software.leanback", required=false },
 		},
 		supportsTV = true,
 		isGame = true,
@@ -15,7 +13,6 @@ settings =
 			categories =
 			{
 				"tv.ouya.intent.category.GAME",
-				"android.intent.category.LEANBACK_LAUNCHER",
 			},
 		}
 	},
