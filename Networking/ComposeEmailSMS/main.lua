@@ -40,8 +40,8 @@ local function onSendEmail( event )
 	-- compose an HTML email with two attachments
 	local options =
 	{
-	   to = { "john.doe@somewhere.com", "jane.doe@somewhere.com" },
-	   cc = { "john.smith@somewhere.com", "jane.smith@somewhere.com" },
+	   to = { "john.doe@example.com", "jane.doe@example.com" },
+	   cc = { "john.smith@example.com", "jane.smith@example.com" },
 	   subject = "My High Score",
 	   isBodyHtml = true,
 	   body = "<html><body>I scored over <b>9000</b>!!! Can you do better?</body></html>",
