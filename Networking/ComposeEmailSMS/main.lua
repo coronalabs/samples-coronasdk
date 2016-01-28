@@ -67,7 +67,7 @@ local function onSendSMS( event )
 	-- compose an SMS message (doesn't support attachments)
 	local options =
 	{
-	   to = { "1234567890", "9876543210" },
+	   to = { "16505551212", "15125550189" },
 	   body = "I scored over 9000!!! Can you do better?"
 	}
 	local result = native.showPopup("sms", options)
