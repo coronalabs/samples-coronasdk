@@ -44,8 +44,16 @@ local breakJoint = function( event )
 
 	if "began" == phase then
 		local myIndex = t.myIndex
-		print( "breaking joint at board#" .. myIndex )
-		joint[myIndex]:removeSelf() -- destroy joint
+		if ( joint[myIndex] ) then
+			print( "breaking joint at board#" .. myIndex )
+			joint[myIndex]:removeSelf()
+			joint[myIndex] = nil
+		elseif ( joint[myIndex+1] ) then
+			myIndex = myIndex + 1
+			print( "breaking joint at board#" .. myIndex )
+			joint[myIndex]:removeSelf()
+			joint[myIndex] = nil
+		end
 	end
 
 	-- Stop further propagation of touch event
@@ -59,6 +67,7 @@ local removeBody = function( event )
 
 	if "began" == phase then
 		t:removeSelf() -- destroy object
+		t = nil
 	end
 
 	-- Stop further propagation of touch event
