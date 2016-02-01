@@ -271,3 +271,15 @@ local function updateTime( event )
 end
 
 timer.performWithDelay( 1000, updateTime, 0 )
+
+-- for tvOS bind play/pause to the button on remote
+if system.getInfo( "platformName" ) == "tvOS" then
+	local function onKeyEvent( event )
+	    if ( event.keyName == "buttonX" and event.phase=="down" ) then
+	        playCtl()
+	    end
+	    return false
+	end
+
+	Runtime:addEventListener( "key", onKeyEvent )
+end
