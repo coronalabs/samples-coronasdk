@@ -1,14 +1,16 @@
 -- Abstract: Echo - Simple Audio Recorder
 --
--- Date: February 6, 2013
+-- Date: January 26, 2016
 -- 
--- Version: 1.4
+-- Version: 1.5
 --
 -- Changes:
 --  1.1 - larger background image
 --	1.2 - Replaced depreciated ui.lua with widget library, removed unused assets
 --	1.3 - Changed audio.play to media.playSound for Android (to play the .3gp format)
 --  1.4 - Android now defaults to recording to wav format which can be played with audio.* apis
+--  1.5 - UI is now updated on EnterFrame events. This allows the UI to keep up with state 
+--        changes occuring inside of the Corona Engine.
 --
 -- File name: main.lua
 --
@@ -103,7 +105,7 @@ local fSoundPaused = false    -- sound pause state
 
 
 -- Update the state dependent texts
-local function updateStatus ()
+local function updateStatus ( event )
     local statusText = " "
     local statusText2 = " "
     if r then
@@ -142,7 +144,6 @@ local function onCompleteSound (event)
     
 	-- Free the audio memory and close the file now that we are done playing it.
 	audio.dispose(event.handle)
-	updateStatus ()	
 end
  
 local function recButtonPress ( event )
@@ -154,30 +155,27 @@ local function recButtonPress ( event )
         fSoundPlaying = true   
         fSoundPaused = false
         audio.resume() -- resume all channels
-    else
-        if r then
-            if r:isRecording() then
-                r:stopRecording()
-                local filePath = system.pathForFile( dataFileName, system.DocumentsDirectory )
-                -- Play back the recording
-                local file = io.open( filePath, "r" )
-                
-                if file then
-                    io.close( file )
-                    fSoundPlaying = true
-                    fSoundPaused = false
-                    
-					playbackSoundHandle = audio.loadStream( dataFileName, system.DocumentsDirectory )
-					audio.play( playbackSoundHandle, { onComplete=onCompleteSound } )
-                end                
-            else
-                fSoundPlaying = false
+    elseif r then
+        if r:isRecording() then
+            r:stopRecording()
+            local filePath = system.pathForFile( dataFileName, system.DocumentsDirectory )
+            -- Play back the recording
+            local file = io.open( filePath, "r" )
+            
+            if file then
+                io.close( file )
+                fSoundPlaying = true
                 fSoundPaused = false
-                r:startRecording()
-            end
+                
+				playbackSoundHandle = audio.loadStream( dataFileName, system.DocumentsDirectory )
+				audio.play( playbackSoundHandle, { onComplete=onCompleteSound } )
+            end                
+        else
+            fSoundPlaying = false
+            fSoundPaused = false
+            r:startRecording()
         end
     end
-    updateStatus ()
 end
 
 -- Increase the sample rate if possible
@@ -191,11 +189,11 @@ local rateUpButtonPress = function( event )
         --  get next higher legal sampling rate
         local i, v = next (theRates, nil)                 
         while i do
-                if v <= f then 
-                    i, v = next (theRates, i) 
-                else
-                    i = nil
-                end
+            if v <= f then 
+                i, v = next (theRates, i) 
+            else
+                i = nil
+            end
         end    
         if v then 
             r:setSampleRate(v) 
@@ -204,7 +202,6 @@ local rateUpButtonPress = function( event )
         end   
 --        r:startTuner()
     end
-    updateStatus()
 end
 
 -- Decrease the sample rate if possible
@@ -231,7 +228,6 @@ local rateDownButtonPress = function( event )
         end            
 --        r:startTuner()
     end
-    updateStatus()
 end
 
 
@@ -278,5 +274,5 @@ rateDownButton.x = 140;     rateDownButton.y = 420
 
 local filePath = system.pathForFile( dataFileName, system.DocumentsDirectory )
 r = media.newRecording(filePath)
-updateStatus ()                                                
+Runtime:addEventListener( "enterFrame", updateStatus )                                                
                                 
