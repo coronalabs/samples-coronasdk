@@ -25,7 +25,6 @@
 -- Copyright (C) 2013 Corona Labs Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------
 
-display.setDrawMode( "forceRender" )
 display.setStatusBar( display.HiddenStatusBar )
 
 local image_name = "image.png"
