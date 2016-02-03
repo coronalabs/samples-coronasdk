@@ -12,10 +12,6 @@
 display.setStatusBar( display.HiddenStatusBar ) 
 display.setDefault( "background", .1, .2, .3 )
 
--- Some effects are time based (e.g. random),
--- so force Corona to re-blit them.
-display.setDrawMode( "forceRender" )
-
 local titleString = "Filter Effects Viewer"
 
 -- Modules
