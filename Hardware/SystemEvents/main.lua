@@ -329,3 +329,6 @@ Runtime:addEventListener( "system", onSystemEvent );
 
 -- Add the Orientation callback event
 Runtime:addEventListener( "orientation", onOrientationEvent );
+
+-- Add the Resize callback event
+Runtime:addEventListener( "resize", function() changeOrientation( system.orientation ) end );
