@@ -237,7 +237,7 @@ local function setupStoreFunctionButtons( )
 			if store.isActive then
 				-- Consume all our products
 				print ( "Consuming " )
-				store.consumePurchase( productData.getList( ) ) -- more ass!
+				store.consumePurchase( productData.getList( ) )
 			else
 				storeUI.showStoreNotAvailableWarning( )
 			end
