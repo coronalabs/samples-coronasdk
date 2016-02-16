@@ -1,6 +1,5 @@
 
 local widget = require( "widget" )
-local physics = require( "physics" )
 
 local M = {}
 
@@ -26,17 +25,17 @@ function M:newUI( options )
 	-- Read from the ReadMe.txt file
 	local readMeText = ""
 	local readMeFilePath = system.pathForFile( "ReadMe.txt", system.ResourceDirectory )
-	if ( readMeFilePath ) then
+	if readMeFilePath then
 		local readMeFile = io.open( readMeFilePath )
 		local rt = readMeFile:read( "*a" )
 		local function trimString( s )
 			return string.match( s, "^()%s*$" ) and "" or string.match( s, "^%s*(.*%S)" )
 		end
 		rt = trimString( rt )
-		if ( string.len( rt ) > 0 ) then readMeText = rt end
+		if string.len( rt ) > 0 then readMeText = rt end
 		io.close( readMeFile ) ; readMeFile = nil ; rt = nil
 	end
-	
+
 	-- Create background image by theme value
 	local background = display.newImageRect( backGroup, "sampleUI/back-"..themeName..".png", 360, 640 )
 	background.x, background.y = display.contentCenterX, display.contentCenterY
@@ -44,24 +43,32 @@ function M:newUI( options )
 	local topBarBack = display.newRect( frontGroup, 0, 0, 624, 37 )
 	topBarBack:setFillColor( 0,0,0,0.2 ) ; topBarBack.anchorY = 0 ; topBarBack:toBack()
 	local topBarOver = display.newRect( barContainer, 0, 0, 624, 36 )
-	topBarOver:setFillColor( 0.144, 0.144, 0.144, 1 )
+	topBarOver:setFillColor( { type="gradient", color1={ 0.144 }, color2={ 0.158 } } )
 	textGroupContainer:toBack()
 
-	-- Check Android/Windows for font selection
+	-- Check system for font selection
 	local useFont
-	if ( "Win" == system.getInfo( "platformName" ) ) then useFont = native.systemFont
-	elseif ( "Android" == system.getInfo( "platformName" ) ) then useFont = native.systemFont
+	if "Win" == system.getInfo( "platformName" ) then useFont = native.systemFont
+	elseif "Android" == system.getInfo( "platformName" ) then useFont = native.systemFont
 	else useFont = "HelveticaNeue-Light"
 	end
+	self.appFont = useFont
 
 	-- Place Corona title
-	local logo = display.newText( frontGroup, "Corona SDK Sample", 0, 0, useFont, 14 ) ; logo.anchorX = 0
-	logo:setFillColor( 0.961, 0.494, 0.125 )
+	local siteLink = display.newText( frontGroup, "Corona SDK", 0, 0, useFont, 14 ) ; siteLink.anchorX = 0
+	siteLink:setFillColor( 0.961, 0.494, 0.125 )
+	siteLink:addEventListener( "touch",
+		function( event )
+			if event.phase == "began" then
+				system.openURL( "http://www.coronalabs.com" )
+			end
+			return true
+		end )
 
 	-- Place sample app title
 	local title = display.newText( frontGroup, sampleCodeTitle, 0, 0, useFont, 14 ) ; title.anchorX = 1
 
-	if ( options.showBuildNum == true ) then
+	if options.showBuildNum == true then
 		buildNum = display.newText( frontGroup, "Build "..tonumber( system.getInfo( "build" ):sub(-4) ), 0, 0, useFont, 10 )
 		buildNum.anchorX = 1 ; buildNum.anchorY = 1
 		if ( themeName == "darkgrey" or themeName == "mediumgrey" ) then buildNum:setFillColor( 0.8 ) else buildNum:setFillColor( 0.2 ) end
@@ -76,6 +83,7 @@ function M:newUI( options )
 	-- Create info button (initially invisible)
 	local infoButton = display.newImageRect( frontGroup, "sampleUI/infobutton.png", 25, 25 ) ; infoButton.anchorX = 1
 	infoButton.isVisible = false
+	infoButton.id = "infoButton"
 
 	-- Create table for initial object positions
 	local objPos = { infoBoxOffY=0, infoBoxDestY=0 }
@@ -93,22 +101,22 @@ function M:newUI( options )
 	objPos["infoBoxDestY"] = 158-offsetY
 	barContainer.x, barContainer.y = display.contentCenterX, -offsetY-8
 	topBarBack.x, topBarBack.y = display.contentCenterX, -offsetY-7
-	logo.x, logo.y = 8-offsetX, (barContainer.height/2)-offsetY-4
+	siteLink.x, siteLink.y = 8-offsetX, (barContainer.height/2)-offsetY-4
 	title.x, title.y = display.contentWidth-28+offsetX, (barContainer.height/2)-offsetY-4
-	if ( buildNum ) then buildNum.x, buildNum.y = display.contentWidth+offsetX-7, display.contentHeight+offsetY-8 end
+	if buildNum then buildNum.x, buildNum.y = display.contentWidth+offsetX-7, display.contentHeight+offsetY-8 end
 	textGroupContainer.x = display.contentCenterX
 	infoButton.x, infoButton.y = display.contentWidth+offsetX-3, (barContainer.height/2)-offsetY-4
-	
+
 	-- Resize change handler
 	local function onResize( event )
 
 		local ox, oy = offsetX, offsetY
 		local orientation = "landscape"
-		if ( display.contentHeight > display.contentWidth ) then orientation = "portrait" end
-		if ( orientation ~= defaultOrientation ) then ox, oy = offsetY, offsetX end
+		if display.contentHeight > display.contentWidth then orientation = "portrait" end
+		if orientation ~= defaultOrientation then ox, oy = offsetY, offsetX end
 
-		if ( orientation == "portrait" ) then
-			background.x, background.y, background.rotation = display.contentCenterX, display.contentCenterY, 0			
+		if orientation == "portrait" then
+			background.x, background.y, background.rotation = display.contentCenterX, display.contentCenterY, 0
 		else
 			background.x, background.y, background.rotation = display.contentCenterX, display.contentCenterY, 90
 		end
@@ -117,12 +125,12 @@ function M:newUI( options )
 		objPos["infoBoxDestY"] = 158-oy
 		barContainer.x, barContainer.y = display.contentCenterX, -oy-8
 		topBarBack.x, topBarBack.y = display.contentCenterX, -oy-7
-		logo.x, logo.y = 8-ox, (barContainer.height/2)-oy-4
+		siteLink.x, siteLink.y = 8-ox, (barContainer.height/2)-oy-4
 		title.x, title.y = display.contentWidth-28+ox, (barContainer.height/2)-oy-4
-		if ( buildNum ) then buildNum.x, buildNum.y = display.contentWidth+ox-7, display.contentHeight+oy-8 end
+		if buildNum then buildNum.x, buildNum.y = display.contentWidth+ox-7, display.contentHeight+oy-8 end
 		textGroupContainer.x = display.contentCenterX
 		infoButton.x, infoButton.y = display.contentWidth+ox-3, (barContainer.height/2)-oy-4
-	
+
 		-- If info box is opening or already open, snap it entirely on screen
 		if ( infoBoxState == "opening" or infoBoxState == "canClose" ) then
 			transition.cancel( "infoBox" )
@@ -141,7 +149,7 @@ function M:newUI( options )
 	Runtime:addEventListener( "resize", onResize )
 
 	-- If there is ReadMe.txt content, create needed elements
-	if ( readMeText ~= "" ) then
+	if readMeText ~= "" then
 
 		-- Create the info box scrollview
 		scrollBounds = widget.newScrollView
@@ -160,9 +168,11 @@ function M:newUI( options )
 		frontGroup:insert( scrollBounds )
 
 		local infoBoxBack = display.newRect( 0, 0, 288, 240 )
-		if ( themeName == "whiteorange" ) then infoBoxBack:setFillColor( 0.88 ) elseif ( themeName == "lightgrey" ) then infoBoxBack:setFillColor( 0.98 ) else infoBoxBack:setFillColor( 0.78 ) end
+		if themeName == "whiteorange" then infoBoxBack:setFillColor( 0.88 )
+		elseif themeName == "lightgrey" then infoBoxBack:setFillColor( 0.98 )
+		else infoBoxBack:setFillColor( 0.78 ) end
 		textGroupContainer:insert( infoBoxBack )
-	
+
 		-- Create the info text group
 		local infoTextGroup = display.newGroup()
 		textGroupContainer:insert( infoTextGroup )
@@ -172,9 +182,9 @@ function M:newUI( options )
 		infoText:setFillColor( 0 )
 		infoText.text = "\n"..readMeText.."\n\n"
 		infoText.anchorY = 0
-	
+
 		local textHeight = 240
-		if ( infoText.height < 240 ) then textHeight = infoText.height end
+		if infoText.height < 240 then textHeight = infoText.height end
 
 		local infoTextAnchorBox = display.newRect( infoTextGroup, 0, 0, 288, textHeight )
 		infoTextAnchorBox.anchorY = 0
@@ -184,37 +194,44 @@ function M:newUI( options )
 		local anc = infoTextGroup.height/120
 		infoTextGroup.anchorChildren = true
 		infoTextGroup.anchorY = 1/anc
-	
+
 		-- Initially set info objects to invisible
 		infoTextGroup.isVisible = false
 		textGroupContainer.isVisible = false
-	
+
 		transComplete = function()
 
-			if ( infoBoxState == "opening" ) then
+			if infoBoxState == "opening" then
 				scrollBounds:insert( infoTextGroup )
 				infoTextGroup.x = 144 ; infoTextGroup.y = 120
 				scrollBounds:setIsLocked( false )
 				scrollBounds.x, scrollBounds.y = display.contentCenterX, objPos["infoBoxDestY"]
 				infoBoxState = "canClose"
 				infoShowing = true
-			elseif ( infoBoxState == "closing" ) then
+				if self.onInfoEvent then
+					self.onInfoEvent( { action="show", phase="did" } )
+				end
+			elseif infoBoxState == "closing" then
 				infoTextGroup.isVisible = false
 				textGroupContainer.isVisible = false
 				scrollBounds.x, scrollBounds.y = display.contentCenterX, objPos["infoBoxOffY"]
 				screenShade.isHitTestable = false
 				infoBoxState = "canOpen"
 				infoShowing = false
-				physics.setDrawMode( "hybrid" )
+				if self.onInfoEvent then
+					self.onInfoEvent( { action="hide", phase="did" } )
+				end
 			end
 		end
 
 		local function controlInfoBox( event )
-			if ( event.phase == "began" ) then
-				if ( infoBoxState == "canOpen" ) then
+			if event.phase == "began" then
+				if infoBoxState == "canOpen" then
 					infoBoxState = "opening"
 					infoShowing = true
-					physics.setDrawMode( "normal" )
+					if self.onInfoEvent then
+						self.onInfoEvent( { action="show", phase="will" } )
+					end
 					textGroupContainer.x = display.contentCenterX
 					textGroupContainer.y = objPos["infoBoxOffY"]
 					textGroupContainer:insert( infoTextGroup )
@@ -227,9 +244,12 @@ function M:newUI( options )
 					transition.to( textGroupContainer, { time=900, tag="infoBox", y=objPos["infoBoxDestY"], transition=easing.outCubic } )
 					transition.to( textGroupContainer, { time=400, tag="infoBox", delay=750, xScale=1, yScale=1, transition=easing.outQuad, onComplete=transComplete } )
 
-				elseif ( infoBoxState == "canClose" ) then
+				elseif infoBoxState == "canClose" then
 					infoBoxState = "closing"
 					infoShowing = false
+					if self.onInfoEvent then
+						self.onInfoEvent( { action="hide", phase="will" } )
+					end
 					textGroupContainer:insert( infoTextGroup )
 					local scrollX, scrollY = scrollBounds:getContentPosition()
 					infoTextGroup.x = 0 ; infoTextGroup.y = scrollY
@@ -246,9 +266,11 @@ function M:newUI( options )
 		-- Set info button tap listener
 		infoButton.isVisible = true
 		infoButton:addEventListener( "touch", controlInfoBox )
+		infoButton.listener = controlInfoBox
 		screenShade:addEventListener( "touch", controlInfoBox )
 	end
 
+	self.infoButton = infoButton
 	self.titleBarBottom = barContainer.contentBounds.yMax
 	backGroup:toBack() ; self.backGroup = backGroup
 	frontGroup:toFront() ; self.frontGroup = frontGroup

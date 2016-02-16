@@ -24,15 +24,25 @@ display.getCurrentStage():insert( sampleUI.frontGroup )
 -- BEGIN SAMPLE CODE
 ----------------------
 
--- Set app font based on platform
-if ( "Win" == system.getInfo( "platformName" ) or "Android" == system.getInfo( "platformName" ) ) then
-	composer.setVariable( "appFont", native.systemFont )
-else
-	composer.setVariable( "appFont", "HelveticaNeue-Light" )
-end
+-- Require libraries/plugins
+local physics = require( "physics" )
+
+-- Set app font
+composer.setVariable( "appFont", sampleUI.appFont )
 
 -- Set boolean to display "debugging" information for joints
 composer.setVariable( "consoleDebug", false )
+
+-- Include callback function for showing/hiding info box
+-- In this sample, the physics draw mode is adjusted when appropriate
+sampleUI.onInfoEvent = function( event )
+
+	if ( event.action == "show" and event.phase == "will" ) then
+		physics.setDrawMode( "normal" )
+	elseif ( event.action == "hide" and event.phase == "did" ) then
+		physics.setDrawMode( "hybrid" )
+	end
+end
 
 -- Set reference to "sampleUI" module for function calls in other modules
 composer.setVariable( "sampleUI", sampleUI )

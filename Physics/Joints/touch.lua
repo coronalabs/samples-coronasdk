@@ -27,12 +27,12 @@ function scene:create( event )
 	{
 		label = "exit",
 		shape = "rectangle",
-		width = 200,
-		height = 36,
+		width = 128,
+		height = 32,
 		font = composer.getVariable( "appFont" ),
-		fontSize = 17,
+		fontSize = 16,
 		alphaFade = false,
-		fillColor = { default={0.216,0.267,0.302,1}, over={0.216,0.267,0.302,0.8} },
+		fillColor = { default={ 0.2,0.4,0.6,1 }, over={ 0.2,0.4,0.6,0.8 } },
 		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = function() composer.gotoScene( "menu", { effect="slideRight", time=800 } ); end
 	}
