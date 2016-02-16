@@ -66,3 +66,9 @@ msg = display.newText( "Listen for sound every 1 second", centerX, centerY, nati
 --
 timer.performWithDelay( 1000, playBeep, 0 )
 
+-- Disable count text on Android
+--
+if ( system.getInfo( "platformName" ) == "Android" ) then
+	countText.text = ""
+	msg.text = msg.text .. "\n" .. "Event callback unsupported on Android"
+end
