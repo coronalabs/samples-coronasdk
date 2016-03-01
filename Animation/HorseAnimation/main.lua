@@ -57,9 +57,9 @@ local tree_s6 = display.newImage( sceneContainer, "tree_s.png", 270+10-640, 151 
 local tree_l3 = display.newImage( sceneContainer, "tree_l.png", 145-640, 131 )
 
 -- Create two fog pieces and scale horizontally by slight amount to prevent "seam" between each piece
-local fog = display.newImage( sceneContainer, "Fog.png", 240, 214 )
+local fog = display.newImage( sceneContainer, "fog.png", 240, 214 )
 fog.xScale = 1.001
-local fog2 = display.newImage( sceneContainer, "Fog.png", -240, 214 )
+local fog2 = display.newImage( sceneContainer, "fog.png", -240, 214 )
 fog2.xScale = 1.001
 
 -- Set up horse image sheet and sprite instance

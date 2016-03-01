@@ -1,4 +1,7 @@
 
+-- Version: 1.1
+---------------------------------------------------------------------------------------
+
 local widget = require( "widget" )
 
 local M = {}
@@ -16,7 +19,7 @@ function M:newUI( options )
 	local infoBoxState = "canOpen"
 	local transComplete
 	local defaultOrientation
-	local themeName = options.theme or "whiteorange"
+	local themeName = options.theme or "darkgrey"
 	local sampleCodeTitle = options.title or "Sample"
 	local buildNum
 	local offsetX = (display.actualContentWidth-display.contentWidth)/2
