@@ -6,6 +6,7 @@ local scene = composer.newScene()
 
 local fileList = composer.getVariable( "fileList" )
 local preloadButton, releaseButton, statusText, spinner
+local appFont = composer.getVariable( "appFont" )
 local photo, photoGroup
 local photoTimers = {}
 local removePhoto
@@ -85,12 +86,11 @@ function scene:create( event )
 		id = "preload",
 		shape = "rectangle",
 		width = 220,
-		height = 36,
-		font = composer.getVariable( "appFont" ),
-		fontSize = 17,
-		alphaFade = false,
-		fillColor = { default={0.296,0.357,0.392,1}, over={0.296,0.357,0.392,0.8} },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		fillColor = { default={ 0.296,0.357,0.392,1 }, over={ 0.296,0.357,0.392,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
 		onRelease = function() composer.gotoScene( "preload" , { time=800, effect="slideUp" } ); end
 	}
 	sceneGroup:insert( preloadButton )
@@ -102,12 +102,11 @@ function scene:create( event )
 		id = "release",
 		shape = "rectangle",
 		width = 220,
-		height = 36,
-		font = composer.getVariable( "appFont" ),
-		fontSize = 17,
-		alphaFade = false,
-		fillColor = { default={0.745,0.118,0.176,1}, over={0.745,0.118,0.176,0.8} },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		fillColor = { default={ 0.55,0.125,0.125,1 }, over={ 0.55,0.125,0.125,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
 		onRelease = function() releaseTextures(); end
 	}
 	sceneGroup:insert( releaseButton )
@@ -116,20 +115,19 @@ function scene:create( event )
 	local backRect = display.newRect( sceneGroup, display.contentCenterX, display.contentCenterY+20, 152, 152 )
 	backRect:setFillColor( 0.2, 0.2, 0.2, 0.5 )
 
-	statusText = display.newText( sceneGroup, "", 140, 285, composer.getVariable( "appFont" ), 20 )
+	statusText = display.newText( sceneGroup, "", 140, 283, appFont, 20 )
 	statusText.anchorX = 0
 	statusText:setFillColor( 0.5 )
 
 	photoGroup = display.newGroup()
 	sceneGroup:insert( photoGroup )
 
-	local sampleUI = composer.getVariable( "sampleUI" )
-	sampleUI.photoTimers = photoTimers
+	composer.setVariable( "photoTimers", photoTimers )
 	
-	spinner = widget.newSpinner{}
-	spinner.x, spinner.y = 120, 285
+	widget.setTheme( "widget_theme_android_holo_light" )
+	spinner = widget.newSpinner( { x=114, y=283, deltaAngle=10, incrementEvery=10 } )
 	sceneGroup:insert( spinner )
-	sampleUI.spinner = spinner
+	composer.setVariable( "spinner", spinner )
 end
 
 
