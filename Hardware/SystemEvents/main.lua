@@ -182,7 +182,7 @@ function onSystemEvent( event )
 	if  "applicationExit" == event.type then
 		-- Create the unique file before exiting
 		createExitFile()
-	elseif "applicationOpen" == event.type then
+	elseif "applicationOpen" == event.type and event.url ~= "" then
 		native.showAlert( "Open via custom url", event.url, { "OK" } )
 	else
 		-- For all other events, check to see if file exist
@@ -329,3 +329,6 @@ Runtime:addEventListener( "system", onSystemEvent );
 
 -- Add the Orientation callback event
 Runtime:addEventListener( "orientation", onOrientationEvent );
+
+-- Add the Resize callback event
+Runtime:addEventListener( "resize", function() changeOrientation( system.orientation ) end );

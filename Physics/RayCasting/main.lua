@@ -28,7 +28,6 @@ display.getCurrentStage():insert( sampleUI.frontGroup )
 local physics = require("physics")
 physics.start()
 physics.setGravity( 0,0 )
-physics.setDrawMode( "normal" )
 
 -- Declare initial variables
 local turret
@@ -104,7 +103,7 @@ local function castRay( startX, startY, endX, endY )
 		local reflectEndY = ( hitY + ( reflectY * reflectLen ) )
 
 		-- If the ray is reflected, cast another ray
-		if ( reflectX and reflectY) then
+		if ( reflectX and reflectY ) then
 			timer.performWithDelay( 40, function() castRay( hitX, hitY, reflectEndX, reflectEndY ); end )
 		end
 
@@ -123,7 +122,7 @@ end
 local function fireOnTimer( event )
 
 	-- Ensure that all previous beams/bursts are cleared/complete before firing
-	if beamGroup.numChildren == 0 then
+	if ( beamGroup.numChildren == 0 ) then
 
 		-- Stop rotating turret as it fires
 		turret.angularVelocity = 0
@@ -140,24 +139,22 @@ local function fireOnTimer( event )
 	end
 end
 
-
--- Set up mirror positions. X/Y values are relative to the center of the content area.
+-- Set up mirror positions relative to the center of the content area
 local mirrorSet = {
---    320 480
-	{ 0, -120, 90 },    -- top
-	{ 120, -70, -35 },  -- right-upper
-	{ 120, 70, 35 },   -- right-lower
-	{ 0, 120, 90 },   -- bottom
-	{ -120, -70, 35 },   -- left-upper
-	{ -120, 70, -35 }     -- left-lower
+	{ 0, -125, 90 },    -- top
+	{ 105, -60, -35 },  -- right-upper
+	{ 105, 60, 35 },    -- right-lower
+	{ 0, 125, 90 },     -- bottom
+	{ -105, -60, 35 },  -- left-upper
+	{ -105, 60, -35 }   -- left-lower
 }
 
 local mirrors = {}
 
 -- Create mirrors
 for m = 1,#mirrorSet do
-	local mirror = display.newImageRect( mirrorGroup, "mirror.png", 20, 100 )
-	physics.addBody( mirror, "static", { shape={-9,-49,9,-49,9,49,-9,49} } )
+	local mirror = display.newImageRect( mirrorGroup, "mirror.png", 20, 80 )
+	physics.addBody( mirror, "static", { shape={-9,-39,9,-39,9,39,-9,39} } )
 	mirror.x = display.contentCenterX + mirrorSet[m][1]
 	mirror.y = display.contentCenterY + mirrorSet[m][2]
 	mirror.rotation = mirrorSet[m][3]
@@ -175,25 +172,25 @@ turret.angularVelocity = turretSpeed
 -- Start repeating timer to fire beams
 timer.performWithDelay( 2000, fireOnTimer, 0 )
 
--- Update the app layout on resize event.
+-- Update the app layout on resize event
 local function onResize( event )
-	-- Change turret location.
+	-- Change turret location
 	turret.x, turret.y = display.contentCenterX, display.contentCenterY
 
-	-- Update mirror locations.
+	-- Update mirror locations
 	for index, mirror in pairs(mirrors) do
 		mirror.x = display.contentCenterX + mirrorSet[index][1]
 		mirror.y = display.contentCenterY + mirrorSet[index][2]
 	end
 
-	-- Reset any beams, as they are drawn in the incorrect location now.
+	-- Reset any beams, as they are drawn in the incorrect location now
 	resetBeams()
 end
 Runtime:addEventListener( "resize", onResize )
 
--- On tvOS, we want to make sure we stay awake.
--- We also want to ensure that the menu button exits the app.
-if system.getInfo( "platformName" ) == "tvOS" then
+-- On tvOS, make sure the app stays awake
+-- Also ensure that the menu button exits the app
+if ( system.getInfo( "platformName" ) == "tvOS" ) then
 	system.activate( "controllerUserInteraction" )
 	system.setIdleTimer( false )
 end

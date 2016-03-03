@@ -56,7 +56,7 @@ function scene:create( event )
 	}
 	sceneGroup:insert( progressBar )
 
-	text = display.newText( sceneGroup, "(waiting)", display.contentCenterX, display.contentCenterY-20, composer.getVariable( "appFont" ), 17 )
+	text = display.newText( sceneGroup, "(waiting)", display.contentCenterX, display.contentCenterY-20, composer.getVariable( "appFont" ), 16 )
 	text.anchorX = 0
 	text.x = progressBar.contentBounds.xMin
 

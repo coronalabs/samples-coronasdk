@@ -145,10 +145,11 @@ local button2Release = function( event )
 	-- Note: in Xcode Simulator, the current location defaults to Apple headquarters in Cupertino, CA
 	currentLocation = myMap:getUserLocation()
 	if currentLocation.errorCode then
-		-- Current location is unknown if the "errorCode" property is not nil.
-		currentLatitude = 0
-		currentLongitude = 0
-		native.showAlert( "Error", currentLocation.errorMessage, { "OK" } )
+		if currentLocation.errorCode ~= 0 then -- errorCode 0 is: Pending User Authorization!
+			currentLatitude = 0
+			currentLongitude = 0
+			native.showAlert( "Error", currentLocation.errorMessage, { "OK" } )
+		end
 	else
 		-- Current location data was received.
 		-- Move map so that current location is at the center.

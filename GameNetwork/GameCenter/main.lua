@@ -23,23 +23,25 @@ local composer = require( "composer" )
 display.getCurrentStage():insert( sampleUI.backGroup )
 display.getCurrentStage():insert( composer.stage )
 display.getCurrentStage():insert( sampleUI.frontGroup )
+composer.recycleOnSceneChange = false
+local aliasGroup = display.newGroup()
 
 ----------------------
 -- BEGIN SAMPLE CODE
 ----------------------
 
-local gameNetwork = require( "gameNetwork" )
+-- Require libraries/plugins
 local widget = require( "widget" )
+local gameNetwork = require( "gameNetwork" )
 
-composer.recycleOnSceneChange = false
+-- Set app font
+composer.setVariable( "appFont", sampleUI.appFont )
 
+-- Set common variables
 composer.setVariable( "initializedGC", false )
 composer.setVariable( "leaderboardsData", {} )
 composer.setVariable( "achievementData", {} )
-
 composer.setVariable( "debugOutput", false )  -- Set true to enable console print output
-
-local aliasGroup = display.newGroup()
 
 
 -- Table printing function for Game Center debugging
@@ -98,16 +100,16 @@ local function requestCallback( event )
 				aliasGroup:insert( textGroup )
 				composer.stage:insert( aliasGroup )
 				textGroup.anchorChildren = true
-				local back = display.newRect( aliasGroup, 0, 0, display.actualContentWidth, 36 )
+				local back = display.newRect( aliasGroup, 0, 0, display.actualContentWidth, 34 )
 				back:setFillColor( 0.5,0.5,0.5,0.15 )
-				local alias = display.newText( textGroup, "Game Center Alias: ", 0, 0, "HelveticaNeue-Light", 15 )
+				local alias = display.newText( textGroup, "Game Center Alias: ", 0, back.y, sampleUI.appFont, 14 )
 				alias:setFillColor( 0.5 )
 				alias.anchorX = 1
-				local name = display.newText( textGroup, event.data.alias, alias.x, 0, "HelveticaNeue-Light", 15 )
+				local name = display.newText( textGroup, event.data.alias, alias.x, back.y, sampleUI.appFont, 14 )
 				name:setFillColor( 0.7 )
 				name.anchorX = 0
 				aliasGroup.x = display.contentCenterX
-				aliasGroup.y = titleBarBottom + 42 - (aliasGroup.height*0.5)
+				aliasGroup.y = titleBarBottom + 36 - (aliasGroup.height*0.5)
 				transition.to( aliasGroup, { time=800, y=aliasGroup.y+aliasGroup.height, transition=easing.outQuad } )
 			end
 	
@@ -185,18 +187,19 @@ local function initCallback( event )
 		if ( event.data ) then
 
 			-- Create "Leaderboards" scene button
-			local leaderboardsButton = widget.newButton{
-				id = "leaderboards",
-				label = "Leaderboards",
-				onRelease = handleSceneButton,
-				emboss = false,
-				fontSize = 18,
-				shape = "rectangle",
-				width = display.actualContentWidth/2,
-				height = 42,
-				fillColor = { default={ 33/255,87/255,122/255,1 }, over={ 33/255,87/255,122/255,0.8 } },
-				labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.7 } }
-			}
+			local leaderboardsButton = widget.newButton(
+				{
+					id = "leaderboards",
+					label = "Leaderboards",
+					shape = "rectangle",
+					width = display.actualContentWidth/2,
+					height = 36,
+					font = sampleUI.appFont,
+					fontSize = 16,
+					fillColor = { default={ 0.13,0.34,0.48,1 }, over={ 0.13,0.34,0.48,1 } },
+					labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+					onRelease = handleSceneButton
+				})
 			leaderboardsButton.anchorX = 1
 			leaderboardsButton.anchorY = 0
 			leaderboardsButton.x = display.contentCenterX
@@ -205,18 +208,19 @@ local function initCallback( event )
 			composer.setVariable( "leaderboardsButton", leaderboardsButton )
 
 			-- Create "Achievements" scene button
-			local achievementsButton = widget.newButton{
-				id = "achievements",
-				label = "Achievements",
-				onRelease = handleSceneButton,
-				emboss = false,
-				fontSize = 18,
-				shape = "rectangle",
-				width = display.actualContentWidth/2,
-				height = 42,
-				fillColor = { default={ 33/255,100/255,112/255,1 }, over={ 33/255,100/255,112/255,0.8 } },
-				labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.7 } }
-			}
+			local achievementsButton = widget.newButton(
+				{
+					id = "achievements",
+					label = "Achievements",
+					shape = "rectangle",
+					width = display.actualContentWidth/2,
+					height = 36,
+					font = sampleUI.appFont,
+					fontSize = 16,
+					fillColor = { default={ 0.13,0.39,0.44,1 }, over={ 0.13,0.39,0.44,1 } },
+					labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+					onRelease = handleSceneButton
+				})
 			achievementsButton.anchorX = 0
 			achievementsButton.anchorY = 0
 			achievementsButton.x = display.contentCenterX
@@ -240,7 +244,7 @@ local function initCallback( event )
 			gameNetwork.request( "loadAchievements", { listener=requestCallback } )
 		else
 			-- Display alert that Game Center cannot be initialized
-			native.showAlert( "Error", "Cannot initialize Game Center.", { "OK" } )
+			native.showAlert( "Error", "Cannot initialize Game Center. Confirm that you are signed in to the native Game Center app.", { "OK" } )
 		end
 
 		local printTable = composer.getVariable( "printTable" )

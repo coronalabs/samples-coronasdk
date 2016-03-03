@@ -22,25 +22,44 @@ display.getCurrentStage():insert( sampleUI.frontGroup )
 -- Set up download link for textures
 composer.setVariable( "downloadURL", "https://raw.githubusercontent.com/coronalabs/sample-textureLoad/master/images/" )
 
--- Set app font based on platform
-if ( "Win" == system.getInfo( "platformName" ) or "Android" == system.getInfo( "platformName" ) ) then
-	composer.setVariable( "appFont", native.systemFont )
-else
-	composer.setVariable( "appFont", "HelveticaNeue-Light" )
-end
+-- Set app font
+composer.setVariable( "appFont", sampleUI.appFont )
 
--- Set reference to "sampleUI" module for function calls in other modules
-composer.setVariable( "sampleUI", sampleUI )
+-- Include callback function for showing/hiding info box
+-- In this sample, the photo timer and spinner are paused/resumed when appropriate
+sampleUI.onInfoEvent = function( event )
+
+	local photoTimers = composer.getVariable( "photoTimers" )
+	local spinner = composer.getVariable( "spinner" )
+
+	if ( event.action == "show" and event.phase == "will" ) then
+		if photoTimers then
+			if photoTimers[1] then
+				timer.pause( photoTimers[1] )
+			end
+		end
+		if spinner then
+			spinner:stop()
+		end
+
+	elseif ( event.action == "hide" and event.phase == "did" ) then
+		if photoTimers then
+			if photoTimers[1] then
+				timer.resume( photoTimers[1] )
+			end
+		end
+		if spinner then
+			spinner:start()
+		end
+	end
+end
 
 -- File list for sample
 composer.setVariable( "fileList",
 	{
 		{ file="photo1.png", exists=false, fileSize=6932297 },  -- File sizes specified in bytes
 		{ file="photo2.png", exists=false, fileSize=5840900 },
-		{ file="photo3.png", exists=false, fileSize=6465756 },
-		{ file="photo4.png", exists=false, fileSize=6304622 },
-		{ file="photo5.png", exists=false, fileSize=5983230 },
-		{ file="photo6.png", exists=false, fileSize=5437731 }
+ 		{ file="photo3.png", exists=false, fileSize=6465756 }
 	})
 
 -- Loop through file list and check which files already exist
