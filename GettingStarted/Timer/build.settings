@@ -3,12 +3,12 @@
 -- http://docs.coronalabs.com/guide/distribution/buildSettings/index.html
 --
 
-settings = 
+settings =
 {
 	orientation =
 	{
 		default = "portrait",
-		supported = { "portrait" }
+		supported = { "portrait", "landscapeLeft", "landscapeRight" }
 	},
 	iphone =
 	{
@@ -26,7 +26,7 @@ settings =
 				"Icon-76.png",
 				"Icon-76@2x.png",
 				"Icon-167.png",
-				"Icon-Small.png", 
+				"Icon-Small.png",
 				"Icon-Small@2x.png",
 				"Icon-Small@3x.png",
 				"Icon-Small-40.png",

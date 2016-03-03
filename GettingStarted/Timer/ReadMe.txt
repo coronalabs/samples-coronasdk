@@ -1,1 +1,1 @@
-This sample uses buttons to control events and timer functions to create a stopwatch. You can pause the timer to see how many milliseconds have passed and stop the timer to restart.
+This sample project demonstrates a timer which counts in 10ths of a second and some secondary timers which do simple animations.
