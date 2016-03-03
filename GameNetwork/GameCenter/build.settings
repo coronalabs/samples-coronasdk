@@ -52,7 +52,7 @@ settings =
         ["CoronaProvider.gameNetwork.apple"] =
         {
             publisherId = "com.coronalabs",
-            supportedPlatforms = { iphone=true, ["iphone-sim"]=true },
+            supportedPlatforms = { iphone=true },
         },
     },
 }

@@ -11,6 +11,8 @@ composer.setVariable( "currentScore", 200 )
 composer.setVariable( "currentLeaderboardID", "" )
 composer.setVariable( "currentLeaderboardTitle", "" )
 
+local appFont = composer.getVariable( "appFont" )
+
 
 -- Radio button handler function
 local function handleRadio( event )
@@ -82,64 +84,64 @@ function scene:create( event )
 	
 	local decButton = widget.newButton{
 		id = "decScore",
-		label = "−10",
-		onRelease = handleButton,
-		emboss = false,
-		fontSize = 17,
+		label = "-10",
 		shape = "rectangle",
 		width = 52,
-		height = 40,
-		fillColor = { default={ 15/255, 80/255, 140/255, 1 }, over={ 15/255, 80/255, 140/255, 0.8 } },
-		labelColor = { default={ 1, 1, 1, 1 }, over={ 1, 1, 1, 0.7 } }
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		fillColor = { default={ 0.06,0.31,0.55,1 }, over={ 0.06,0.31,0.55,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = handleButton
 	}
 	decButton.x = display.contentCenterX - 98
-	decButton.y = 352
+	decButton.y = 362
 	sceneGroup:insert( decButton )
 
 	local incButton = widget.newButton{
 		id = "incScore",
 		label = "+10",
-		onRelease = handleButton,
-		emboss = false,
-		fontSize = 17,
 		shape = "rectangle",
 		width = 52,
-		height = 40,
-		fillColor = { default={ 15/255, 80/255, 140/255, 1 }, over={ 15/255, 80/255, 140/255, 0.8 } },
-		labelColor = { default={ 1, 1, 1, 1 }, over={ 1, 1, 1, 0.7 } }
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		fillColor = { default={ 0.06,0.31,0.55,1 }, over={ 0.06,0.31,0.55,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = handleButton
 	}
 	incButton.x = display.contentCenterX - 38
-	incButton.y = 352
+	incButton.y = 362
 	sceneGroup:insert( incButton )
 
 	local submitButton = widget.newButton{
 		id = "submitScore",
 		label = "Submit ("..composer.getVariable( "currentScore" )..")",
-		onRelease = handleButton,
-		emboss = false,
-		fontSize = 17,
 		shape = "rectangle",
 		width = 128,
-		height = 40,
-		fillColor = { default={ 28/255, 120/255, 200/255, 1 }, over={ 28/255, 120/255, 200/255, 0.8 } },
-		labelColor = { default={ 1, 1, 1, 1 }, over={ 1, 1, 1, 0.7 } }
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		fillColor = { default={ 0.11,0.47,0.78,1 }, over={ 0.11,0.47,0.78,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = handleButton
 	}
 	submitButton.x = display.contentCenterX + 60
-	submitButton.y = 352
+	submitButton.y = 362
 	sceneGroup:insert( submitButton )
 	composer.setVariable( "submitButton", submitButton )
 
 	local showLeaderboardButton = widget.newButton{
 		id = "showLeaderboard",
 		label = "Show Leaderboard",
-		onRelease = handleButton,
-		emboss = false,
-		fontSize = 17,
 		shape = "rectangle",
 		width = 248,
-		height = 40,
-		fillColor = { default={ 80/255, 90/255, 170/255, 1 }, over={ 80/255, 90/255, 170/255, 0.8 } },
-		labelColor = { default={ 1, 1, 1, 1 }, over={ 1, 1, 1, 0.7 } }
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		fillColor = { default={ 0.31,0.35,0.67,1 }, over={ 0.31,0.35,0.67,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = handleButton
 	}
 	showLeaderboardButton.x = display.contentCenterX
 	showLeaderboardButton.y = 408
@@ -157,7 +159,7 @@ function scene:create( event )
 			onPress = handleRadio
 		}
 		radioGroup:insert( radioButton )
-		local radioLabel = display.newText( radioGroup, ld[i].title, 0, radioButton.y, "HelveticaNeue-Light", 18 )
+		local radioLabel = display.newText( radioGroup, ld[i].title, 0, radioButton.y, appFont, 16 )
 		radioButton.label = radioLabel
 		radioButton.title = ld[i].title
 		radioLabel.anchorX = 0

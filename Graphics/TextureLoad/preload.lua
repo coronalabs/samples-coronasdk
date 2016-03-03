@@ -45,14 +45,14 @@ local function preloadTextures()
         end
 
         -- Set progress
-        setProgress( f/#fileList, 'pre-loading "' .. fileList[f]["file"] .. '"' )
+        setProgress( f/#fileList, 'Pre-Loading "' .. fileList[f]["file"] .. '"' )
 
         -- Schedule loading of next texture on next frame
 		timer.performWithDelay( 1, function()
             -- If all textures are pre-loaded, return to demo scene
             if ( f == #fileList ) then
                 composer.setVariable( "textures", textures )
-				setProgress( 1, "complete!" )
+				setProgress( 1, "Complete!" )
 				timer.performWithDelay( 800, function() composer.gotoScene( "demo", { time=800, effect="slideDown" } ); end )
 			-- Else, pre-load next texture
             else
@@ -88,7 +88,7 @@ end
 function scene:show( event )
 
 	if ( event.phase == "will" ) then
-		progressBar:setProgress( 0 )
+		setProgress( 0, "" )
 	elseif ( event.phase == "did" ) then
 		preloadTextures()
 	end

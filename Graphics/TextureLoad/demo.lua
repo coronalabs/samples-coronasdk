@@ -52,7 +52,7 @@ local function releaseTextures()
 	-- Update UI
 	preloadButton.isVisible = true
 	releaseButton.isVisible = false
-	statusText.text = "textures not pre-loaded"
+	statusText.text = "Textures not Pre-Loaded"
 	statusText:setFillColor( 0.5 )
 
 	-- Remove existing photo
@@ -82,7 +82,7 @@ function scene:create( event )
 
 	preloadButton = widget.newButton
 	{
-		label = "pre-load textures",
+		label = "Pre-Load Textures",
 		id = "preload",
 		shape = "rectangle",
 		width = 220,
@@ -98,7 +98,7 @@ function scene:create( event )
 
 	releaseButton = widget.newButton
 	{
-		label = "un-load textures",
+		label = "Un-Load Textures",
 		id = "release",
 		shape = "rectangle",
 		width = 220,
@@ -143,12 +143,12 @@ function scene:show( event )
             textures = {}
 			preloadButton.isVisible = true
 			releaseButton.isVisible = false
-			statusText.text = "textures not pre-loaded"
+			statusText.text = "Textures not Pre-Loaded"
 			statusText:setFillColor( 0.5 )
 		else
 			preloadButton.isVisible = false
 			releaseButton.isVisible = true
-			statusText.text = "using pre-loaded textures"
+			statusText.text = "Using Pre-Loaded Textures"
 			statusText:setFillColor( 1 )
         end
 

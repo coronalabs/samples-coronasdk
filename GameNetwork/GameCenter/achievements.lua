@@ -8,11 +8,13 @@ local scene = composer.newScene()
 local achievementGroup = display.newGroup()
 local achievementsSet = { 0,0 }
 
+local appFont = composer.getVariable( "appFont" )
+
 
 -- Slider handler function
 local function handleSlider( event )
 
-	event.target.percentageLabel.text = event.value .. "%"
+	event.target.percentageLabel.text = event.value
 
 	if ( event.phase == "ended" ) then
 		local ad = composer.getVariable( "achievementData" )
@@ -33,7 +35,7 @@ local function alignSliders( action )
 
 			if ( action == "reset" ) then
 				slider:setValue( 0 )
-				slider.percentageLabel.text = "0%"
+				slider.percentageLabel.text = "0"
 			end
 
 			slider.anchorX = 0.5 ; slider.x = 130
@@ -122,46 +124,46 @@ function scene:create( event )
 	local submitProgressButton = widget.newButton{
 		id = "setProgress",
 		label = "Set Progress",
-		onRelease = handleButton,
-		emboss = false,
-		fontSize = 17,
 		shape = "rectangle",
 		width = 146,
-		height = 40,
-		fillColor = { default={ 28/255, 120/255, 200/255, 1 }, over={ 28/255, 120/255, 200/255, 0.8 } },
-		labelColor = { default={ 1, 1, 1, 1 }, over={ 1, 1, 1, 0.7 } }
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		fillColor = { default={ 0.11,0.47,0.78,1 }, over={ 0.11,0.47,0.78,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = handleButton
 	}
 	submitProgressButton.x = display.contentCenterX - 51
-	submitProgressButton.y = 352
+	submitProgressButton.y = 362
 	sceneGroup:insert( submitProgressButton )
 
 	local resetButton = widget.newButton{
 		id = "resetAll",
 		label = "Reset",
-		onRelease = handleButton,
-		emboss = false,
-		fontSize = 17,
 		shape = "rectangle",
 		width = 94,
-		height = 40,
-		fillColor = { default={ 15/255, 80/255, 140/255, 1 }, over={ 15/255, 80/255, 140/255, 0.8 } },
-		labelColor = { default={ 1, 1, 1, 1 }, over={ 1, 1, 1, 0.7 } }
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		fillColor = { default={ 0.06,0.31,0.55,1 }, over={ 0.06,0.31,0.55,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = handleButton
 	}
 	resetButton.x = display.contentCenterX + 77
-	resetButton.y = 352
+	resetButton.y = 362
 	sceneGroup:insert( resetButton )
 	
 	local achievementsButton = widget.newButton{
 		id = "showAchievements",
 		label = "Show Achievements",
-		onRelease = handleButton,
-		emboss = false,
-		fontSize = 17,
 		shape = "rectangle",
 		width = 248,
-		height = 40,
-		fillColor = { default={ 80/255, 90/255, 170/255, 1 }, over={ 80/255, 90/255, 170/255, 0.8 } },
-		labelColor = { default={ 1, 1, 1, 1 }, over={ 1, 1, 1, 0.7 } }
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		fillColor = { default={ 0.31,0.35,0.67,1 }, over={ 0.31,0.35,0.67,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = handleButton
 	}
 	achievementsButton.x = display.contentCenterX
 	achievementsButton.y = 408
@@ -174,7 +176,7 @@ function scene:create( event )
 		if ( ad[i].isHidden == false ) then
 			achievementCount = achievementCount + 1
 			achievementsSet[2] = achievementCount
-			local achievementLabel = display.newText( achievementGroup, ad[i].title, 0, 70+(achievementCount*66), "HelveticaNeue-Light", 18 )
+			local achievementLabel = display.newText( achievementGroup, ad[i].title, 0, 70+(achievementCount*66), appFont, 16 )
 			achievementLabel.anchorX = 0
 			achievementLabel.x = display.contentCenterX - 115
 
@@ -184,17 +186,21 @@ function scene:create( event )
 				width = 170,
 				listener = handleSlider
 			}
-			print(slider.value)
 			achievementGroup:insert( slider )
 			slider.setWidth = slider.contentWidth
 
 			slider:setValue( ad[i].percentComplete )
 
-			local sliderPercentage = display.newText( achievementGroup, slider.value.."%", 0, slider.y, "HelveticaNeue-Light", 16 )
+			local sliderPercentage = display.newText( achievementGroup, slider.value, 0, slider.y, appFont, 16 )
 			sliderPercentage:setFillColor( 1, 1, 1, 0.7 )
 			sliderPercentage.anchorX = 1
-			sliderPercentage.x = display.contentCenterX + 115
-					
+			sliderPercentage.x = display.contentCenterX + 105
+			
+			local percentageSign = display.newText( achievementGroup, "%", 0, slider.y, appFont, 16 )
+			percentageSign:setFillColor( 1, 1, 1, 0.7 )
+			percentageSign.anchorX = 0
+			percentageSign.x = sliderPercentage.x + 1
+			
 			slider.achievementID = ad[i].identifier
 			slider.percentageLabel = sliderPercentage
 		end
