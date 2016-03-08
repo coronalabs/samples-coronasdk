@@ -8,8 +8,9 @@ settings =
 	orientation =
 	{
 		default = "portrait",
-		supported = { "portrait", "landscapeLeft", "landscapeRight" }
+		supported = { "portrait", "portraitUpsideDown", "landscapeLeft", "landscapeRight" }
 	},
+
 	iphone =
 	{
 		plist =
@@ -36,6 +37,7 @@ settings =
 			},
 		},
 	},
+
 	window =
 	{
 		titleText =

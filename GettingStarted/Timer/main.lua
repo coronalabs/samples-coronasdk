@@ -1,234 +1,184 @@
--- Abstract: Timer sample app, also demonstrating a table listener
---
--- Author: Corona Labs
---
--- Demonstrates:
---              Demonstrates use of the timer.performWithDelay,
---              timer.pause, timer.resume, timer.cancel,
---              synchronizing timers with wallclock time
---
--- File dependencies: none
---
--- Target devices: Simulator and all target platforms
---
--- Limitations: None
---
--- Update History:
---      v1.1            7/26/2011       Working version
---      v1.2            11/28/2011      Added timer.pause, timer.resume, and timer.cancel (build 594)
---      v2.0            03/03/2016      Updated sample
---
--- Comments:
---
--- Sample code is MIT licensed, see https://coronalabs.com/links/code/license
--- Copyright (C) 2016 Corona Labs Inc. All Rights Reserved.
---
+
+-- Abstract: Timer
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
 
-if display.topStatusBarContentHeight > 0 then
-	display.setStatusBar( display.HiddenStatusBar )
-end
+display.setStatusBar( display.HiddenStatusBar )
 
 ------------------------------
 -- RENDER THE SAMPLE CODE UI
 ------------------------------
 local sampleUI = require( "sampleUI.sampleUI" )
-sampleUI:newUI( { theme="darkgrey", title="Timer", showBuildNum=true } )
+sampleUI:newUI( { theme="whiteorange", title="Timer", showBuildNum=true } )
 
 ------------------------------
 -- CONFIGURE STAGE
 ------------------------------
 display.getCurrentStage():insert( sampleUI.backGroup )
-local worldGroup = display.newGroup()
+local mainGroup = display.newGroup()
 display.getCurrentStage():insert( sampleUI.frontGroup )
 
 ----------------------
 -- BEGIN SAMPLE CODE
 ----------------------
 
+-- Require libraries/plugins
 local widget = require( "widget" )
 
-local timeDelay = 100		-- .1 second
-local timerIterations = 600
+-- Set app font
+local appFont = sampleUI.appFont
 
-local runMode = true	-- for Pause/Resume button state
-local started = true
+-- Set local variables
+local timeDelay = 100  -- 0.1 seconds
+local timerIterations = 600
+local runMode = "stopped"
 local startTime = 0
 local pausedAt = 0
 
-local text, button1, button2, timerID	-- forward references
+-- Forward references
+local timerText, pauseResumeButton, cancelButton, timerID
 
-local background = display.newImageRect( worldGroup, "Background.png", display.contentWidth, display.contentHeight - 50 )
-background.x = display.contentCenterX
-background.y = display.contentCenterY + 4
 
+-- Orientation handler function
 local function onOrientationChange( event )
-	button1.x = display.contentCenterX
-	button1.y = display.contentHeight - 100
-	button2.x = display.contentCenterX
-	button2.y = display.contentHeight - 50
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY + 4
-	background.height = display.contentHeight - 50
-	text.x = display.contentCenterX
+	pauseResumeButton.x = display.contentCenterX
+	pauseResumeButton.y = display.contentHeight - 100
+	cancelButton.x = display.contentCenterX
+	cancelButton.y = display.contentHeight - 50
+	timerText.x = display.contentCenterX - 15
 end
-
 Runtime:addEventListener( "orientation", onOrientationChange )
 
--- Toggle between Pause and Resume
-local buttonHandler1 = function( event )
 
-	local result
+-- Button handler function
+local buttonHandler = function( event )
+
+	if ( event.target.id == "pauseResume" ) then
+
+		if ( runMode == "running" ) then
+			runMode = "paused"
+			pauseResumeButton:setLabel( "Resume" )
+			pausedAt = event.time
+			timer.pause( timerID )
+
+		elseif( runMode == "paused" ) then
+			runMode = "running"
+			pauseResumeButton:setLabel( "Pause" )
+			timer.resume( timerID )
+
+		elseif( runMode == "stopped" ) then
+			runMode = "running"
+			pauseResumeButton:setLabel( "Pause" )
+			timerText.text = "0.0"
+			timerID = timer.performWithDelay( timeDelay, timerText, timerIterations )
+			startTime = 0
+			pausedAt = 0
+		end
 	
-	if runMode then
-		button1:setLabel( "Resume" )
-		runMode = false
-		pausedAt = event.time
-		result = timer.pause( timerID )
-	elseif started then
-		button1:setLabel( "Pause" )
-		runMode = true
-		result = timer.resume( timerID )
-	end
-	
-	if started == false then
-		button1:setLabel( "Pause" )
-		runMode = true
-		text.text = "0.0"
-		timerID = timer.performWithDelay( timeDelay, text, timerIterations )
-		started = true
+	elseif ( event.target.id == "cancel" ) then
+
+		runMode = "stopped"
+		pauseResumeButton:setLabel( "Start" )
+		timerText.text = "0.0"
+		if ( timerID ) then
+			timer.cancel( timerID )
+			timerID = nil
+		end
 		startTime = 0
 		pausedAt = 0
 	end
 end
 
--- Cancel timer
-local buttonHandler2 = function( event )
 
-	local result, result1
-	
-	result, result1 = timer.cancel( timerID )
-	button1:setLabel( "Start" )
-	runMode = false
-	started = false
-	text.text = "0.0"
-	startTime = 0
-	pausedAt = 0
-end
+-- Create buttons
+pauseResumeButton = widget.newButton(
+	{
+		id = "pauseResume",
+		label = "Start",
+		x = display.contentCenterX,
+		y = display.contentHeight - 155,
+		width = 160,
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		shape = "rectangle",
+		fillColor = { default={ 0.9,0.37,0.05,1 }, over={ 0.9,0.37,0.05,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = buttonHandler
+	})
+mainGroup:insert( pauseResumeButton )
 
-button1 = widget.newButton
-{
-	id = "button1",
-	defaultFile = "buttonBlue_100.png",
-	overFile = "buttonBlueOver_100.png",
-	label = "Pause",
-	labelColor = { default={ 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
-	font = native.systemFontBold,
-	fontSize = 20,
-	emboss = true,
-	onRelease = buttonHandler1,
-}
+cancelButton = widget.newButton(
+	{
+		id = "cancel",
+		label = "Cancel",
+		x = display.contentCenterX,
+		y = display.contentHeight - 105,
+		width = 160,
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		shape = "rectangle",
+		fillColor = { default={ 0.55,0.125,0.125,1 }, over={ 0.55,0.125,0.125,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = buttonHandler
+	})
+mainGroup:insert( cancelButton )
 
-button2 = widget.newButton
-{
-	id = "button2",
-	defaultFile = "buttonBlue_100.png",
-	overFile = "buttonBlueOver_100.png",
-	label = "Cancel",
-	labelColor = { default={ 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
-	font = native.systemFontBold,
-	fontSize = 20,
-	emboss = true,
-	onRelease = buttonHandler2,
-}
-button1.x = display.contentCenterX;
-button1.y = display.contentHeight - 100
-button2.x = display.contentCenterX;
-button2.y = display.contentHeight - 50
-
--- In order for the right aligned timer to display nicely we need a font that
--- has monospaced digits.  Usually this is the system font and we can detect
--- that by measuring the relative widths of the '1' and '2' characters
+-- In order for the right-aligned timer to display nicely, we need a font that has monospaced digits
+-- Usually this is the system font and we can detect it by measuring the relative widths of the "1" and "2" characters
 local bestFontForDevice = nil
-local testTextParams =
-{
-	x, y = -100,
-	text = "1",
-	font = native.systemFontBold,
-	fontSize = 24,
-}
-local testText = display.newText( testTextParams )
+local testText = display.newText( { x=-1000, y=-1000, text="1", font=native.systemFontBold, fontSize=24 } )
 local width1 = testText.width
 testText.text = "2"
 local width2 = testText.width
 local platform = system.getInfo( "platformName" ):lower()
+display.remove( testText )
 
-if width2 > width1 then
-	-- system font doesn't have monospaced digits, use a font we know does
-	bestFontForDevice = (platform == "win" and "Courier New" or "Helvetica Neue")
+if ( width2 > width1 ) then
+	-- The system font doesn't have monospaced digits, so use a font known to have them
+	bestFontForDevice = ( platform == "win" and "Courier New" or "Helvetica Neue" )
 else
-	-- the system font is our friend
+	-- The system font has monospaced digits
 	bestFontForDevice = native.systemFontBold
 end
 
-local textParams = 
-{
-    parent = worldGroup,
-    text = "0.0",     
-    x = display.contentCenterX,
-    y = 105,
-    width = display.contentWidth - 10,
-    font = bestFontForDevice,
-    fontSize = 150,
-    align = "right"
-}
+-- Create timer text object
+timerText = display.newText( { parent=mainGroup, text="0.0", x=display.contentCenterX-15, y=105, width=display.contentWidth-10, font=bestFontForDevice, fontSize=140, align="right" } )
+timerText:setFillColor( 0 )
 
--- the main timer display
-text = display.newEmbossedText( textParams )
-text:setFillColor( 0, 0, 0 )
 
-function text:timer( event )
-	
-	local count = event.count
-	if startTime == 0 then
+-- Timer function
+function timerText:timer( event )
+
+	if ( startTime == 0 ) then
 		startTime = event.time
 	end
 
-	if pausedAt > 0 then
-		startTime = startTime + (event.time - pausedAt)
+	if ( pausedAt > 0 ) then
+		startTime = startTime + ( event.time - pausedAt )
 		pausedAt = 0
 	end
 
-	-- print( "Timer listener called " .. count .. " time"..(count == 1 and "" or "s") )
-	self.text = string.format("%.1f", (event.time - startTime)/1000)
+	self.text = string.format( "%.1f", (event.time - startTime)/1000 )
 
-	if (event.time - startTime) >= (timerIterations * timeDelay) then
-		-- timer.cancel( event.source )
-		print("Resetting timer")
-		buttonHandler2()
-		startTime = 0
+	if ( ( event.time - startTime ) >= ( timerIterations * timeDelay ) ) then
+		print( "Resetting timer..." )
+		buttonHandler( { target={ id="cancel" } } )
 	end
-
 end
 
--- Register to call text's timer method timerIterations times
-timerID = timer.performWithDelay( timeDelay, text, timerIterations )
 
-print( "timerID = " .. tostring( timerID ) )
+-- Text color change using a timer
+local function colorChangeListener(event)
 
--- Silly animation using a timer
-local function animationTimerListener(event)
-
-	if text.text == "0.0" then
-		text.text = "o.o"
-		timer.performWithDelay( math.random(1000) + 300, animationTimerListener, 1 )
-	elseif text.text == "o.o" then
-		text.text = "0.0"
-		timer.performWithDelay( math.random(20000), animationTimerListener, 1 )
+	if ( timerText.fill.r == 0 ) then
+		timerText:setFillColor( 0.55,0.125,0.125 )
 	else
-		timer.performWithDelay( math.random(10000), animationTimerListener, 1 )
+		timerText:setFillColor( 0 )
 	end
-
+	timer.performWithDelay( math.random(8000), colorChangeListener, 1 )
 end
-
-timer.performWithDelay( math.random(10000), animationTimerListener, 1 )
+math.randomseed( os.time() )
+timer.performWithDelay( math.random(8000), colorChangeListener, 1 )
