@@ -129,8 +129,8 @@ function scene:create( event )
 		height = 32,
 		font = appFont,
 		fontSize = 16,
-		fillColor = { default={ 0.11,0.47,0.78,1 }, over={ 0.11,0.47,0.78,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		fillColor = { default={ 0.11,0.47,0.78,1 }, over={ 0.121,0.517,0.858,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = handleButton
 	}
 	submitProgressButton.x = display.contentCenterX - 51
@@ -145,8 +145,8 @@ function scene:create( event )
 		height = 32,
 		font = appFont,
 		fontSize = 16,
-		fillColor = { default={ 0.06,0.31,0.55,1 }, over={ 0.06,0.31,0.55,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		fillColor = { default={ 0.06,0.31,0.55,1 }, over={ 0.0672,0.347,0.616,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = handleButton
 	}
 	resetButton.x = display.contentCenterX + 77
@@ -161,8 +161,8 @@ function scene:create( event )
 		height = 32,
 		font = appFont,
 		fontSize = 16,
-		fillColor = { default={ 0.31,0.35,0.67,1 }, over={ 0.31,0.35,0.67,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		fillColor = { default={ 0.31,0.35,0.67,1 }, over={ 0.341,0.385,0.737,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = handleButton
 	}
 	achievementsButton.x = display.contentCenterX
@@ -192,12 +192,12 @@ function scene:create( event )
 			slider:setValue( ad[i].percentComplete )
 
 			local sliderPercentage = display.newText( achievementGroup, slider.value, 0, slider.y, appFont, 16 )
-			sliderPercentage:setFillColor( 1, 1, 1, 0.7 )
+			sliderPercentage:setFillColor( 0.7 )
 			sliderPercentage.anchorX = 1
 			sliderPercentage.x = display.contentCenterX + 105
 			
 			local percentageSign = display.newText( achievementGroup, "%", 0, slider.y, appFont, 16 )
-			percentageSign:setFillColor( 1, 1, 1, 0.7 )
+			percentageSign:setFillColor( 0.7 )
 			percentageSign.anchorX = 0
 			percentageSign.x = sliderPercentage.x + 1
 			

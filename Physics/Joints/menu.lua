@@ -17,18 +17,7 @@ function scene:create( event )
 	local sceneTitle = display.newText( sceneGroup, "Select Joint", display.contentCenterX, 115, composer.getVariable( "appFont" ), 20 )
 
 	-- Table of data for menu buttons
-	local menuButtons = {
-		{ label="Pivot", fillDefault={ 0.12,0.32,0.52,1 }, fillOver={ 0.12,0.32,0.52,1 } },
-		{ label="Distance", fillDefault={ 0.14,0.34,0.54,1 }, fillOver={ 0.14,0.34,0.54,1 } },
-		{ label="Piston", fillDefault={ 0.16,0.36,0.56,1 }, fillOver={ 0.16,0.36,0.56,1 } },
-		{ label="Friction", fillDefault={ 0.18,0.38,0.58,1 }, fillOver={ 0.18,0.38,0.58,1 } },
-		{ label="Weld", fillDefault={ 0.2,0.4,0.6,1 }, fillOver={ 0.2,0.4,0.6,1 } },
-		{ label="Wheel", fillDefault={ 0.12,0.32,0.52,1 }, fillOver={ 0.12,0.32,0.52,1 } },
-		{ label="Pulley", fillDefault={ 0.14,0.34,0.54,1 }, fillOver={ 0.14,0.34,0.54,1 } },
-		{ label="Touch", fillDefault={ 0.16,0.36,0.56,1 }, fillOver={ 0.16,0.36,0.56,1 } },
-		{ label="Rope", fillDefault={ 0.18,0.38,0.58,1 }, fillOver={ 0.18,0.38,0.58,1 } },
-		{ label="Gear", fillDefault={ 0.2,0.4,0.6,1 }, fillOver={ 0.2,0.4,0.6,1 } }
-	}
+	local menuButtons = { "Pivot", "Distance", "Piston", "Friction", "Weld", "Wheel", "Pulley", "Touch", "Rope", "Gear" }
 
 	-- Loop through table to display buttons
 	local rowNum = 0
@@ -37,15 +26,15 @@ function scene:create( event )
 		rowNum = rowNum+1
 		local button = widget.newButton(
 			{
-				label = menuButtons[i].label,
-				id = menuButtons[i].label,
+				label = menuButtons[i],
+				id = menuButtons[i],
 				shape = "rectangle",
 				width = 110,
 				height = 32,
 				font = composer.getVariable( "appFont" ),
 				fontSize = 16,
-				fillColor = { default = menuButtons[i].fillDefault, over = menuButtons[i].fillOver },
-				labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+				fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.132,0.352,0.572,1 } },
+				labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 				onRelease = onButtonRelease
 			})
 		if ( i <= 5 ) then

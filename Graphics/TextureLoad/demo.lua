@@ -89,8 +89,8 @@ function scene:create( event )
 		height = 32,
 		font = appFont,
 		fontSize = 16,
-		fillColor = { default={ 0.296,0.357,0.392,1 }, over={ 0.296,0.357,0.392,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		fillColor = { default={ 0.296,0.357,0.392,1 }, over={ 0.326,0.393,0.431,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = function() composer.gotoScene( "preload" , { time=800, effect="slideUp" } ); end
 	}
 	sceneGroup:insert( preloadButton )
@@ -105,8 +105,8 @@ function scene:create( event )
 		height = 32,
 		font = appFont,
 		fontSize = 16,
-		fillColor = { default={ 0.55,0.125,0.125,1 }, over={ 0.55,0.125,0.125,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		fillColor = { default={ 0.55,0.125,0.125,1 }, over={ 0.66,0.15,0.15,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = function() releaseTextures(); end
 	}
 	sceneGroup:insert( releaseButton )

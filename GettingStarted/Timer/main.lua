@@ -30,8 +30,8 @@ local widget = require( "widget" )
 local appFont = sampleUI.appFont
 
 -- Set local variables
-local timeDelay = 100  -- 0.1 seconds
-local timerIterations = 600
+local timeDelay = 100  -- 1/10th of a second ( 1000 milliseconds / 10 = 100 )
+local timerIterations = 600  -- Set the timer limit to 60 seconds ( 600 * 0.1 = 60 )
 local runMode = "stopped"
 local startTime = 0
 local pausedAt = 0
@@ -103,8 +103,8 @@ pauseResumeButton = widget.newButton(
 		font = appFont,
 		fontSize = 16,
 		shape = "rectangle",
-		fillColor = { default={ 0.9,0.37,0.05,1 }, over={ 0.9,0.37,0.05,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		fillColor = { default={ 0.9,0.37,0.05,1 }, over={ 0.945,0.386,0.053,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = buttonHandler
 	})
 mainGroup:insert( pauseResumeButton )
@@ -120,8 +120,8 @@ cancelButton = widget.newButton(
 		font = appFont,
 		fontSize = 16,
 		shape = "rectangle",
-		fillColor = { default={ 0.55,0.125,0.125,1 }, over={ 0.55,0.125,0.125,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		fillColor = { default={ 0.55,0.125,0.125,1 }, over={ 0.66,0.15,0.15,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = buttonHandler
 	})
 mainGroup:insert( cancelButton )
@@ -168,17 +168,3 @@ function timerText:timer( event )
 		buttonHandler( { target={ id="cancel" } } )
 	end
 end
-
-
--- Text color change using a timer
-local function colorChangeListener(event)
-
-	if ( timerText.fill.r == 0 ) then
-		timerText:setFillColor( 0.55,0.125,0.125 )
-	else
-		timerText:setFillColor( 0 )
-	end
-	timer.performWithDelay( math.random(8000), colorChangeListener, 1 )
-end
-math.randomseed( os.time() )
-timer.performWithDelay( math.random(8000), colorChangeListener, 1 )

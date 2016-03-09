@@ -31,8 +31,8 @@ function scene:create( event )
 		font = composer.getVariable( "appFont" ),
 		fontSize = 16,
 		alphaFade = false,
-		fillColor = { default={ 0.2,0.4,0.6,1 }, over={ 0.2,0.4,0.6,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.132,0.352,0.572,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = function() composer.gotoScene( "menu", { effect="slideRight", time=800 } ); end
 	}
 	sceneGroup:insert( buttonExit )

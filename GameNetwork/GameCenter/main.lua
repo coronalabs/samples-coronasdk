@@ -196,8 +196,8 @@ local function initCallback( event )
 					height = 36,
 					font = sampleUI.appFont,
 					fontSize = 16,
-					fillColor = { default={ 0.13,0.34,0.48,1 }, over={ 0.13,0.34,0.48,1 } },
-					labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+					fillColor = { default={ 0.13,0.34,0.48,1 }, over={ 0.143,0.374,0.528,1 } },
+					labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 					onRelease = handleSceneButton
 				})
 			leaderboardsButton.anchorX = 1
@@ -217,8 +217,8 @@ local function initCallback( event )
 					height = 36,
 					font = sampleUI.appFont,
 					fontSize = 16,
-					fillColor = { default={ 0.13,0.39,0.44,1 }, over={ 0.13,0.39,0.44,1 } },
-					labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+					fillColor = { default={ 0.13,0.39,0.44,1 }, over={ 0.13,0.429,0.484,1 } },
+					labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 					onRelease = handleSceneButton
 				})
 			achievementsButton.anchorX = 0

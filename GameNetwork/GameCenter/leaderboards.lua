@@ -19,11 +19,11 @@ local function handleRadio( event )
 
 	for j = 1,radioGroup.numChildren do
 		if ( radioGroup[j].isOn == true and radioGroup[j].label ) then
-			radioGroup[j].label:setFillColor( 1, 1, 1, 1 )
+			radioGroup[j].label:setFillColor( 1 )
 			composer.setVariable( "currentLeaderboardID", event.target.id )
 			composer.setVariable( "currentLeaderboardTitle", event.target.title )
 		elseif ( radioGroup[j].isOn == false and radioGroup[j].label ) then
-			radioGroup[j].label:setFillColor( 1, 1, 1, 0.7 )
+			radioGroup[j].label:setFillColor( 0.7 )
 		end
 	end
 end
@@ -90,8 +90,8 @@ function scene:create( event )
 		height = 32,
 		font = appFont,
 		fontSize = 16,
-		fillColor = { default={ 0.06,0.31,0.55,1 }, over={ 0.06,0.31,0.55,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		fillColor = { default={ 0.06,0.31,0.55,1 }, over={ 0.0672,0.347,0.616,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = handleButton
 	}
 	decButton.x = display.contentCenterX - 98
@@ -106,8 +106,8 @@ function scene:create( event )
 		height = 32,
 		font = appFont,
 		fontSize = 16,
-		fillColor = { default={ 0.06,0.31,0.55,1 }, over={ 0.06,0.31,0.55,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		fillColor = { default={ 0.06,0.31,0.55,1 }, over={ 0.0672,0.347,0.616,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = handleButton
 	}
 	incButton.x = display.contentCenterX - 38
@@ -122,8 +122,8 @@ function scene:create( event )
 		height = 32,
 		font = appFont,
 		fontSize = 16,
-		fillColor = { default={ 0.11,0.47,0.78,1 }, over={ 0.11,0.47,0.78,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		fillColor = { default={ 0.11,0.47,0.78,1 }, over={ 0.121,0.517,0.858,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = handleButton
 	}
 	submitButton.x = display.contentCenterX + 60
@@ -139,8 +139,8 @@ function scene:create( event )
 		height = 32,
 		font = appFont,
 		fontSize = 16,
-		fillColor = { default={ 0.31,0.35,0.67,1 }, over={ 0.31,0.35,0.67,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		fillColor = { default={ 0.31,0.35,0.67,1 }, over={ 0.341,0.385,0.737,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 		onRelease = handleButton
 	}
 	showLeaderboardButton.x = display.contentCenterX
@@ -165,11 +165,11 @@ function scene:create( event )
 		radioLabel.anchorX = 0
 		radioLabel.x = 80
 		if ( i == 1 ) then
-			radioLabel:setFillColor( 1, 1, 1, 1 )
+			radioLabel:setFillColor( 1 )
 			composer.setVariable( "currentLeaderboardID", radioButton.id )
 			composer.setVariable( "currentLeaderboardTitle", radioButton.title )
 		else
-			radioLabel:setFillColor( 1, 1, 1, 0.7 )
+			radioLabel:setFillColor( 0.7 )
 		end
 	end
 end
