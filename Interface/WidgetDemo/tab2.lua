@@ -91,8 +91,8 @@ function scene:create( event )
 		hideBackground = false,
 		backgroundColor = backgroundColor,
 		--isBounceEnabled = false,
-		horizontalScrollingDisabled = false,
-		verticalScrollingDisabled = false,
+		horizontalScrollDisabled = false,
+		verticalScrollDisabled = false,
 		listener = scrollListener
 	}
 	sceneGroup:insert( scrollView )
