@@ -229,6 +229,7 @@ local textFieldButtonPress = function( event )
 		textField:removeSelf()
 		textField = nil				-- set to nil so we recreate it next time
 		clrKbButton.isVisible = false		-- hide Dismiss button
+		native.setKeyboardFocus( nil )		-- remove keyboard
 		txtBoxButton.alpha = 1.0			-- Restore the other text object button
 		keyboardLabel.isVisible = false		-- hide our text
 	else
@@ -261,6 +262,7 @@ local textBoxButtonPress = function( event )
 		textBox:removeSelf()
 		textBox = nil				-- set to nil so we recreate it next time
 		clrKbButton.isVisible = false		-- hide Dismiss button
+		native.setKeyboardFocus( nil )		-- remove keyboard
 		txtFieldButton.alpha = 1.0			-- Restore the other text object button
 	else
 		-- Only allow one text object at a time
