@@ -34,6 +34,7 @@ local supportHPS = system.getInfo( "gpuSupportsHighPrecisionFragmentShaders" )
 -- Forward declares
 -------------------------------------------------------------------------------
 local list
+local previewShowing = false
 
 -- Views
 -------------------------------------------------------------------------------
@@ -66,6 +67,7 @@ local onBackRelease = function()
 	transition.to( list, { x = width * 0.5 + display.screenOriginX, time = 400, transition = easing.outExpo } )
 	transition.to( preview, { x = width + preview.contentWidth * 0.5, time = 400, transition = easing.outExpo } )
 	titleText.text = titleString
+	previewShowing = false
 end
 
 -- Back button
@@ -148,6 +150,7 @@ local function onRowTouch( event )
 		transition.to( list, { x = - width * 0.5 + display.screenOriginX, time = 400, transition = easing.outExpo } )
 		transition.to( preview, { x = display.contentCenterX, time = 400, transition = easing.outExpo } )
 		titleText.text = row.id.name:sub( 8 )
+		previewShowing = true
 		-- print( "Tapped and/or Released row: " .. row.index )
 	end
 end
@@ -182,3 +185,23 @@ for i = 1, #effects do
 		category = "foo"
 	}
 end
+
+-- handle key events
+local function onKeyEvent( event )
+
+    local phase = event.phase
+    local keyName = event.keyName
+
+    if ( "back" == keyName and "up" == phase ) then
+        if previewShowing then
+            onBackRelease()
+        else
+            native.requestExit()
+        end
+        -- we handled the key event, return true
+        return true
+    end
+    -- we did not handle the key event, let the system know it has to deal with it
+    return false
+end
+Runtime:addEventListener( "key", onKeyEvent )

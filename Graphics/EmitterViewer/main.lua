@@ -37,6 +37,8 @@ local width = display.actualContentWidth
 -------------------------------------------------------------------------------
 local list
 local emitter
+local titleString = "Particle Effects"
+previewShowing = false
 
 -- Views
 -------------------------------------------------------------------------------
@@ -50,7 +52,7 @@ titleBar.fill = { type = 'gradient', color1 = { .74, .8, .86, 1 }, color2 = { .3
 titleBar.y = display.screenOriginY + titleBar.contentHeight * 0.5
 
 -- create embossed text to go on toolbar
-local titleText = display.newEmbossedText( view, "Particle Effects", halfW, titleBar.y, native.systemFontBold, 20 )
+local titleText = display.newEmbossedText( view, titleString, halfW, titleBar.y, native.systemFontBold, 20 )
 
 -- Preview group
 -------------------------------------------------------------------------------
@@ -63,6 +65,8 @@ local onBackRelease = function()
 	transition.to( list, { x = width * 0.5 + display.screenOriginX, time = 400, transition = easing.outExpo } )
 	transition.to( preview, { x = width + preview.contentWidth * 0.5, time = 400, transition = easing.outExpo } )
 	emitter:removeSelf()
+	titleText.text = titleString
+	previewShowing = false
 end
 
 -- Back button
@@ -126,7 +130,7 @@ local function onRowTouch( event )
 		-- The table x origin refers to the center of the table in Graphics 2.0, so we translate with half the object's contentWidth
 		transition.to( list, { x = - width * 0.5 + display.screenOriginX, time = 400, transition = easing.outExpo } )
 		transition.to( preview, { x = display.contentCenterX, time = 400, transition = easing.outExpo } )
-		
+		previewShowing = true
 		-- print( "Tapped and/or Released row: " .. row.index )
 	end
 end
@@ -161,3 +165,23 @@ for i = 1, #effects do
 		category = "foo"
 	}
 end
+
+-- handle key events
+local function onKeyEvent( event )
+
+    local phase = event.phase
+    local keyName = event.keyName
+
+    if ( "back" == keyName and "up" == phase ) then
+        if previewShowing then
+            onBackRelease()
+        else
+            native.requestExit()
+        end
+        -- we handled the key event, return true
+        return true
+    end
+    -- we did not handle the key event, let the system know it has to deal with it
+    return false
+end
+Runtime:addEventListener( "key", onKeyEvent )
