@@ -47,6 +47,13 @@ settings =
 			},
 		},
 	},
+	tvos =
+    {
+        plist =
+        {
+			UIApplicationExitsOnSuspend = true, -- quit app on suspend
+        },
+    },
 	window =
 	{
 		suspendWhenMinimized = true,
