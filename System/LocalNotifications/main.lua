@@ -65,7 +65,7 @@ display.setDefault( "anchorY", 0.5 )
 local options = {
    alert = "Wake up!",
    badge = 1,
-   sound = "alarm.caf",
+   sound = "notification.wav",
    custom = { msg = "bar" }
 }
 
