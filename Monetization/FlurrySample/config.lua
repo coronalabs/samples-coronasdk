@@ -1,9 +1,9 @@
-application =
+application = 
 {
-	content =
+	content = 
 	{
-		width = 320,
+		width  = 320,
 		height = 480,
-		scale = "letterbox"
-	},
-}
+		scale  = "letterbox" 
+	}
+} 

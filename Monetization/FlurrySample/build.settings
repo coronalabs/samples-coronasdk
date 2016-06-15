@@ -2,16 +2,22 @@
 -- For more information on build.settings see the Corona SDK Build Guide at:
 -- http://docs.coronalabs.com/guide/distribution/buildSettings/index.html
 --
-
-settings =
+settings = 	
 {
-	android =
+	orientation = 
 	{
-		usesPermissions =
+		default = "portrait", 
+		supported = { "portrait" }
+	},
+
+	android = 
+	{
+		usesPermissions = 
 		{
 			-- This permission is required in order for analytics to be sent to Flurry's servers.
 			"android.permission.INTERNET",
-
+			"android.permission.ACCESS_NETWORK_STATE",
+		
 			-- These permissions are optional.
 			-- If set, then Flurry will also record current location via GPS and/or WiFi.
 			-- If not set, then Flurry can only record which country the app was used in.
@@ -29,17 +35,19 @@ settings =
 			{ name = "android.hardware.location.network", required = false },
 		},
 	},
-	iphone =
+
+	iphone = 
 	{
-		plist =
+		plist = 
 		{
+			CFBundleIconFile = "Icon.png",
 			CFBundleIconFiles = 
 			{
 				"Icon.png", 
-				"Icon@2x.png", 
+				"Icon@2x.png",
 				"Icon-60.png",
 				"Icon-60@2x.png",
-				"Icon-60@3x.png",
+				"Icon-60@3x.png", 
 				"Icon-72.png", 
 				"Icon-72@2x.png",
 				"Icon-76.png",
@@ -52,9 +60,10 @@ settings =
 				"Icon-Small-40@2x.png",
 				"Icon-Small-50.png", 
 				"Icon-Small-50@2x.png",
-			},
-		},
+			}
+		}
 	},
+	
 	window =
 	{
 		defaultViewWidth = 320,
@@ -64,13 +73,19 @@ settings =
 			default = "Flurry Sample",
 		},
 	},
-	plugins =
+
+	plugins = 
 	{
 		-- key is the name passed to Lua's 'require()'
-		["CoronaProvider.analytics.flurry"] =
+		["plugin.flurry.analytics"] = 
 		{
-			-- required
-			publisherId = "com.coronalabs",
+			publisherId = "com.coronalabs"
 		},
+
+		["plugin.google.play.services"] = 
+		{
+			publisherId = "com.coronalabs",
+			supportedPlatforms = { android = true }
+		}
 	},
 }
