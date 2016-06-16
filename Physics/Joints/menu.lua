@@ -6,7 +6,7 @@ local scene = composer.newScene()
 
 
 local function onButtonRelease( event )
-	composer.gotoScene( event.target.id, { effect="slideLeft", time=800 } )
+	composer.gotoScene( event.target.id:lower(), { effect="slideLeft", time=800 } )
 end
 
 
