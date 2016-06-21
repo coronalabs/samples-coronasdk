@@ -137,29 +137,36 @@ local function tryToCapturePhoto( event )
 		-- If we have access to the camera, capture a photo.
 		print( "Calling media.capturePhoto() from tap listener!" )
 		media.capturePhoto( { listener = sessionComplete } )
-	elseif ( hasCamera and native.canShowPopup( "requestAppPermission" ) ) then
+	elseif ( hasCamera ) then
 		-- If we don't have access to the camera, and a camera is actually available,
-		-- request permission to use it.
-		local permissionsToRequest = nil
-		local rationaleTitleMessage = "media.capturePhoto() needs permissions!"
-		local rationaleMessage = nil
-		if system.getInfo( "platformName" ) == "Android" then
-			-- On Android, we also need the Storage permission to use media.capturePhoto().
-			permissionsToRequest = { "Camera", "Storage" }
-			rationaleMessage = "Camera sample needs Camera and Storage permission to use media.capturePhoto()!"
-		else
-			permissionsToRequest = { "Camera" }
-			rationaleMessage = "Camera sample needs the Camera permission to access the camera!"
-		end
+		-- request permission to use it, if we can.
+		if ( native.canShowPopup( "requestAppPermission" ) ) then
+			local permissionsToRequest = nil
+			local rationaleTitleMessage = "media.capturePhoto() needs permissions!"
+			local rationaleMessage = nil
+			if system.getInfo( "platformName" ) == "Android" then
+				-- On Android, we also need the Storage permission to use media.capturePhoto().
+				permissionsToRequest = { "Camera", "Storage" }
+				rationaleMessage = "Camera sample needs Camera and Storage permission to use media.capturePhoto()!"
+			else
+				permissionsToRequest = { "Camera" }
+				rationaleMessage = "Camera sample needs the Camera permission to access the camera!"
+			end
 
-		-- Make the actual request from the user.
-		native.showPopup( "requestAppPermission", {
-				appPermission = permissionsToRequest,
-				urgency = "Normal",
-				rationaleTitle = rationaleTitleMessage,
-				rationaleDescription = rationaleMessage,
-				listener = permissionsListener,
-			} )
+			-- Make the actual request from the user.
+			native.showPopup( "requestAppPermission", {
+					appPermission = permissionsToRequest,
+					urgency = "Normal",
+					rationaleTitle = rationaleTitleMessage,
+					rationaleDescription = rationaleMessage,
+					listener = permissionsListener,
+				} )
+		else
+			-- The device has a Camera, but we can't ask for permission to use it.
+			-- Tell the user to enable it in Settings.
+			native.showAlert( "Corona SDK", "A camera was found on this device, but permission to use it cannot " 
+				.. "be requested. Please go to Settings and grant this app access to the Camera.", { "OK" } )
+		end
 	else
 		-- The sample requires that we actually have a camera.
 		native.showAlert( "Corona SDK", "Camera not found.", { "OK" } )
