@@ -1,7 +1,7 @@
 
 local physics = require( "physics" )
 physics.start()
-physics.setGravity( 0,9.8 )
+physics.setGravity( 0, 9.8 )
 physics.setDrawMode( "normal" )
 
 local composer = require( "composer" )

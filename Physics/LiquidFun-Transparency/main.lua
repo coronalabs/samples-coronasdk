@@ -27,7 +27,7 @@ display.getCurrentStage():insert( sampleUI.frontGroup )
 -- Set up physics engine
 local physics = require( "physics" )
 physics.start()
-physics.setGravity( 0,9.8 )
+physics.setGravity( 0, 9.8 )
 physics.setDrawMode( "normal" )
 
 -- Declare initial variables

@@ -10,6 +10,7 @@ settings =
 		default = "landscapeRight",
 		supported = { "landscapeRight" }
 	},
+
 	iphone =
 	{
 		plist =
@@ -36,6 +37,34 @@ settings =
 			},
 		},
 	},
+
+	tvos =
+	{
+		icon =
+		{
+			small =
+			{
+				"Icon-tvOS-Small-LogoA.png",
+				"Icon-tvOS-Small-LogoB.png",
+				"Icon-tvOS-Small-Background.png"
+			},
+			large =
+			{
+				"Icon-tvOS-Large-LogoA.png",
+				"Icon-tvOS-Large-LogoB.png",
+				"Icon-tvOS-Large-Background.png"
+			}
+		},
+		topShelfImage = "Icon-tvOS-TopShelf.png",
+		launchImage = "Icon-tvOS-Launch.png"
+	},
+
+	excludeFiles =
+	{
+		iphone = { "Icon-tvOS*.png" },
+		android = { "Icon-tvOS*.png" }
+	},
+
 	window =
 	{
 		titleText =
