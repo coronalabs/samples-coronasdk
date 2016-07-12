@@ -70,9 +70,9 @@ local clockTimer = timer.performWithDelay( 1000, updateTime, -1 )
 
 
 -- Use accelerometer to rotate display automatically
+local rotateScreen = nil
 local function onOrientationChange( event )
 
-print( clock.anchorX, clock.anchorY, clock.x, clock.y )
 	-- Adapt text layout to current orientation	
 	local direction = event.type
 
@@ -88,9 +88,25 @@ print( clock.anchorX, clock.anchorY, clock.x, clock.y )
 		secondLabel.y = 400
 	end
 
+	local rotateTo
+	if direction == "portrait" then
+		rotateTo = 0
+	elseif direction == "landscapeRight" then
+		rotateTo = 90
+	elseif direction == "portraitUpsideDown" then
+		rotateTo = 180
+	elseif direction == "landscapeLeft" then
+		rotateTo = 270
+	end
+
+	if rotateScreen then
+		transition.cancel( rotateScreen )
+		rotateScreen = nil
+	end
+
 	-- Rotate clock so it remains upright
 	local newAngle = clock.rotation - event.delta
-	transition.to( clock, { time=150, rotation=newAngle } )	
+	rotateScreen = transition.to( clock, { time=150, rotation=rotateTo, onComplete=function() rotateScreen = nil; end } )	
 
 end
 
