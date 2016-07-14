@@ -206,7 +206,7 @@ Runtime:addEventListener( "resize", onResizeEvent )
 
 print("")
 print("System Information:")
-if system.getInfo("platformName") == "android" then
+if system.getInfo("platformName") == "Android" then
 	print("androidApiLevel: " .. tostring(system.getInfo("androidApiLevel")))
 	print("androidAppVersionCode: " .. tostring(system.getInfo("androidAppVersionCode")))
 	print("androidAppPackageName: " .. tostring(system.getInfo("androidAppPackageName")))
