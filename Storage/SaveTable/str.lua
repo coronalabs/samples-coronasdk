@@ -1,24 +1,28 @@
--- str.lua (adds string "split" function, similar to explode() in PHP)
---
--- See more useful Lua snippets at http://lua-users.org/wiki/
 
-module(..., package.seeall)
+-- This adds string "split" functionality similar to "explode()" in PHP
 
-split = function(str, pat)
-   local t = {}
-   local fpat = "(.-)" .. pat
-   local last_end = 1
-   local s, e, cap = str:find(fpat, 1)
-   while s do
-      if s ~= 1 or cap ~= "" then
-	 table.insert(t,cap)
-      end
-      last_end = e+1
-      s, e, cap = str:find(fpat, last_end)
-   end
-   if last_end <= #str then
-      cap = str:sub(last_end)
-      table.insert(t,cap)
-   end
-   return t  
+local M = {}
+
+M.split = function( str, pat )
+
+	local t = {}
+	local fpat = "(.-)" .. pat
+	local last_end = 1
+	local s, e, cap = str:find( fpat, 1 )
+
+	while s do
+		if ( s ~= 1 or cap ~= "" ) then
+			table.insert( t, cap )
+		end
+		last_end = e + 1
+		s, e, cap = str:find( fpat, last_end )
+	end
+
+	if ( last_end <= #str ) then
+		cap = str:sub( last_end )
+		table.insert( t, cap )
+	end
+	return t
 end
+
+return M

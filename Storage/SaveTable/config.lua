@@ -1,11 +1,19 @@
--- config.lua
 
-application =
+application = 
 {
-	content =
-	{
+	content = 
+	{ 
+		fps = 60,
 		width = 320,
 		height = 480,
-		scale = "letterbox" -- zoom to screen dimensions (may add extra space at top or sides)
-	},
+		scale = "letterbox",
+		xAlign = "center",
+		yAlign = "center",
+
+		imageSuffix =
+		{
+			["@2x"] = 2.000,
+			["@4x"] = 4.000
+		}
+	}
 }
