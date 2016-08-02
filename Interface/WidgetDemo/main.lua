@@ -139,7 +139,13 @@ end
 
 local function themeChooser( event )
 	--print( "themeChooser: "..json.encode(event) )
-	showWidgets( event.index )
+
+	local chosenTheme = event.index
+	if chosenTheme < 1 then
+		-- Default to the first theme choice if one wasn't made (event.index == 0).
+		chosenTheme = 1
+	end
+	showWidgets( chosenTheme )
 end
 
 native.showAlert( "Choose Theme", "Widgets can be skinned to look like different device OS versions.", themeNames, themeChooser )
