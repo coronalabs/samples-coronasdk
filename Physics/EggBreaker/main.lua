@@ -2,7 +2,7 @@
 -- Abstract: EggBreaker sample project
 -- A simplified "crush the castle" game demo, where objects have internal listeners for collision events
 -- 
--- Version: 1.2
+-- Version: 1.3 (using Spites instead of movieclip)
 --
 -- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
@@ -23,9 +23,6 @@ local physics = require("physics")
 physics.start()
 
 display.setStatusBar( display.HiddenStatusBar )
-
--- Load some external Lua libraries (from project directory)
-local movieclip = require( "movieclip" )
 
 local ballInPlay = false
 
@@ -125,18 +122,34 @@ physics.addBody( beam3, castleBodyHeavy )
 ------------------------------------------------------------
 -- Construct eggs
 
+local sheetOptions =
+{
+    width = 50,
+    height = 56,
+    numFrames = 2
+}
+local sheet_eggs = graphics.newImageSheet( "egg_sheet.png", sheetOptions )
+
+local sequenceData =
+{
+    name="breaking",
+    start=1,
+    count=2,
+    time=100,	-- not used since we don't play the sprite
+}
+
 eggBody = { density=1.0, friction=0.1, bounce=0.5, radius=25 }
 
--- Uses "movieclip" library for simple 2-frame animation; could also use sprite sheets for more complex animations
-egg1 = movieclip.newAnim{ "egg.png", "egg_cracked.png" }
+-- Uses "sprite" library for simple 2-frame animation; could also use sprite sheets for more complex animations
+egg1 = display.newSprite( sheet_eggs, sequenceData )
 game:insert( egg1 ); egg1.x = 684; egg1.y = 374; egg1.id = "egg1"
 physics.addBody( egg1, eggBody )
 
-egg2 = movieclip.newAnim{ "egg.png", "egg_cracked.png" }
+egg2 = display.newSprite( sheet_eggs, sequenceData )
 game:insert( egg2 ); egg2.x = 802; egg2.y = 374; egg2.id = "egg2"
 physics.addBody( egg2, eggBody )
 
-egg3 = movieclip.newAnim{ "egg.png", "egg_cracked.png" }
+egg3 = display.newSprite( sheet_eggs, sequenceData )
 game:insert( egg3 ); egg3.x = 744; egg3.y = 258; egg3.id = "egg3"
 physics.addBody( egg3, eggBody )
 
@@ -198,7 +211,7 @@ function startListening()
 		
 		-- Crack this egg if collision force is high enough
 		if ( event.force > 6.0 ) then
-			self:stopAtFrame(2)
+			self:setFrame( 2 )		-- change to egg broken image
 			
 			audio.play( squishSound )				
 			score = score + 150
