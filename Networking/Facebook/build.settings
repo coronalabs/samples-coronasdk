@@ -5,69 +5,26 @@
 
 settings =
 {
-	orientation =
-	{
+	orientation = {
 		default = "portrait",
-		supported = { "portrait" }
+		supported = { "portrait", "portraitUpsideDown" }
 	},
-	plugins =
-	{
-		-- This section is only required for builds > 2015.2668
-		["plugin.facebook.v4"] =
-		{
-			publisherId = "com.coronalabs",
-		},
-	},
-	android =
-	{
-		usesPermissions =
-		{
-			"android.permission.INTERNET",
-		},
-		facebookAppId = "XXXXXXXXX",	-- replace XXXXXXXXX with your facebook appId
-	},
+
 	iphone =
 	{
 		plist =
 		{
-			-- For iOS 9+ only
-			NSAppTransportSecurity = 
+			CFBundleURLTypes =
 			{
-				NSExceptionDomains = 
 				{
-					["fbcdn.net"] = 
+					CFBundleURLSchemes =
 					{
-						NSIncludesSubdomains = true,
-						NSExceptionRequiresForwardSecrecy = false,
-					},
-					["facebook.com"] = 
-					{
-						NSIncludesSubdomains = true,
-						NSExceptionRequiresForwardSecrecy = false,
-					},
-					["akamaihd.net"] = 
-					{
-						NSIncludesSubdomains = true,
-						NSExceptionRequiresForwardSecrecy = false,
-					},
-				},
+						"fbXXXXXXXXXXXXXXX"  -- Replace XXXXXXXXXXXXXXX with your Facebook App ID
+					}
+				}
 			},
+			FacebookAppID = "XXXXXXXXXXXXXXX",  -- Replace XXXXXXXXXXXXXXX with your Facebook App ID
 
-			LSApplicationQueriesSchemes = 
-			{
-				"fb",
-				"fbapi20130214",
-				"fbapi20130410",
-				"fbapi20140410",
-				"fbapi20140116",
-				"fbapi20150313",
-				"fbapi20150629",
-				"fbauth",
-				"fbauth2",
-				"fb-messenger-api20140430",
-			},
-
-			-- For all version of iOS.
 			CFBundleIconFiles =
 			{
 				"Icon.png", 
@@ -88,25 +45,34 @@ settings =
 				"Icon-Small-50.png", 
 				"Icon-Small-50@2x.png",
 			},
-			UIApplicationExitsOnSuspend = false,	-- must be false for single sign-on to work
-			FacebookAppID = "XXXXXXXXX",	-- replace XXXXXXXXX with your facebook appId
-
-			CFBundleURLTypes =
+			LSApplicationQueriesSchemes =
 			{
-				{
-					CFBundleURLSchemes =
-					{
-						"fbXXXXXXXXX",	-- replace XXXXXXXXX with your facebook appId
-					}
-				}
-			}
-		}
+				"fbapi",
+				"fbauth2",
+				"fb-messenger-api",
+				"fbshareextension",
+			},
+		},
 	},
+
+	android =
+	{
+		facebookAppId = "XXXXXXXXXXXXXXX",  -- Replace XXXXXXXXXXXXXXX with your Facebook App ID
+	},
+
 	window =
 	{
 		titleText =
 		{
 			default = "Facebook",
+		},
+	},
+
+	plugins =
+	{
+		["plugin.facebook.v4"] =
+		{
+			publisherId = "com.coronalabs"
 		},
 	},
 }
