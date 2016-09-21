@@ -44,7 +44,7 @@ local _H = display.contentHeight
 
 display.setStatusBar( display.HiddenStatusBar )
 
-local posterFrame = display.newImage( "Default.png", centerX, centerY )
+local posterFrame = display.newImage( "PosterFrame.png", centerX, centerY )
 posterFrame:rotate(270)
 
 function posterFrame:tap( event )
