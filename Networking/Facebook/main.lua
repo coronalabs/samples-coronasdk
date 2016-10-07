@@ -228,13 +228,16 @@ local function enforceFacebookLogin( )
 		if accessToken == nil then
 
 			print( "Need to log in" )
-			facebook.login( listener )
+			facebook.login()
 
-		elseif not inTable( accessToken.grantedPermissions, "publish_actions" ) and fbCommand ~= GET_USER_INFO then
+		-- Get publish_actions permission only if we're not getting user info or issuing a game request.
+		elseif not inTable( accessToken.grantedPermissions, "publish_actions" ) 
+			and fbCommand ~= GET_USER_INFO
+			and fbCommand ~= SHOW_REQUEST_DIALOG then
 
 			print( "Logged in, but need permissions" )
 			printTable( accessToken )
-			facebook.login( listener, {"publish_actions"} )
+			facebook.login( { "publish_actions" } )
 
 		else
 
@@ -249,6 +252,8 @@ local function enforceFacebookLogin( )
 	end
 end
 
+-- Set the FB Connect listener to use throughout the app.
+facebook.setFBConnectListener( listener )
 
 local function buttonOnRelease( event )
 	local id = event.target.id
