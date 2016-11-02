@@ -1,6 +1,19 @@
 
 -- Abstract: Facebook
--- Version: 2.0
+-- Version: 2.1
+-- 
+-- Update History:
+--  v1.1		Layout adapted for Android/iPad/iPhone4
+--  v1.2		Modified for new Facebook Connect API (from build #243)
+--  v1.3		Added buttons to: Post Message, Post Photo, Show Dialog, Logout
+--  v1.4		Added  ...{"publish_stream"} .. permissions setting to facebook.login() calls.
+--  v1.5		Added single sign-on support in build.settings (must replace XXXXXXXXX with valid facebook appId)
+--  v1.6		Modified the build.settings file to get the plugin for iOS.
+--  v1.7		Added more buttons to test features. Upgraded sample to use Facebook v4 plugin.
+--  v1.8		Uses new login model introduced in Facebook v4 plugin.
+--  v2.0		Code cleanup and improvement. New interface
+--  v2.1		Added more buttons to test new Facebook APIs introduced in stable release of Facebook v4, bugfixes, and code cleanup.
+--
 -- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
 
@@ -38,21 +51,27 @@ local statusHeader = display.newText( mainGroup, "Status", display.contentCenter
 local statusMessage = display.newText( mainGroup, "Not connected", display.contentCenterX, 70, appFont, 18 )
 statusMessage:setFillColor( 0.7 )
 
+-- State variables for facebook commands we're executing
+local requestedFBCommand
+local commandProcessedByFB
+
 -- Facebook Commands
-local fbCommand			-- forward reference
 local LOGIN = 0
-local LOGOUT = 1
-local SHOW_REQUEST_DIALOG = 2
-local SHARE_LINK_DIALOG = 3
-local POST_MSG = 4
-local POST_PHOTO = 5
-local GET_USER_INFO = 6
-local PUBLISH_INSTALL = 7
+local POST_MSG = 1
+local POST_LINK = 2
+local POST_PHOTO = 3
+local SHOW_REQUEST_DIALOG = 4
+local SHARE_LINK_DIALOG = 5
+local SHARE_PHOTO_DIALOG = 6
+local GET_USER_INFO = 7
+local PUBLISH_INSTALL = 8
+local IS_FACEBOOK_APP_ENABLED = 9
+local LOGOUT = 10
 
 
 -- Check for an item inside the provided table
 -- Based on implementation at: https://www.omnimaga.org/other-computer-languages-help/(lua)-check-if-array-contains-given-value/
-local function inTable( t, item )
+local function valueInTable( t, item )
 	for k,v in pairs( t ) do
 		if v == item then
 			return true
@@ -76,61 +95,14 @@ local function printTable( t )
 	print( json.prettify( t ) )
 end
 
+
 -- Runs the desired facebook command
 local function processFBCommand( )
 
 	local response = {}
 
-	-- This displays a Facebook Dialog to requests friends to play with you
-	if fbCommand == SHOW_REQUEST_DIALOG then
-
-		response = facebook.showDialog( "requests", { 
-					title = "Choose Friends to Play With",
-                    message = "You should download this game!",
-                })
-
-	-- This displays a Facebook Dialog for posting a link with a photo to your Facebook Wall
-	elseif fbCommand == SHARE_LINK_DIALOG then
-
-		-- Determine what link to share
-		local linkToShare = nil
-		if system.getInfo( "platformName" ) == "Android" then
-			linkToShare = "https://coronalabs.com/blog/2015/07/24/facebook-v4-plugin-android-beta/"
-		else
-			linkToShare = "https://coronalabs.com/blog/2015/09/01/facebook-v4-plugin-ios-beta-improvements-and-new-features/"
-		end
-
-		-- Create table with link data to share
-		local linkData = {
-			name = "Facebook v4 Corona plugin on " .. system.getInfo( "platformName" ) .. "!",
-			link = linkToShare,
-			description = "More Facebook awesomeness for Corona!",
-			picture = "https://coronalabs.com/wp-content/uploads/2014/11/Corona-Icon.png",
-		}
-
-		response = facebook.showDialog( "link", linkData )
-		
-
-	-- Request the current logged in user's info
-	elseif fbCommand == GET_USER_INFO then
-		response = facebook.request( "me" )
-		-- facebook.request( "me/friends" )		-- Alternate request
-
-	-- This code posts a photo image to your Facebook Wall
-	elseif fbCommand == POST_PHOTO then
-		local attachment = {
-			name = "Developing a Facebook app using the Corona SDK!",
-			link = "http://www.coronalabs.com/links/forum",
-			caption = "Link caption",
-			description = "Corona SDK for developing iOS and Android apps with the same code base.",
-			picture = "http://www.coronalabs.com/links/demo/Corona90x90.png",
-			actions = json.encode( { { name = "Learn More", link = "http://coronalabs.com" } } )
-		}
-	
-		response = facebook.request( "me/feed", "POST", attachment )		-- posting the photo
-	
 	-- This code posts a message to your Facebook Wall
-	elseif fbCommand == POST_MSG then
+	if requestedFBCommand == POST_MSG then
 		local time = os.date("*t")
 		local postMsg = {
 			message = "Posting from Corona SDK! " ..
@@ -139,9 +111,105 @@ local function processFBCommand( )
 		}
 	
 		response = facebook.request( "me/feed", "POST", postMsg )		-- posting the message
+
+	-- This code posts a link to your Facebook Wall with a message about it
+	elseif requestedFBCommand == POST_LINK then
+		local attachment = {
+			message = "Developing a Facebook app using the Corona SDK!",
+			link = "https://docs.coronalabs.com/plugin/facebook-v4/index.html",
+		}
+	
+		response = facebook.request( "me/feed", "POST", attachment )		-- posting the photo
+
+	-- This code posts a photo from the Internet to your Facebook Wall
+	elseif requestedFBCommand == POST_PHOTO then
+		local attachment = {
+			caption = "Photo Caption",
+			url = "http://www.coronalabs.com/links/demo/Corona90x90.png",
+		}
+	
+		response = facebook.request( "me/photos", "POST", attachment )		-- posting the photo
+
+	-- This displays a Facebook Dialog to requests friends to play with you
+	elseif requestedFBCommand == SHOW_REQUEST_DIALOG then
+
+		response = facebook.showDialog( "requests", { 
+					title = "Choose Friends to Play With",
+                    message = "You should download this game!",
+                })
+
+	-- This displays a Facebook Dialog for posting a link with a photo to your Facebook Wall
+	elseif requestedFBCommand == SHARE_LINK_DIALOG then
+
+		-- Create table with link data to share
+		local linkData = {
+			name = "Facebook Corona plugin on " .. system.getInfo( "platformName" ) .. "!",
+			link = "https://coronalabs.com/blog/2016/10/28/facebook-plugin-update-we-are-out-of-beta/",
+			description = "More Facebook awesomeness for Corona!",
+			picture = "https://coronalabs.com/wp-content/uploads/2014/11/Corona-Icon.png",
+		}
+
+		response = facebook.showDialog( "link", linkData )
+
+	-- This displays a Facebook Dialog for posting photos to your photo album.
+	elseif requestedFBCommand == SHARE_PHOTO_DIALOG then
+
+		-- Create table with photo data to share
+		local photoData = {
+			photos = {
+				{ url = "https://coronalabs.com/wp-content/uploads/2014/11/Corona-Icon.png", },
+				{ url = "https://www.coronalabs.com/links/demo/Corona90x90.png", },
+			},
+		}
+
+		response = facebook.showDialog( "photo", photoData )		
+
+	-- Request the current logged in user's info
+	elseif requestedFBCommand == GET_USER_INFO then
+		response = facebook.request( "me" )
+		-- facebook.request( "me/friends" )		-- Alternate request
 	end
 
 	printTable( response )
+end
+
+
+local function needPublishActionsPermission( )
+	return requestedFBCommand ~= LOGIN
+		and requestedFBCommand ~= SHOW_REQUEST_DIALOG
+		and requestedFBCommand ~= GET_USER_INFO
+		and requestedFBCommand ~= PUBLISH_INSTALL
+		and requestedFBCommand ~= IS_FACEBOOK_APP_ENABLED
+		and requestedFBCommand ~= LOGOUT
+end
+
+
+local function enforceFacebookLoginAndPermissions( )
+	if facebook.isActive then
+		local accessToken = facebook.getCurrentAccessToken()
+		if accessToken == nil then
+
+			print( "Need to log in" )
+			facebook.login()
+
+		-- Get publish_actions permission only if we're not getting user info or issuing a game request.
+		elseif needPublishActionsPermission() and not valueInTable( accessToken.grantedPermissions, "publish_actions" ) then
+
+			print( "Logged in, but need publish_actions permission" )
+			printTable( accessToken )
+			facebook.login( { "publish_actions" } )
+
+		else
+
+			print( "Already logged in with needed permissions" )
+			printTable( accessToken )
+			statusMessage.text = "Already logged in"
+			processFBCommand()
+
+		end
+	else
+		print( "Please wait for facebook to finish initializing before checking the current access token" );
+	end
 end
 
 
@@ -197,63 +265,46 @@ local function listener( event )
 		if ( not event.isError ) then
 	        response = json.decode( event.response )
 
-			print( "Facebook Command: " .. fbCommand )
+			-- Advance the facebook command state as this command has been processed by Facebook.
+			commandProcessedByFB = requestedFBCommand
 
-	        if ( fbCommand == GET_USER_INFO ) then
-				statusMessage.text = response.name
+			print( "Facebook Command: " .. commandProcessedByFB )
+
+			if ( commandProcessedByFB == POST_MSG ) then
+				statusMessage.text = "Message posted"
 				printTable( response )
-			elseif ( fbCommand == POST_PHOTO ) then
+			elseif ( commandProcessedByFB == POST_LINK ) then
+				statusMessage.text = "Link posted"
+				printTable( response )
+			elseif ( commandProcessedByFB == POST_PHOTO ) then
 				statusMessage.text = "Photo posted"
 				printTable( response )
-			elseif ( fbCommand == POST_MSG ) then
-				statusMessage.text = "Message posted"
+			elseif ( commandProcessedByFB == GET_USER_INFO ) then
+				statusMessage.text = response.name
 				printTable( response )
 			else
 				statusMessage.text = "(unknown)"
 			end
+        elseif tostring( event.response ) == "Duplicate status message" then
+        	statusMessage.text = "Caught duplicate status message!"
+			printTable( event.response )
         else
 			statusMessage.text = "Post failed"
 			printTable( event.response )
 		end
 
 	elseif ( "dialog" == event.type ) then
+		-- Advance the facebook command state as this command has been processed by Facebook.
+		commandProcessedByFB = requestedFBCommand
+
 		statusMessage.text = event.response
     end
 end
 
 
-local function enforceFacebookLogin( )
-	if facebook.isActive then
-		local accessToken = facebook.getCurrentAccessToken()
-		if accessToken == nil then
-
-			print( "Need to log in" )
-			facebook.login()
-
-		-- Get publish_actions permission only if we're not getting user info or issuing a game request.
-		elseif not inTable( accessToken.grantedPermissions, "publish_actions" ) 
-			and fbCommand ~= GET_USER_INFO
-			and fbCommand ~= SHOW_REQUEST_DIALOG then
-
-			print( "Logged in, but need permissions" )
-			printTable( accessToken )
-			facebook.login( { "publish_actions" } )
-
-		else
-
-			print( "Already logged in with needed permissions" )
-			printTable( accessToken )
-			statusMessage.text = "Already logged in"
-			processFBCommand()
-
-		end
-	else
-		print( "Please wait for facebook to finish initializing before checking the current access token" );
-	end
-end
-
 -- Set the FB Connect listener to use throughout the app.
 facebook.setFBConnectListener( listener )
+
 
 local function buttonOnRelease( event )
 	local id = event.target.id
@@ -263,33 +314,46 @@ local function buttonOnRelease( event )
 	printTable( event )
 
 	if id == "login" then
-		fbCommand = LOGIN
-		enforceFacebookLogin()
-	elseif id == "postPhoto" then
-		fbCommand = POST_PHOTO
-		enforceFacebookLogin()
+		requestedFBCommand = LOGIN
+		enforceFacebookLoginAndPermissions()
 	elseif id == "postMessage" then
-		fbCommand = POST_MSG
-		enforceFacebookLogin()
+		requestedFBCommand = POST_MSG
+		enforceFacebookLoginAndPermissions()
+	elseif id == "postLink" then
+		requestedFBCommand = POST_LINK
+		enforceFacebookLoginAndPermissions()
+	elseif id == "postPhoto" then
+		requestedFBCommand = POST_PHOTO
+		enforceFacebookLoginAndPermissions()
 	elseif id == "showRequestDialog" then
-		fbCommand = SHOW_REQUEST_DIALOG
-		enforceFacebookLogin()
+		requestedFBCommand = SHOW_REQUEST_DIALOG
+		enforceFacebookLoginAndPermissions()
 	elseif id == "shareLinkDialog" then
-		fbCommand = SHARE_LINK_DIALOG
-		enforceFacebookLogin()
+		requestedFBCommand = SHARE_LINK_DIALOG
+		enforceFacebookLoginAndPermissions()
+	elseif id == "sharePhotoDialog" then
+		requestedFBCommand = SHARE_PHOTO_DIALOG
+		enforceFacebookLoginAndPermissions()
 	elseif id == "getUser" then
-		fbCommand = GET_USER_INFO
-		enforceFacebookLogin()
+		requestedFBCommand = GET_USER_INFO
+		enforceFacebookLoginAndPermissions()
 	elseif id == "publishInstall" then
-		fbCommand = PUBLISH_INSTALL
+		requestedFBCommand = PUBLISH_INSTALL
 		facebook.publishInstall()
 		statusMessage.text = "App install status posted"
+		commandProcessedByFB = requestedFBCommand
+	elseif id == "isFacebookAppEnabled" then
+		requestedFBCommand = IS_FACEBOOK_APP_ENABLED
+		statusMessage.text = "Is Facebook App Enabled? " .. tostring(facebook.isFacebookAppEnabled())
+		commandProcessedByFB = requestedFBCommand
 	else -- Logout
-		fbCommand = LOGOUT
+		requestedFBCommand = LOGOUT
 		facebook.logout()
+		commandProcessedByFB = requestedFBCommand
 	end
 	return true
 end
+
 
 -- "Login" button
 local loginButton = widget.newButton(
@@ -298,7 +362,7 @@ local loginButton = widget.newButton(
 		id = "login",
 		shape = "rectangle",
 		x = display.contentCenterX,
-		y = 130,
+		y = 115,
 		width = 192,
 		height = 32,
 		font = appFont,
@@ -309,14 +373,14 @@ local loginButton = widget.newButton(
 	})
 mainGroup:insert( loginButton )
 
--- "Post Photo" button
-local postPhotoButton = widget.newButton(
+-- "Post Message" button
+local postMessageButton = widget.newButton(
 	{
-		label = "Post photo",
-		id = "postPhoto",
+		label = "Post message",
+		id = "postMessage",
 		shape = "rectangle",
 		x = display.contentCenterX,
-		y = 170,
+		y = 155,
 		width = 192,
 		height = 32,
 		font = appFont,
@@ -325,17 +389,17 @@ local postPhotoButton = widget.newButton(
 		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
 		onRelease = buttonOnRelease,
 	})
-mainGroup:insert( postPhotoButton )
+mainGroup:insert( postMessageButton )
 
--- "Post Message" button
-local postMessageButton = widget.newButton(
+-- "Post Link" button
+local postLinkButton = widget.newButton(
 	{
-		label = "Post message",
-		id = "postMessage",
+		label = "Post link",
+		id = "postLink",
 		shape = "rectangle",
-		x = display.contentCenterX,
-		y = 210,
-		width = 192,
+		x = display.contentCenterX / 2,
+		y = 195,
+		width = 144,
 		height = 32,
 		font = appFont,
 		fontSize = 16,
@@ -343,17 +407,35 @@ local postMessageButton = widget.newButton(
 		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
 		onRelease = buttonOnRelease
 	})
-mainGroup:insert( postMessageButton )
+mainGroup:insert( postLinkButton )
 
--- "Show Request Dialog" button
-local showRequestDialogButton = widget.newButton(
+-- "Share Link dialog" button
+local shareLinkDialogButton = widget.newButton(
 	{
-		label = "Show request dialog",
-		id = "showRequestDialog",
+		label = "Share link dialog",
+		id = "shareLinkDialog",
 		shape = "rectangle",
-		x = display.contentCenterX,
-		y = 250,
-		width = 192,
+		x = display.contentWidth - (display.contentCenterX / 2),
+		y = 195,
+		width = 144,
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.12,0.32,0.52,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = buttonOnRelease
+	})
+mainGroup:insert( shareLinkDialogButton )
+
+-- "Post Photo" button
+local postPhotoButton = widget.newButton(
+	{
+		label = "Post photo",
+		id = "postPhoto",
+		shape = "rectangle",
+		x = display.contentCenterX / 2,
+		y = 235,
+		width = 144,
 		height = 32,
 		font = appFont,
 		fontSize = 16,
@@ -361,16 +443,34 @@ local showRequestDialogButton = widget.newButton(
 		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
 		onRelease = buttonOnRelease
 	})
-mainGroup:insert( showRequestDialogButton )
+mainGroup:insert( postPhotoButton )
 
--- "Share Link" button
-local shareLinkDialogButton = widget.newButton(
+-- "Share Photo dialog" button
+local sharePhotoDialogButton = widget.newButton(
 	{
-		label = "Share link dialog",
-		id = "shareLinkDialog",
+		label = "Share photo dialog",
+		id = "sharePhotoDialog",
+		shape = "rectangle",
+		x = display.contentWidth - (display.contentCenterX / 2),
+		y = 235,
+		width = 144,
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		fillColor = { default={ 0.14,0.34,0.54,1 }, over={ 0.14,0.34,0.54,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = buttonOnRelease
+	})
+mainGroup:insert( sharePhotoDialogButton )
+
+-- "Show Request Dialog" button
+local shareRequestDialogButton = widget.newButton(
+	{
+		label = "Show request dialog",
+		id = "showRequestDialog",
 		shape = "rectangle",
 		x = display.contentCenterX,
-		y = 290,
+		y = 275,
 		width = 192,
 		height = 32,
 		font = appFont,
@@ -379,7 +479,7 @@ local shareLinkDialogButton = widget.newButton(
 		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
 		onRelease = buttonOnRelease
 	})
-mainGroup:insert( shareLinkDialogButton )
+mainGroup:insert( shareRequestDialogButton )
 
 -- "Get User Info" button
 local getInfoButton = widget.newButton(
@@ -388,7 +488,7 @@ local getInfoButton = widget.newButton(
 		id = "getUser",
 		shape = "rectangle",
 		x = display.contentCenterX,
-		y = 330,
+		y = 315,
 		width = 192,
 		height = 32,
 		font = appFont,
@@ -406,7 +506,7 @@ local publishInstallButton = widget.newButton(
 		id = "publishInstall",
 		shape = "rectangle",
 		x = display.contentCenterX,
-		y = 370,
+		y = 355,
 		width = 192,
 		height = 32,
 		font = appFont,
@@ -417,6 +517,24 @@ local publishInstallButton = widget.newButton(
 	})
 mainGroup:insert( publishInstallButton )
 
+-- "Is Facebook App Enabled" button
+local isFacebookAppEnabledButton = widget.newButton(
+	{
+		label = "Facebook App Enabled?",
+		id = "isFacebookAppEnabled",
+		shape = "rectangle",
+		x = display.contentCenterX,
+		y = 395,
+		width = 192,
+		height = 32,
+		font = appFont,
+		fontSize = 16,
+		fillColor = { default={ 0.22,0.42,0.62,1 }, over={ 0.22,0.42,0.62,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = buttonOnRelease
+	})
+mainGroup:insert( isFacebookAppEnabledButton )
+
 -- "Logout" button
 local logoutButton = widget.newButton(
 	{
@@ -424,7 +542,7 @@ local logoutButton = widget.newButton(
 		id = "logout",
 		shape = "rectangle",
 		x = display.contentCenterX,
-		y = 410,
+		y = 435,
 		width = 192,
 		height = 32,
 		font = appFont,
