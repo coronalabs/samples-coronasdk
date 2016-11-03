@@ -115,8 +115,12 @@ local function processFBCommand( )
 	-- This code posts a link to your Facebook Wall with a message about it
 	elseif requestedFBCommand == POST_LINK then
 		local attachment = {
-			message = "Developing a Facebook app using the Corona SDK!",
-			link = "https://docs.coronalabs.com/plugin/facebook-v4/index.html",
+			name = "Developing a Facebook app using the Corona SDK!",
+			link = "http://www.coronalabs.com/links/forum",
+			caption = "Link caption",
+			description = "Corona SDK for developing iOS and Android apps with the same code base.",
+			picture = "http://www.coronalabs.com/links/demo/Corona90x90.png",
+			message = "Corona is awesome! Check it out!",
 		}
 	
 		response = facebook.request( "me/feed", "POST", attachment )		-- posting the photo
@@ -333,7 +337,14 @@ local function buttonOnRelease( event )
 		enforceFacebookLoginAndPermissions()
 	elseif id == "sharePhotoDialog" then
 		requestedFBCommand = SHARE_PHOTO_DIALOG
-		enforceFacebookLoginAndPermissions()
+		-- This can only be done if the Facebook app in installed, so verify that first.
+		if not facebook.isFacebookAppEnabled() then
+			statusMessage.text = "Need Facebook app to share photos."
+			commandProcessedByFB = requestedFBCommand
+		else
+			-- Now enforce the state of our connection with Facebook to run this command.
+			enforceFacebookLoginAndPermissions()
+		end
 	elseif id == "getUser" then
 		requestedFBCommand = GET_USER_INFO
 		enforceFacebookLoginAndPermissions()
