@@ -83,7 +83,7 @@ image.isHitTestMasked = false
 
 -- Display instructions
 local labelFont = native.systemFont
-local myLabel = display.newText( "Touch circle to move flashlight", centerX, 200, labelFont, 34 )
+local myLabel = display.newText( "Touch and drag to move flashlight", centerX, 200, labelFont, 34 )
 myLabel:setFillColor( 1, 1, 1, 180/255 )
 
 
