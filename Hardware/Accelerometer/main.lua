@@ -17,14 +17,13 @@
 --
 -- Update History:
 --	v1.1	Changed check from Simulator to system.hasEventSource( )
+--	v1.2	Modified for landscape/portrait modes for tvOS (12/15/2015)
 --
 -- Comments: 
 --
 -- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
 -- Copyright (C) 2010-2015 Corona Labs Inc. All Rights Reserved.
 --
--- History
---	12/15/2015		Modified for landscape/portrait modes for tvOS
 ---------------------------------------------------------------------------------------
 
 display.setStatusBar( display.HiddenStatusBar )		-- hide status bar
