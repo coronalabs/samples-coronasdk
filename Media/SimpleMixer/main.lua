@@ -117,7 +117,7 @@ local textInfo =
 	{string="Assigned", x=buttonX3-30, y=buttonY+240, font=myFont, fsize=18, r=1, g=1, b=1, handle=""},
 	{string="Assigned", x=buttonX4-30, y=buttonY+240, font=myFont, fsize=18, r=1, g=1, b=1, handle=""},
 	{string="Master Volume", x=buttonX2-30, y=buttonY+330, font=myFont, fsize=28, r=1, g=1, b=1, handle=""},
-    {string="CH1 length "..totalTime.."  ms", x=60, y=70, font=myFont, fsize=24, r=1, g=1, b=1, handle=""},
+    {string="CH1 length "..totalTime.."  ms", x=30, y=70, font=myFont, fsize=24, r=1, g=1, b=1, handle=""},
     {string="Total  "..audio.totalChannels, x=30, y=100, font=myFont, fsize=24, r=1, g=1, b=1, handle=""},
     {string="Free  "..audio.freeChannels, x=30, y=130, font=myFont, fsize=24, r=1, g=1, b=1, handle=""},
     {string="Reserved  "..audio.reservedChannels, x=30, y=160, font=myFont, fsize=24, r=1, g=1, b=1, handle=""},
@@ -126,8 +126,8 @@ local textInfo =
     {string="50", x=200, y=330, font=myFont, fsize=20, r=1, g=1, b=1, handle=""},
     {string="50", x=320, y=330, font=myFont, fsize=20, r=1, g=1, b=1, handle=""},
     {string="50", x=430, y=330, font=myFont, fsize=20, r=1, g=1, b=1, handle=""},
-    {string="", x=410, y=130, font=myFont, fsize=18, r=1, g=1, b=1, handle=""},
-    {string="", x=410, y=150, font=myFont, fsize=18, r=1, g=1, b=1, handle=""},
+    {string="", x=360, y=130, font=myFont, fsize=18, r=1, g=1, b=1, handle=""},
+    {string="", x=360, y=150, font=myFont, fsize=18, r=1, g=1, b=1, handle=""},
     -- these last four are the channel state labels
     {string="", x=buttonX1, y=buttonY+140, font=myFont, fsize=20, r=0, g=1, b=0, handle=""},
     {string="", x=buttonX2, y=buttonY+140, font=myFont, fsize=20, r=0, g=1, b=0, handle=""},
@@ -172,7 +172,7 @@ end
 
 function fillButtonPress( event )
     -- play the loop on next available channel 
-    fillChannel = audio.play( ch5Sound  )    
+    fillChannel = audio.play( ch5Sound )    
 end
 
 local defaultButton = "buttonBlue.png"
@@ -258,25 +258,25 @@ function updateFrame()
    textInfo[13].handle.text =  "Free  "     ..audio.freeChannels 
    textInfo[14].handle.text =  "Reserved  " ..audio.reservedChannels
    textInfo[15].handle.text = math.floor(audio.getVolume() * 100)                            -- master volume
-   textInfo[16].handle.text = math.floor(audio.getVolume( { channel=1 }) * 100)              -- volume CH 1
-   textInfo[17].handle.text = math.floor(audio.getVolume( { channel=2 }) * 100)              -- volume CH 2
-   textInfo[18].handle.text = math.floor(audio.getVolume( { channel=3 }) * 100)              -- volume CH 3
-   textInfo[19].handle.text = math.floor(audio.getVolume( { channel=4 }) * 100)              -- volume CH 4
+   textInfo[16].handle.text = math.floor(audio.getVolume( { channel=1 } ) * 100)              -- volume CH 1
+   textInfo[17].handle.text = math.floor(audio.getVolume( { channel=2 } ) * 100)              -- volume CH 2
+   textInfo[18].handle.text = math.floor(audio.getVolume( { channel=3 } ) * 100)              -- volume CH 3
+   textInfo[19].handle.text = math.floor(audio.getVolume( { channel=4 } ) * 100)              -- volume CH 4
 
    local availableChannel = audio.findFreeChannel()
-   textInfo[20].handle.text = "First Free "..availableChannel
+   textInfo[20].handle.text = "First Free: "..availableChannel
    if (fillChannel ~= "") then
-       textInfo[21].handle.text = "Last filled "..fillChannel
+       textInfo[21].handle.text = "Last filled: "..fillChannel
    end
    
    
    -- make slider position reflect the current volume for each channel
     for i,s in ipairs( sliderInfo.theSliders ) do        
         if (s.channel > 0) then
-            updateSliderPosition (s, audio.getVolume( { channel=s.channel }))
+            updateSliderPosition(s, audio.getVolume( { channel=s.channel } ))
         else
             -- master volume
-            updateSliderPosition (s, audio.getVolume())            
+            updateSliderPosition(s, audio.getVolume())            
         end
     end
     
@@ -319,7 +319,7 @@ function makeSliders()
                 minValue = item.minValue,
                 maxValue = item.maxValue,
             } 
-	 )
+        )
         mySlider.x = item.x
         mySlider.y = item.y
         mySlider.channel = item.channel
@@ -386,23 +386,23 @@ makeButtons()
 -- initialize the four main channels and their labels
 
 -- play the loop on channel 1, loop infinitely, and fadein over 5 seconds 
-updateChannelLabel (1, true)
+updateChannelLabel(1, true)
 audioChannels[1] = audio.play( ch1Stream, { channel=1, loops=-1, fadein=5000 }  )
 setChannelVolume(1, 0.5)
 
 -- play the speech on channel 2, for at most 30 seconds, and invoke a callback when the audio finishes playing
-updateChannelLabel (2, true)
+updateChannelLabel(2, true)
 audioChannels[2] = audio.play( ch2Stream, { channel=2, duration=30000, onComplete=NarrationFinished } )  
 setChannelVolume(2, 0.5)
 
 -- play this loop on any available channel
-updateChannelLabel (3, true)
-audioChannels[3] = audio.play( ch3Sound, {loops=-1 }) 
+updateChannelLabel(3, true)
+audioChannels[3] = audio.play( ch3Sound, { loops=-1 } ) 
 setChannelVolume(3, 0.5)
 
 -- play the loop on next available channel, loop infinitely 
-updateChannelLabel (4, true)
-audioChannels[4] = audio.play( ch4Sound, {  loops=-1 }  ) 
+updateChannelLabel(4, true)
+audioChannels[4] = audio.play( ch4Sound, { loops=-1 } ) 
 setChannelVolume(4, 0.5)
 
 -- set master volume
