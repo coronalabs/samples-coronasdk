@@ -189,6 +189,12 @@ keyboardLabel.isVisible = false
 --  *** Button Press Routines ***
 -------------------------------------------
 
+local function exitTextMode()
+	native.setKeyboardFocus( nil )    -- remove keyboard
+	clrKbButton.isVisible = false     -- hide Dismiss KB button
+	textMode = false                  -- exit text mode
+end
+
 -- Handle the textField keyboard input
 --
 local function fieldHandler( event )
@@ -209,11 +215,7 @@ local function fieldHandler( event )
 	
 	elseif ( "submitted" == event.phase ) then
 		-- This event occurs when the user presses the "return" key (if available) on the onscreen keyboard
-
-		-- Hide keyboard
-		native.setKeyboardFocus( nil )
-		textMode = false
-		clrKbButton.isVisible = false		-- Hide the Dismiss KB button
+		exitTextMode()
 	end
 
 end
@@ -228,8 +230,7 @@ local textFieldButtonPress = function( event )
 	if textField then
 		textField:removeSelf()
 		textField = nil				-- set to nil so we recreate it next time
-		clrKbButton.isVisible = false		-- hide Dismiss button
-		native.setKeyboardFocus( nil )		-- remove keyboard
+		exitTextMode()
 		txtBoxButton.alpha = 1.0			-- Restore the other text object button
 		keyboardLabel.isVisible = false		-- hide our text
 	else
@@ -261,8 +262,7 @@ local textBoxButtonPress = function( event )
 	if textBox then
 		textBox:removeSelf()
 		textBox = nil				-- set to nil so we recreate it next time
-		clrKbButton.isVisible = false		-- hide Dismiss button
-		native.setKeyboardFocus( nil )		-- remove keyboard
+		exitTextMode()
 		txtFieldButton.alpha = 1.0			-- Restore the other text object button
 	else
 		-- Only allow one text object at a time
@@ -287,9 +287,7 @@ end
 -- Dismiss Keyboard Button Pressed
 --
 local clrKbButtonPress = function( event )
-	native.setKeyboardFocus( nil )		-- remove keyboard
-	clrKbButton.isVisible = false		-- hide button
-	textMode = false
+	exitTextMode()
 end
 
 -- Alert Button Pressed
