@@ -16,6 +16,7 @@ settings =
 			},
 		}
 	},
+
 	iphone =
 	{
 		plist =
@@ -42,37 +43,38 @@ settings =
 			},
 		},
 	},
+
 	tvos =
 	{
-		-- tvOS app icons require multiple layers, and must provide both a small and a large size.
+		-- tvOS app icons require multiple layers, and you must provide both a small and a large size
 		icon =
 		{
-			-- A collection of 400x240 pngs, in order of top to bottom.
+			-- A collection of 400x240 pngs, in order of top to bottom
 			small =
 			{
-				"Icon-tvOS-Small-Pew.png",
 				"Icon-tvOS-Small-LogoA.png",
 				"Icon-tvOS-Small-LogoB.png",
-				"Icon-tvOS-Small-LogoC.png",
 				"Icon-tvOS-Small-Background.png",
 			},
-			-- A collection of 1280x768 pngs, in order of top to bottom.
+			-- A collection of 1280x768 pngs, in order of top to bottom
 			large =
 			{
-				"Icon-tvOS-Large-Pew.png",
 				"Icon-tvOS-Large-LogoA.png",
 				"Icon-tvOS-Large-LogoB.png",
-				"Icon-tvOS-Large-LogoC.png",
 				"Icon-tvOS-Large-Background.png",
 			}
 		},
 
-		-- A 1920x720 png file, displayed when your app is on the "top shelf".
-		topShelfImage = "Icon-tvOS-TopShelf.png",
+		-- A 1920x720 image file, displayed when your app is on the "top shelf"
+        topShelfImage = "Icon-tvOS-TopShelf.png",
 
-		-- A 1920x1080 png file, displayed briefly as your app loads.
+        -- A 2320x720 image file, displayed when your app is on the "top shelf" of a widescreen TV
+        topShelfImageWide = "Icon-tvOS-TopShelfWide.png",
+
+		-- A 1920x1080 png file, displayed briefly as your app loads
 		launchImage = "Icon-tvOS-Launch.png",
 	},
+
 	excludeFiles =
 	{
 		-- Exclude all Android icon files and .ogg files
@@ -90,11 +92,13 @@ settings =
 		-- Exclude all Android icon files and .ogg files
 		tvos = { "Icon-*.png", "*.ogg" },
 	},
+
 	orientation =
 	{
 		default = "landscapeLeft",
 		supported = { "landscapeLeft", "landscapeRight" },
 	},
+
 	window =
 	{
 		suspendWhenMinimized = true,
