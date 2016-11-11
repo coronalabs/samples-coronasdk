@@ -2,7 +2,7 @@
 --
 -- Date: August 19, 2010
 --
--- Version: 1.1
+-- Version: 1.3
 --
 -- File name: main.lua
 --

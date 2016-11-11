@@ -46,7 +46,7 @@ local _H = display.contentHeight
 
 display.setStatusBar( display.HiddenStatusBar )
 
-local posterFrame = display.newImage( "Default.png", centerX, centerY )
+local posterFrame = display.newImage( "PosterFrame.png", centerX, centerY )
 
 function posterFrame:tap( event )
 	timer.performWithDelay( 500, function() msg.text = "Video done"; end, 1 )		-- message will appear after the video finishes

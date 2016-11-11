@@ -48,7 +48,7 @@ local videoPaused = false
 
 display.setDefault( "background", 100/255 )
 
---local posterFrame = display.newImage( "Default.png", centerX, centerY )
+--local posterFrame = display.newImage( "PosterFrame.png", centerX, centerY )
 
 local videoWidth = _W - 20
 local videoHeight = _H - 40 

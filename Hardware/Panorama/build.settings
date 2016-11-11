@@ -7,8 +7,10 @@ settings =
 {
 	orientation = 
 	{
+		-- Gyroscope values are relative to portrait orientation, 
+		-- so Panorama view can only work correctly in landscapeRight orientation.
 		default = "landscapeRight",
-		supported = { "landscapeLeft", "landscapeRight" },
+		supported = { "landscapeRight" },
 	},
 	iphone =
 	{

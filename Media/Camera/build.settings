@@ -27,6 +27,8 @@ settings =
 	{
 		plist =
 		{
+			NSCameraUsageDescription = "",
+
 			CFBundleIconFiles =
 			{
 				"Icon.png", 
