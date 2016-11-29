@@ -299,7 +299,7 @@ function changeOrientation( mode )
 	Circle.y = centerY
 
 	if msg then
-		print( "found msg")
+		print( "found msg" )
 		msg.x = centerX
 		msg.y = display.contentHeight - 20
 		box.x = centerX
