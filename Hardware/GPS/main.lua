@@ -137,7 +137,7 @@ end
 -- Check if this platform supports location events
 --
 if not system.hasEventSource( "location" ) then
-	msg = display.newText( "Location events not supported on this platform", 0, 230, native.systemFontBold, 13 )
+	msg = display.newText( "Location events not supported on this device", 0, 230, native.systemFontBold, 13 )
 	msg.x = display.contentWidth/2		-- center title
 	msg:setFillColor( 1,1,1 )
 end

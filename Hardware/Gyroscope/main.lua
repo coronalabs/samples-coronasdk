@@ -49,7 +49,7 @@ title:setFillColor( 1, 1, 0 )
 -- Check that the current platform supports a gyroscope
 --
 if not system.hasEventSource("gyroscope") then
-	msg = display.newText( "Gyroscope events not supported on this platform", 0, 70, native.systemFontBold, 13 )
+	msg = display.newText( "Gyroscope events not supported on this device", 0, 70, native.systemFontBold, 13 )
 	msg.x = display.contentWidth/2		-- center title
 	msg:setFillColor( 1,1,1 )
 end

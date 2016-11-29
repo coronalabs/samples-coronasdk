@@ -41,7 +41,7 @@ title:setFillColor( 1,1,0 )
 -- Check if accelerator is supported on this platform
 --
 if not system.hasEventSource( "accelerometer" ) then
-	msg = display.newText( "Accelerometer not supported on this platform", centerX, 55, native.systemFontBold, 13 )
+	msg = display.newText( "Accelerometer not supported on this device", centerX, 55, native.systemFontBold, 13 )
 	msg:setFillColor( 1,1,0 )
 end
 

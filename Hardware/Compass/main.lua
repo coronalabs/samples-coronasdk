@@ -180,7 +180,7 @@ local isSimulator = "simulator" == system.getInfo("environment")
 -- Heading Events are not supported on Simulator
 --
 if not system.hasEventSource( "heading" ) then
-	msg = display.newText( "Heading events not supported on this platform", 0, 20, native.systemFontBold, 12 )
+	msg = display.newText( "Heading events not supported on this device", 0, 20, native.systemFontBold, 12 )
 	msg.x = display.contentCenterX		-- center title
 	msg:setFillColor( 1,1,0 )
 end
