@@ -52,12 +52,12 @@ local function printTouch( event )
  		local bounds = event.target.contentBounds
  		local pressure = getFormattedPressure(event.pressure)
 
-		print( event.name.."(" .. event.phase .. ") "..tostring(event.id).." ("..event.x..","..event.y..") bounds: "..bounds.xMin..","..bounds.yMin..","..bounds.xMax..","..bounds.yMax.."; pressure: "..pressure )
+		print( event.name.."(" .. event.phase .. ") "..tostring(event.id).." ("..string.format("%0.1f", event.x)..","..string.format("%0.1f", event.y)..") bounds: "..bounds.xMin..","..bounds.yMin..","..bounds.xMax..","..bounds.yMax.."; pressure: "..pressure )
 
  		local dataText = getTouchTextDisplay( event.id, "basics" )
 		dataText.x = event.x
 		dataText.y = bounds.yMin - 30
-		dataText.text = "event(" .. event.phase .. ") ("..event.x..","..event.y..")"
+		dataText.text = "event(" .. event.phase .. ") ("..string.format("%0.1f", event.x)..","..string.format("%0.1f", event.y)..")"
 		if event.pressure then
 			dataText.text = dataText.text .. " (" .. pressure .. ")"
 		end
@@ -138,7 +138,7 @@ local function printTouch2( event )
 	local id = event.id
 	local phase = event.phase
 
-	local message = event.name.."(" .. phase .. ") "..tostring(id).." ("..event.x..","..event.y..") " .. "(" .. getFormattedPressure( event.pressure ) .. ")"
+	local message = event.name.."(" .. phase .. ") "..tostring(id).." ("..string.format("%0.1f",event.x)..","..string.format("%0.1f",event.y)..") " .. "(" .. getFormattedPressure( event.pressure ) .. ")"
 	print( message )
 
 	if "ended" ~= phase and "cancelled" ~= phase then

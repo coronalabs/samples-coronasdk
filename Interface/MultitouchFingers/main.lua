@@ -52,7 +52,7 @@ end
 -- Display the Event info on the screen
 local function showEvent( event )
 	txtPhase.text = "Phase: " .. event.phase
-	txtXY.text = "(" .. event.x .. "," .. event.y .. ")"
+	txtXY.text = "(" .. string.format("%0.1f", event.x) .. "," .. string.format("%0.1f", event.y) .. ")"
 	txtId.text = "Id: " .. tostring( event.id )
 end
 
@@ -153,7 +153,7 @@ end
 -- Define text areas on the screen
 txtPhase = display.newText( "Phase: _____", 55, 450, native.systemFontBold, 12 )
 
-txtXY = display.newText( "(___,___)", 45, 465, native.systemFontBold, 12 )
+txtXY = display.newText( "(___,___)", 55, 465, native.systemFontBold, 12 )
 
 txtId = display.newText( "Id: ______", 225, 450, native.systemFontBold, 12 )
 
