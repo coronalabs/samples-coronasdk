@@ -1,9 +1,13 @@
 -- 
 -- Abstract: Alert sample app
 -- 
--- Version: 1.0
+-- Version: 1.1
 -- 
--- Copyright (C) 2009 Corona Labs Inc. All Rights Reserved.
+-- Update History:
+--	1.0		January 25, 2010		Initial version
+--	1.1		November 16, 2016		Added native.canOpenURL() checks before trying to show the popups
+--
+-- Copyright (C) 2009-2016 Corona Labs Inc. All Rights Reserved.
 --
 -- Permission is hereby granted, free of charge, to any person obtaining a copy of 
 -- this software and associated documentation files (the "Software"), to deal in the 
@@ -32,7 +36,13 @@ local function onComplete( event )
 	if "clicked" == event.action then
 		if 2 == event.index then
 			-- Open url if "Learn More" was clicked by the user
-			system.openURL( "https://www.coronalabs.com" )
+			local urlToOpen = "https://www.coronalabs.com"
+			if system.canOpenURL( urlToOpen ) then
+				system.openURL( urlToOpen )
+			else
+				print( "Cannot access coronalabs.com" )
+				native.showAlert( "Alert", "No browser found to open coronalabs.com", { "OK" } )
+			end
 		end
 	elseif "cancelled" == event.action then
 		-- our cancelAlert timer function dismissed the alert so do nothing

@@ -17,15 +17,16 @@
 --
 -- Update History:
 --	v1.2	8/19/10		Added Simulator warning message
---  v1.3	11/28/11	Added test for Location error & alert box
+--	v1.3	11/28/11	Added test for Location error & alert box
 --	v1.4	7/13/15		Changed check from Simulator to system.hasEventSource( )
+--	v1.5	11/17/16	Added system.canOpenURL( ) check	
 --
 -- Comments: 
 -- This example shows you how to access the various properties of the "location" events, which
 -- are returned by the GPS listener. Devices without GPS will have less accurate location data
 --
 -- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
+-- Copyright (C) 2010-2016 Corona Labs Inc. All Rights Reserved.
 --
 -- Supports Graphics 2.0
 ---------------------------------------------------------------------------------------
@@ -77,7 +78,11 @@ display.setDefault( "anchorX", 0.5 )	-- default to Center anchor point
 local buttonPress = function( event )
 	-- Show location on map
 	mapURL = "https://maps.google.com/maps?q=Hello,+Corona!@" .. currentLatitude .. "," .. currentLongitude
-	system.openURL( mapURL )
+	if system.canOpenURL( mapURL ) then
+		system.openURL( mapURL )
+	else
+		native.showAlert( "Alert", "No browser found to show location on map!", { "OK" } )
+	end
 end
 
 local button1 = widget.newButton
@@ -144,3 +149,4 @@ end
 
 -- Activate location listener
 Runtime:addEventListener( "location", locationHandler )
+
