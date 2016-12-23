@@ -12,14 +12,15 @@
 --
 -- Demonstrates: native.showWebPopup, checking for Corona Simulator & Andriod device
 --
+-- Limitations: A WebPopUp's backgrond cannot be hidden on Windows
+--
 -- File dependencies: none
 --
 -- Target devices: Device
 --
--- Limitations: WebPopUps don't work in Simulator (but do work in the Mac simulator)
---
 -- Update History:
 --	v1.4 	Use .wav sound
+--	v1.5 	Added WebPopup support on Windows
 --
 -- Comments: Displays a local HTML file as a WebPopUp. This is useful not only for web content,
 -- but for easily displaying some scrolling, formatted text, such as an instructions page.
@@ -31,11 +32,7 @@
 -- Supports Graphics 2.0
 ---------------------------------------------------------------------------------------
 
--- Determine if running on Corona Simulator
---
 display.setStatusBar( display.HiddenStatusBar )
-local isSimulator = "simulator" == system.getInfo("environment")
-if system.getInfo( "platformName" ) == "Mac OS X" then isSimulator = false; end
 
 local soundID = audio.loadSound ("bubble_strong_wav.wav")
 
@@ -262,15 +259,6 @@ function bounceAnimation:orientation( event )
 
 		timer.performWithDelay( 500, resume )
 	end
-end
-
--- WebPopUp is not supported on Simulator
---
-if isSimulator then
-	msg = display.newText( "WebPopUp not supported on Simulator!", 0, 0, native.systemFont, 14 )
-	msg.x = display.contentWidth/2		-- center title
-	msg.y = display.contentHeight/2		-- center title
-	msg:setFillColor( 1,1,0 )
 end
 
 Runtime:addEventListener( "enterFrame", bounceAnimation );

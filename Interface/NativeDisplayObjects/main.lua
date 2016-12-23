@@ -17,7 +17,6 @@
 --	Using UI library for buttons and labels
 --	System orientation events
 --	Display changes between portrait and landscape modes
---  Detect running in Simulator and modifying program operation
 --
 -- File dependencies:
 --
@@ -42,6 +41,7 @@
 --  v1.7	11/4/2013	Added "Dismiss KB" button for Textbox
 --  v1.8	12/10/2014	Updated to support auto-sizing of text fields.
 --  v1.9	08/12/2015  Added TextField and TextBox support on Windows.
+--  v1.10	12/20/2016  Added WebPopup support on Windows.
 --
 -- Comments: 
 --		The program detects it running in the Corona simulator and changes the
@@ -62,11 +62,6 @@ local widget = require( "widget" );
 
 display.setStatusBar( display.HiddenStatusBar )		-- hide status bar
 
--- Determine if running on Corona Simulator
---
-local isSimulator = "simulator" == system.getInfo("environment")
-if system.getInfo( "platformName" ) == "Mac OS X" then isSimulator = false; end
-
 --------------------------------
 -- Code Execution Start Here
 --------------------------------
@@ -84,72 +79,6 @@ local txtBoxButton
 local webPopButton
 
 local background = display.newImage("wood_bg.jpg", display.contentCenterX, display.contentCenterY )		-- Load background image
-
-
------------------------------------------------------------
--- textMessage()
---
--- v1.0
---
--- Create a message that is displayed for a few seconds.
--- Text is centered horizontally on the screen.
---
--- Enter:	str = text string
---			scrTime = time (in seconds) message stays on screen (0 = forever) -- defaults to 3 seconds
---			location = placement on the screen: "Top", "Middle", "Bottom" or number (y)
---			size = font size (defaults to 24)
---			color = font color (table) (defaults to white)
---
--- Returns:	text object (for removing or hiding later)
---
-local textMessage = function( str, location, scrTime, size, color, font )
-
-	local x, t
-	
-	size = tonumber(size) or 24
-	color = color or {255, 255, 255}
-	font = font or native.systemFont
-
-	-- Determine where to position the text on the screen
-	if "string" == type(location) then
-		if "Top" == location then
-			x = display.contentHeight/4
-		elseif "Bottom" == location then
-			x = (display.contentHeight/4)*3
-		else
-			-- Assume middle location
-			x = display.contentCenterY
-		end
-	else
-		-- Assume it's a number -- default to Middle if not
-		x = tonumber(location) or display.contentCenterY
-	end
-	
-	scrTime = (tonumber(scrTime) or 3) * 1000		-- default to 3 seconds (3000) if no time given
-
-	t = display.newText(str, 0, 0, font, size )
-	t.x = display.contentCenterX
-	t.y = x
-	t:setFillColor( color[1], color[2], color[3] )
-	
-	-- Time of 0 = keeps on screen forever (unless removed by calling routine)
-	--
-	if scrTime ~= 0 then
-	
-		-- Function called after screen delay to fade out and remove text message object
-		local textMsgTimerEnd = function()
-			transition.to( t, {time = 500, alpha = 0}, 
-				function() t.removeSelf() end )
-		end
-	
-		-- Keep the message on the screen for the specified time delay
-		timer.performWithDelay( scrTime, textMsgTimerEnd )
-	end
-	
-	return t		-- return our text object in case it's needed
-	
-end	-- textMessage()
------------------------------------------------------------
 
 		
 -------------------------------------------
@@ -353,18 +282,12 @@ end
 -- Display local HTML page
 --
 local webPopButtonButtonPress = function( event )
- 
- 	if isSimulator then
-		textMessage( "WebPopup not supported in Simulator", "Middle", 1, 18)
-	else
-		if isWebPopup then
-			native.cancelWebPopup()
-			isWebPopup = false
-		else			
-			dispWebPopUp()
-		end
+	if isWebPopup then
+		native.cancelWebPopup()
+		isWebPopup = false
+	else			
+		dispWebPopUp()
 	end
-
 end
 
 -------------------------------------------
