@@ -10,7 +10,7 @@
 --
 -- File dependencies: none
 --
--- Target devices: Simulator, iPhone/iPad, Android
+-- Target devices: Simulator, iPhone/iPad, Android, macOS, tvOS, Win32
 --
 -- Limitations:
 --
@@ -19,6 +19,7 @@
 --  v1.2	2010.10.07	Add system.getPreference() API
 --  v1.3	2013.03.26	Added store.target field
 --  v1.4	2015.12.15	Modified for landscape/portrait modes for tvOS
+--  v1.5	2016.12.08	Modernization of all system.getInfo() calls.
 --
 -- Comments:
 --
@@ -46,50 +47,53 @@ txt = {red = 1, green = 1, blue = 1}
 -------------------------------------------
 
 local x = 20		-- x value for label fields
-local y = 30		-- y value for label fields	
+local y = 5		-- y value for label fields	
 local yOffset = 30	-- y offset between fields
 
-local title = display.newText( "Device Info",0, 15, native.systemFont, 24 )
+local title = display.newText( "Device Info",0, 0, native.systemFont, 24 )
 title:setFillColor( 1, 1, 1)
 title.anchorX = 0.5
 
 itemLabel = display.newText( "name:", x+85, y+yOffset*1, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
-itemLabel = display.newText( "model:", x+78, y+yOffset*2, native.systemFont, 16 )
+itemLabel = display.newText( "manufacturer:", x+28, y+yOffset*2, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
-itemLabel = display.newText( "environment:", x+30, y+yOffset*3, native.systemFont, 16 )
+itemLabel = display.newText( "model:", x+78, y+yOffset*3, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
-itemLabel = display.newText( "platformName:", x+15, y+yOffset*4, native.systemFont, 16 )
+itemLabel = display.newText( "environment:", x+30, y+yOffset*4, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
-itemLabel = display.newText( "platformVersion:", x+2, y+yOffset*5, native.systemFont, 16 )
+itemLabel = display.newText( "platform:", x+60, y+yOffset*5, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
-itemLabel = display.newText( "version (Corona):", x, y+yOffset*6, native.systemFont, 16 )
+itemLabel = display.newText( "platformVersion:", x+2, y+yOffset*6, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
-itemLabel = display.newText( "build (Corona):", x+19, y+yOffset*7, native.systemFont, 16 )
+itemLabel = display.newText( "version (Corona):", x, y+yOffset*7, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
-itemLabel = display.newText( "deviceID:", x+10, y+yOffset*8, native.systemFont, 16 )
+itemLabel = display.newText( "build (Corona):", x+19, y+yOffset*8, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
-itemLabel = display.newText( "language:", x+57, y+yOffset*10, native.systemFont, 16 )
+itemLabel = display.newText( "deviceID:", x+10, y+yOffset*9, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
-itemLabel = display.newText( "country:", x+69, y+yOffset*11, native.systemFont, 16 )
+itemLabel = display.newText( "language:", x+57, y+yOffset*11, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
-itemLabel = display.newText( "locale:", x+83, y+yOffset*12, native.systemFont, 16 )
+itemLabel = display.newText( "country:", x+69, y+yOffset*12, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
-itemLabel = display.newText( "language code:", x+15, y+yOffset*13, native.systemFont, 16 )
+itemLabel = display.newText( "locale:", x+83, y+yOffset*13, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
-itemLabel = display.newText( "target store:", x+15, y+yOffset*14, native.systemFont, 16 )
+itemLabel = display.newText( "language code:", x+15, y+yOffset*14, native.systemFont, 16 )
+itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
+
+itemLabel = display.newText( "target store:", x+45, y+yOffset*15, native.systemFont, 16 )
 itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
 
 
@@ -106,58 +110,60 @@ itemText = display.newText( system.getInfo( "name" ),
 	xText, y+yOffset*1, native.systemFont, 16 )
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
-itemText = display.newText( system.getInfo( "model" ),
+itemText = display.newText( system.getInfo( "manufacturer" ),
 	xText, y+yOffset*2, native.systemFont, 16 )
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
-itemText = display.newText( system.getInfo( "environment" ),
+itemText = display.newText( system.getInfo( "model" ),
 	xText, y+yOffset*3, native.systemFont, 16 )
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
-itemText = display.newText( system.getInfo( "platformName" ),
+itemText = display.newText( system.getInfo( "environment" ),
 	xText, y+yOffset*4, native.systemFont, 16 )
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
-itemText = display.newText( system.getInfo( "platformVersion" ),
+itemText = display.newText( system.getInfo( "platform" ),
 	xText, y+yOffset*5, native.systemFont, 16 )
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
-itemText = display.newText( system.getInfo( "version" ),
+itemText = display.newText( system.getInfo( "platformVersion" ),
 	xText, y+yOffset*6, native.systemFont, 16 )
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
-itemText = display.newText( system.getInfo( "build" ),
+itemText = display.newText( system.getInfo( "version" ),
 	xText, y+yOffset*7, native.systemFont, 16 )
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
+itemText = display.newText( system.getInfo( "build" ),
+	xText, y+yOffset*8, native.systemFont, 16 )
+itemText:setFillColor(txt.red, txt.green, txt.blue)
+
 itemText = display.newText( system.getInfo( "deviceID" ),
-	30, y+yOffset*8+25, native.systemFont, 14 )
+	30, y+yOffset*9+25, native.systemFont, 14 )
 itemText.anchorX = 0.5	-- center anchor
 	itemText.x = display.contentCenterX				-- center long string (40 chars)
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
 itemText = display.newText( system.getPreference( "ui", "language" ),
-	xText, y+yOffset*10, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getPreference( "locale", "country" ),
 	xText, y+yOffset*11, native.systemFont, 16 )
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
-itemText = display.newText( system.getPreference( "locale", "identifier" ),
+itemText = display.newText( system.getPreference( "locale", "country" ),
 	xText, y+yOffset*12, native.systemFont, 16 )
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
-itemText = display.newText( system.getPreference( "locale", "language" ),
+itemText = display.newText( system.getPreference( "locale", "identifier" ),
 	xText, y+yOffset*13, native.systemFont, 16 )
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
--- The following will generate a warning message if using a "starter" account.
--- "restricted library (store)"
+itemText = display.newText( system.getPreference( "locale", "language" ),
+	xText, y+yOffset*14, native.systemFont, 16 )
+itemText:setFillColor(txt.red, txt.green, txt.blue)
+
 local store = require "store"
 
 itemText = display.newText( store.target,
-	xText, y+yOffset*14, native.systemFont, 16 )
+	xText, y+yOffset*15, native.systemFont, 16 )
 itemText:setFillColor(txt.red, txt.green, txt.blue)
 
 display.setDefault( "anchorX", 0.5 )	-- set back to default values (center)
@@ -206,16 +212,21 @@ Runtime:addEventListener( "resize", onResizeEvent )
 
 print("")
 print("System Information:")
-if system.getInfo("platformName") == "Android" then
+local platform = system.getInfo("platform")
+if platform == "android" then
 	print("androidApiLevel: " .. tostring(system.getInfo("androidApiLevel")))
 	print("androidAppVersionCode: " .. tostring(system.getInfo("androidAppVersionCode")))
 	print("androidAppPackageName: " .. tostring(system.getInfo("androidAppPackageName")))
+	print("androidGrantedAppPermissions: " .. tostring(system.getInfo("androidGrantedAppPermissions")))
+	print("androidDeniedAppPermissions: " .. tostring(system.getInfo("androidDeniedAppPermissions")))
 	print("androidDisplayApproximateDpi: " .. tostring(system.getInfo("androidDisplayApproximateDpi")))
 	print("androidDisplayDensityName: " .. tostring(system.getInfo("androidDisplayDensityName")))
 	print("androidDisplayWidthInInches: " .. tostring(system.getInfo("androidDisplayWidthInInches")))
 	print("androidDisplayHeightInInches: " .. tostring(system.getInfo("androidDisplayHeightInInches")))
 	print("androidDisplayXDpi: " .. tostring(system.getInfo("androidDisplayXDpi")))
 	print("androidDisplayYDpi: " .. tostring(system.getInfo("androidDisplayYDpi")))
+elseif platform == "ios" then
+	print("iosIdentifierForVendor: " .. tostring(system.getInfo("iosIdentifierForVendor")))
 end
 print("appName: " .. tostring(system.getInfo("appName")))
 print("appVersionString: " .. tostring(system.getInfo("appVersionString")))
@@ -229,16 +240,14 @@ print("GL_VERSION: " .. tostring(system.getInfo("GL_VERSION")))
 print("GL_SHADING_LANGUAGE_VERSION: " .. tostring(system.getInfo("GL_SHADING_LANGUAGE_VERSION")))
 print("GL_EXTENSIONS: " .. tostring(system.getInfo("GL_EXTENSIONS")))
 print("gpuSupportsHighPrecisionFragmentShaders: " .. tostring(system.getInfo("gpuSupportsHighPrecisionFragmentShaders")))
-print("iosIdentifierForVendor: " .. tostring(system.getInfo("iosIdentifierForVendor")))
 print("isoCountryCode: " .. tostring(system.getInfo("isoCountryCode")))
 print("isoLanguageCode: " .. tostring(system.getInfo("isoLanguageCode")))
+print("manufacturer: " .. tostring(system.getInfo("manufacturer")))
 print("model: " .. tostring(system.getInfo("model")))
 print("name: " .. tostring(system.getInfo("name")))
-print("platformName: " .. tostring(system.getInfo("platformName")))
+print("platform: " .. tostring(system.getInfo("platform")))
 print("platformVersion: " .. tostring(system.getInfo("platformVersion")))
 print("maxTextureSize: " .. tostring(system.getInfo("maxTextureSize")))
-if system.getInfo("platformName") == "android" then
-	print("targetAppStore: " .. tostring(system.getInfo("targetAppStore")))
-end
+print("targetAppStore: " .. tostring(system.getInfo("targetAppStore")))
 print("textureMemoryUsed: " .. tostring(system.getInfo("textureMemoryUsed")))
 print("version: " .. tostring(system.getInfo("version")))
