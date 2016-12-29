@@ -1,11 +1,13 @@
 -- Abstract: Follow Me 2 (touch event) sample app
 -- 
--- Version: 1.0
+-- Version: 1.1
 -- Modified by Tom Newman to show touches outside of the 3 button objects.
 --
 -- Modified by Tom Newman to display a circle when an area is touched outside
 -- one of the objects. Multiple touches will display multiple circles where touched.
 -- The circles will fade in and then disapear.
+-- 
+-- Modified by Joshua Quick to check for multitouch support via system.hasEventSource().
 -- 
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 -- 
@@ -160,13 +162,9 @@ txtId = display.newText( "Id: ______", 225, 450, native.systemFontBold, 12 )
 Runtime:addEventListener( "touch", otherTouch )
 --	Runtime:addEventListener( "touch", printTouch2 )	-- **tjn No longer used                  
 
--- Determine if running on Corona Simulator
+-- Determine if multitouch is supported
 --
-local isSimulator = "simulator" == system.getInfo("environment")
-
--- Multitouch Events not supported on Simulator
---
-if isSimulator then
-	msg = display.newText( "Multitouch not supported on Simulator!", display.contentCenterX, 400, native.systemFontBold, 14 )
+if not system.hasEventSource("multitouch") then
+	msg = display.newText( "Multitouch not supported on this device!", display.contentCenterX, 400, native.systemFontBold, 14 )
 	msg:setFillColor( 1 ,1, 0 )
 end

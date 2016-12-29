@@ -3,7 +3,7 @@
 --
 -- Date: August 19, 2010
 --
--- Version: 1.2
+-- Version: 1.3
 --
 -- File name: main.lua
 --
@@ -21,6 +21,7 @@
 --
 -- Update History:
 --	v1.2	Added Simulator warning message
+--  v1.3	Remove Simularo warning. Now checks for multitouch support via system.hasEventSource().
 --
 -- Comments: Pinch and Zoom to scale the image on the screen.
 --
@@ -29,7 +30,7 @@
 --
 -- Supports Graphics 2.0
 ---------------------------------------------------------------------------------------
-                                                                
+
 -- activate multitouch so multiple touches can press different buttons simultaneously
 system.activate( "multitouch" )
 
@@ -67,13 +68,9 @@ button3.x = 160; button3.y = 320
 title = display.newText( "Multitouch Buttons", display.contentCenterX, 50, native.systemFontBold, 20 )
 title:setFillColor( 1,1,0 )
 
--- Determine if running on Corona Simulator
+-- Determine if multitouch is supported
 --
-local isSimulator = "simulator" == system.getInfo("environment")
-
--- Multitouch Events not supported on Simulator
---
-if isSimulator then
-	msg = display.newText( "Multitouch not supported on Simulator!", display.contentCenterX, 400, native.systemFontBold, 14 )
+if not system.hasEventSource("multitouch") then
+	msg = display.newText( "Multitouch not supported on this device!", display.contentCenterX, 400, native.systemFontBold, 14 )
 	msg:setFillColor( 1,1,0 )
 end
