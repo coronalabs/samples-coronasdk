@@ -25,7 +25,7 @@
 -- Cycles through the different status bar modes, changing modes every second
 --
 -- Supports Graphics 2.0
--- 1.2 - Add support fro additional status bars. Made the background middle gray so you can
+-- 1.2 - Add support for additional status bars. Made the background middle gray so you can
 --       see both light and dark versions.
 ------------------------------------------------------------
 
