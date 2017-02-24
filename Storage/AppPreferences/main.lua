@@ -30,6 +30,10 @@ display.getCurrentStage():insert( sampleUI.frontGroup )
 -- Load libraries/plugins
 local widget = require( "widget" )
 
+if system.getInfo("platform") == "android" then
+	widget.setTheme( "widget_theme_android_holo_dark" )
+end
+
 -- Increments the number of time this app has been launched by 1 and saves to storage
 local function incrementAppLaunchCount()
 	-- First, read the last stored count from the app's preferences
