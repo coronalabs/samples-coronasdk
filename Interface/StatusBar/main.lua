@@ -1,7 +1,7 @@
 -- 
 -- Abstract: Status Bar sample app
 -- 
--- Version: 1.1
+-- Version: 1.2
 -- 
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 -- 
@@ -25,24 +25,31 @@
 -- Cycles through the different status bar modes, changing modes every second
 --
 -- Supports Graphics 2.0
+-- 1.2 - Add support for additional status bars. Made the background middle gray so you can
+--       see both light and dark versions.
 ------------------------------------------------------------
 
 -- array of status bar modes
 local modes = {
-	display.HiddenStatusBar,
-	display.DefaultStatusBar,
-	display.DarkStatusBar,
-	display.TranslucentStatusBar,
+        display.HiddenStatusBar,
+        display.DefaultStatusBar,
+        display.DarkStatusBar,
+        display.TranslucentStatusBar,
+        display.LightTransparentStatusBar,
+        display.DarkTransparentStatusBar,
 }
 
 local modeNames = {
-	"display.HiddenStatusBar",
-	"display.DefaultStatusBar",
-	"display.DarkStatusBar",
-	"display.TranslucentStatusBar",
+        "display.HiddenStatusBar",
+        "display.DefaultStatusBar",
+        "display.DarkStatusBar",
+        "display.TranslucentStatusBar",
+        "display.LightTransparentStatusBar",
+        "display.DarkTransparentStatusBar",
 }
 
-local background = display.newImage( "shine.png", display.contentCenterX, display.contentCenterY ) 
+local background = display.newRect(display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentHeight)
+background:setFillColor( 0.5 )
 
 local label
 
