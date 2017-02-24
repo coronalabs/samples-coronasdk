@@ -48,8 +48,13 @@ local bounceAnimation = {
 	reflectX = true,
 }
 
-local backgroundPortrait = display.newImage( "aquariumbackgroundIPhone.jpg", halfW, halfH )
-local backgroundLandscape = display.newImage( "aquariumbackgroundIPhoneLandscape.jpg", halfH - 80, halfW + 80 )
+local backgroundPortrait = display.newImageRect( "aquariumbackgroundIPhone.jpg", display.contentWidth, display.contentHeight )
+backgroundPortrait.x = display.contentCenterX
+backgroundPortrait.y = display.contentCenterY
+local backgroundLandscape = display.newImageRect( "aquariumbackgroundIPhoneLandscape.jpg", display.contentHeight, display.contentWidth )
+backgroundLandscape.x = display.contentCenterX
+backgroundLandscape.y = display.contentCenterY
+
 backgroundLandscape.isVisible = false
 local background = backgroundPortrait
 
