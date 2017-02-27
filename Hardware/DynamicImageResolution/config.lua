@@ -7,8 +7,8 @@ application =
 		scale = "letterbox",
 		imageSuffix =
 		{
-			["@15x"] = 1.5,		-- A good scale for Droid, Nexus One, etc.
-			["@2x"] = 2,		-- A good scale for iPhone 4 and iPad
+			["@2x"] = 2,
+			["@4x"] = 4,
 		},
 	},
 }

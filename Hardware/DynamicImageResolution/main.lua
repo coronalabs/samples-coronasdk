@@ -34,44 +34,104 @@
 -- If no high-resolution alternates are found, the base image filename is used instead.
 -- See the config.lua file for the "imageSuffix" naming table for alternate images.
 
-display.setDefault( "background", 0.3 )
+display.setStatusBar( display.HiddenStatusBar )
 
-width = display.contentWidth
-height = display.contentHeight
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="whiteorange", title="Dynamic Image Resolution", showBuildNum=true } )
 
-actualSizeRect = display.newRect( display.contentCenterX, display.contentCenterY, display.actualContentWidth,
-	 display.actualContentHeight )
-actualSizeRect:setFillColor( 1,0,0,0.5 )	-- red letterbox
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
 
-contentSizeRect = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth,
-	 display.contentHeight )
-contentSizeRect:setFillColor( 0.3 )		-- regular content area
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
 
-local myImage = display.newImageRect( "hongkong.png", 200, 200 )
-myImage.x = display.contentCenterX
-myImage.y = display.contentCenterY
+local contentSizeRect = display.newRect( mainGroup, display.contentCenterX, display.contentCenterY, display.contentWidth,
+         display.contentHeight )
+contentSizeRect:setFillColor( 0.5, 0.5 )             -- regular content area
+contentSizeRect.x = display.contentCenterX
+contentSizeRect.y = display.contentCenterY
+
+local function GetScreenParamsStr(portraitOrientation)
+	print(orientation)
+	local separator = "\n" -- (portraitOrientation) and "\n" or " / "
+
+	return  string.format( "display.contentWidth/Height: %4.0f x %4.0f ✪ display.actualContentWidth/Height: %4.0f x %4.0f%sdisplay.pixelWidth/Height: %4.0f x %4.0f ✪ Scale Factor (height): %2.2f ✪ display.imageSuffix: %s",
+		display.contentWidth, display.contentHeight,
+		display.actualContentWidth, display.actualContentHeight,
+		separator,
+		display.pixelWidth, display.pixelHeight,
+		(display.pixelHeight / display.actualContentHeight),
+		(display.imageSuffix == nil and "(none)" or display.imageSuffix))
+end
+
+local width = display.contentWidth
+local height = display.contentHeight
+
+local theImage = display.newImageRect( mainGroup, "Dragons.jpg", 300, 225 )
+theImage.x = display.contentCenterX
+theImage.y = display.contentCenterY
 
 -- Create text message labels
-local label1 = display.newText( "Dynamic Image Resolution", width/2, 30, native.systemFontBold, 20 )
-label1:setFillColor( 190/255, 190/255, 1 )
-local label2 = display.newText( "View in different simulated devices", width/2, 60, native.systemFont, 14 )
-label2:setFillColor( 190/255, 190/255, 1 )
-local label3 = display.newText( "(Best image is chosen automatically)", width/2, 80, native.systemFont, 14 )
-label3:setFillColor( 190/255, 190/255, 1 )
-local label4 = display.newText( "(Red equals letterbox area)", width/2, 100, native.systemFont, 14 )
-label4:setFillColor( 190/255, 190/255, 1 )
+local descOptions = 
+{
+	text = "",
+	parent = mainGroup,
+    x = width/2,
+    y = 60,
+    font = native.systemFont,   
+    fontSize = 12,
+    align = "center",
+}
+local description = display.newText( descOptions )
+description.text = "View in different simulated devices\n(best resolution image is chosen automatically)\n\nGrey rectangle is content area"
+description:setFillColor(130/255, 159/255, 249/255)
 
-display.newText( string.format( "Content Width x Height: %4.0f x %4.0f",
-	display.contentWidth, display.contentHeight ), width/2, 360, nil, 14 )
-display.newText( string.format( "actualContent Width x Height: %4.0f x %4.0f",
-	display.actualContentWidth, display.actualContentHeight ), width/2, 385, nil, 14 )
-display.newText( string.format( "Pixel Width x Height: %4.0f x %4.0f",
-	display.pixelWidth, display.pixelHeight ), width/2, 410, nil, 14 )
+local paramOptions = 
+{
+	text = GetScreenParamsStr(true),
+	parent = mainGroup,
+    font = native.systemFont,   
+    fontSize = 6,
+    align = "center",
+}
+local params = display.newText( paramOptions )
+params:setFillColor(130/255, 159/255, 249/255)
 
-display.newText( string.format( "Scale Factor (height): %2.2f", ( display.pixelHeight / display.actualContentHeight ) ), width/2, 435, nil, 14 )
+local function onResizeChange( )
+	local isPortrait = (display.contentWidth < display.contentHeight)
+	local screenParamsStr = GetScreenParamsStr(isPortrait)
+	params.text = screenParamsStr
 
--- Display the build number on the scree
-buildText = display.newText( system.getInfo( "build" ), 260, 460, native.systemFont, 12 )
-buildText:setFillColor( 1, 0.5 )
-buildText.anchorX = 0
-buildText.anchorY = 0
+	contentSizeRect.x = display.contentCenterX
+	contentSizeRect.y = display.contentCenterY
+	contentSizeRect.width = display.contentWidth
+	contentSizeRect.height = display.contentHeight
+
+	description.x = display.contentCenterX
+	theImage.x = display.contentCenterX
+	theImage.y = display.contentCenterY
+	if isPortrait then
+		theImage.width = display.contentWidth - 2
+		theImage.height = theImage.width * 0.75
+	else
+		theImage.height = display.contentHeight - 70
+		theImage.width = theImage.height * (4000/3000)
+	end
+
+	params.x = display.contentCenterX
+	params.y =  theImage.y + (theImage.height / 2) + (params.height / 2) + 10
+
+	description.isVisible = isPortrait
+end
+Runtime:addEventListener( "resize", onResizeChange )
+
+-- Get everything laid out consistently
+onResizeChange( )
