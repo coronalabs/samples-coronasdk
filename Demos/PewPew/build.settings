@@ -21,25 +21,18 @@ settings =
 	{
 		plist =
 		{
+			UILaunchStoryboardName = "LaunchScreen",
 			CFBundleIconFiles =
 			{
-				"Icon.png", 
-				"Icon@2x.png", 
-				"Icon-60.png",
-				"Icon-60@2x.png",
-				"Icon-60@3x.png",
-				"Icon-72.png", 
-				"Icon-72@2x.png",
+				"Icon-40.png",
+				"Icon-58.png",
 				"Icon-76.png",
-				"Icon-76@2x.png",
+				"Icon-80.png",
+				"Icon-87.png",
+				"Icon-120.png",
+				"Icon-152.png",
 				"Icon-167.png",
-				"Icon-Small.png", 
-				"Icon-Small@2x.png",
-				"Icon-Small@3x.png",
-				"Icon-Small-40.png",
-				"Icon-Small-40@2x.png",
-				"Icon-Small-50.png", 
-				"Icon-Small-50@2x.png",
+				"Icon-180.png",
 			},
 		},
 	},
@@ -47,50 +40,50 @@ settings =
 	tvos =
 	{
 		-- tvOS app icons require multiple layers, and you must provide both a small and a large size
-		icon =
-		{
-			-- A collection of 400x240 pngs, in order of top to bottom
-			small =
+			icon =
 			{
-				"Icon-tvOS-Small-LogoA.png",
-				"Icon-tvOS-Small-LogoB.png",
-				"Icon-tvOS-Small-Background.png",
+				-- A collection of 400x240 pngs, in order of top to bottom
+					small =
+					{
+						"Icon-tvOS-Small-LogoA.png",
+						"Icon-tvOS-Small-LogoB.png",
+						"Icon-tvOS-Small-Background.png",
+					},
+				-- A collection of 1280x768 pngs, in order of top to bottom
+					large =
+					{
+						"Icon-tvOS-Large-LogoA.png",
+						"Icon-tvOS-Large-LogoB.png",
+						"Icon-tvOS-Large-Background.png",
+					}
 			},
-			-- A collection of 1280x768 pngs, in order of top to bottom
-			large =
-			{
-				"Icon-tvOS-Large-LogoA.png",
-				"Icon-tvOS-Large-LogoB.png",
-				"Icon-tvOS-Large-Background.png",
-			}
-		},
 
 		-- A 1920x720 image file, displayed when your app is on the "top shelf"
-        topShelfImage = "Icon-tvOS-TopShelf.png",
+			topShelfImage = "Icon-tvOS-TopShelf.png",
 
-        -- A 2320x720 image file, displayed when your app is on the "top shelf" of a widescreen TV
-        topShelfImageWide = "Icon-tvOS-TopShelfWide.png",
+		-- A 2320x720 image file, displayed when your app is on the "top shelf" of a widescreen TV
+			topShelfImageWide = "Icon-tvOS-TopShelfWide.png",
 
 		-- A 1920x1080 png file, displayed briefly as your app loads
-		launchImage = "Icon-tvOS-Launch.png",
+			launchImage = "Icon-tvOS-Launch.png",
 	},
 
 	excludeFiles =
 	{
 		-- Exclude all Android icon files and .ogg files
-		iphone = { "Icon-*dpi.png", "*.ogg" },
+		iphone = { "Icon.png", "Icon-*dpi.png", "*.ogg" },
 
 		-- Exclude iOS "retina" image files and .aac files
-		android = { "Icon.png", "*@2x.png", "*.aac" },
+		android = { "Icon.png", "Icon-??.png", "Icon-???.png", "LaunchScreen.storyboardc", },
 
 		-- Exclude unnecessary assets from OS X desktop apps
-		osx = { "Default*.png", "Icon*.png", "Icon*.ico", "Icon*.icns", "*.aac" },
+		osx = { "Icon*.png", "Icon*.ico", "Icon*.icns", "*.aac", "LaunchScreen.storyboardc", },
 
 		-- Exclude unnecessary assets from Win32 desktop apps
-		win32 = { "Default*.png", "Icon*.png", "Icon*.ico", "Icon*.icns", "*.aac" },
+		win32 = { "Icon*.png", "Icon*.ico", "Icon*.icns", "*.aac", "LaunchScreen.storyboardc", },
 
-		-- Exclude all Android icon files and .ogg files
-		tvos = { "Icon-*.png", "*.ogg" },
+		-- Exclude all icon files and .ogg files
+		tvos = { "Icon*.png", "*.ogg", "LaunchScreen.storyboardc", },
 	},
 
 	orientation =

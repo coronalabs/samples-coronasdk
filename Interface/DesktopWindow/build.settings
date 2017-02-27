@@ -64,9 +64,9 @@ settings =
 	excludeFiles =
 	{
 		all = { "*.ico", "*.icns" },
-		android = { "Icon*.png", "Default-568h@2x.png" },
+		android = { "Icon*.png", "LaunchScreen.storyboardc", },
 		iphone = { "Icon*dpi.png" },
-		osx = { "Icon*.png", "Default-568h@2x.png" },
-		win32 = { "Icon*.png", "Default-568h@2x.png" },
+		osx = { "Icon*.png", "LaunchScreen.storyboardc", },
+		win32 = { "Icon*.png", "LaunchScreen.storyboardc", },
 	},
 }
