@@ -60,16 +60,19 @@ contentSizeRect.x = display.contentCenterX
 contentSizeRect.y = display.contentCenterY
 
 local function GetScreenParamsStr(portraitOrientation)
-	print(orientation)
 	local separator = "\n" -- (portraitOrientation) and "\n" or " / "
 
-	return  string.format( "display.contentWidth/Height: %4.0f x %4.0f ✪ display.actualContentWidth/Height: %4.0f x %4.0f%sdisplay.pixelWidth/Height: %4.0f x %4.0f ✪ Scale Factor (height): %2.2f ✪ display.imageSuffix: %s",
+	local paramsStr = string.format( "display.contentWidth/Height: %4.0f x %4.0f ✪ display.actualContentWidth/Height: %4.0f x %4.0f%sdisplay.pixelWidth/Height: %4.0f x %4.0f ✪ Scale Factor (height): %2.2f ✪ display.imageSuffix: %s",
 		display.contentWidth, display.contentHeight,
 		display.actualContentWidth, display.actualContentHeight,
 		separator,
 		display.pixelWidth, display.pixelHeight,
 		(display.pixelHeight / display.actualContentHeight),
 		(display.imageSuffix == nil and "(none)" or display.imageSuffix))
+
+	print(paramsStr)
+
+	return paramsStr
 end
 
 local width = display.contentWidth
