@@ -32,4 +32,11 @@ settings =
 			default = "Google Push Notifications",
 		},
 	},
+	plugins =
+	{
+		["plugin.notifications"] =
+		{
+			publisherId = "com.coronalabs"
+		},
+	},
 }

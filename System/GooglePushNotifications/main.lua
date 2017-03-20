@@ -25,10 +25,11 @@ local _W = display.contentWidth
 local _H = display.contentHeight
 
 -- A Google API Key is needed to send push notifications. It is not needed to receive notifications.
--- This key can be obtained from the Google API Console here:  https://code.google.com/apis/console
-local googleApiKey = "Your API key goes here."
+-- This number can be obtained from the Firebase Console https://console.firebase.google.com/
+-- Select your project -> (Gear Icon) -> Project Settings -> Cloud Messaging -> Server key
+local serverKey = "Your API key goes here."
 
--- A Google registration ID is also needed to send push notifications.
+-- A Google registration ID (also know as Device Token) is also needed to send push notifications.
 -- This key will be obtained by the notification listener below after this app has successfully
 -- registered with Google. See the "config.lua" file on how to register this app with Google.
 local googleRegistrationId = nil
@@ -50,7 +51,7 @@ local msg
 if system.getInfo("platformName") ~= "Android" then
 	msg = display.newText( "Google Push Notifications only on Android", centerX, textY, native.systemFontBold, 12 )
 	msg:setFillColor( 1, 0, 0 )
-elseif googleApiKey == "Your API key goes here." then
+elseif serverKey == "Your API key goes here." then
 	msg = display.newText( "Google Push Notifications need to be configured", centerX, textY, native.systemFontBold, 12 )
 	msg:setFillColor( 0, 0, 1 )
 else
@@ -98,7 +99,7 @@ end
 -- Sends the given JSON message to the Google Cloud Messaging server to be pushed to Android devices.
 local function sendNotification(jsonMessage)
 	-- Do not continue if a Google API Key was not provided.
-	if not googleApiKey then
+	if not serverKey then
 		return
 	end
 
@@ -112,7 +113,7 @@ local function sendNotification(jsonMessage)
 	{
 		headers =
 		{
-			["Authorization"] = "key=" .. googleApiKey,
+			["Authorization"] = "key=" .. serverKey,
 			["Content-Type"] = "application/json",
 		},
 		body = jsonMessage,

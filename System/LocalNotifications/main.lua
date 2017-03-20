@@ -316,6 +316,12 @@ local notificationListener = function( event )
 --- Debug Event parameters printout --------------------------------------------------
 --- Prints Events received up to 20 characters. Prints "..." and total count if longer
 ---
+	if event.custom == nil then
+		local json = require("json")
+		print("Notification listener unknown event: ", json.prettify(event))
+		return
+	end
+
 	print( "Notification Listener event:" )
 
 	local maxStr = 20		-- set maximum string length
