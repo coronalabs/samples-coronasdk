@@ -27,7 +27,6 @@ local originX = display.screenOriginX
 local originY = display.screenOriginY
 local width = display.actualContentWidth
 local height = display.actualContentHeight
-local onOSX = ( "Mac OS X" == system.getInfo( "platformName" ) )
 
 -- Load background and character from "background.lua" and "character.lua" respectively
 local background = require( "background" )

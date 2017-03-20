@@ -1,20 +1,20 @@
 
 local json = require( "json" )
 
-local platformName = system.getInfo( "platformName" )
+local platform = system.getInfo( "platform" )
 
 local presetControls = {}
 
 local configFile
-if platformName == "Android" then
+if platform == "android" then
 	configFile = system.pathForFile( "control_presets_android.json" )
-elseif platformName == "Win" then
+elseif platform == "win32" then
 	configFile = system.pathForFile( "control_presets_windows.json" )
-elseif platformName == "Mac OS X" then
+elseif platform == "macos" then
 	configFile = system.pathForFile( "control_presets_osx.json" )
-elseif platformName == "iPhone OS" then
+elseif platform == "ios" then
 	configFile = system.pathForFile( "control_presets_ios.json" )
-elseif platformName == "tvOS" then
+elseif platform == "tvos" then
 	configFile = system.pathForFile( "control_presets_tvos.json" )
 end
 
@@ -63,7 +63,7 @@ function presetControlsModule.presetForDevice( device )
 		local ret = presetControls[productName]
 		ret.name = device.displayName
 		return ret
-	elseif ( platformName == "tvOS" or platformName == "iPhone OS") then
+	elseif ( platform == "tvos" or platform == "ios") then
 		-- If we get this far on tvOS without any presets define, use the default controller preset.
 		local ret = presetControls.Controller
 		ret.name = device.displayName

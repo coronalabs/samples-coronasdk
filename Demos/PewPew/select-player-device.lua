@@ -1,6 +1,7 @@
 
 local composer = require( "composer" )
 local widget = require( "widget" )
+widget.setTheme( "widget_theme_android_holo_light" )
 
 local scene = composer.newScene()
 
@@ -54,10 +55,12 @@ function scene:create( event )
 		fontSize = 17
 	}
 
-	if ( system.getInfo("platformName") ~= "tvOS" ) then
+	if ( system.getInfo( "platform" ) ~= "tvos" ) then
 		spinner = widget.newSpinner{
 			x = display.contentCenterX,
-			y = display.contentCenterY
+			y = display.contentCenterY,
+			deltaAngle = 10,
+			incrementEvery = 10
 		}
 		sceneGroup:insert( spinner )
 	end

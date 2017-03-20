@@ -1,6 +1,7 @@
 
 local composer = require( "composer" )
 local widget = require( "widget" )
+widget.setTheme( "widget_theme_android_holo_light" )
 
 local generateCharacter = require( "character" )
 local particleDesigner = require( "particleDesigner" )
@@ -21,11 +22,11 @@ local sndPewHandle, sndPew2Handle, sndDamageHandle, sndDeathHandle, sndBackgroun
 local exitButtonBackground, exitButton
 local exitOnStartUp = false
 
-local platformName = system.getInfo( "platformName" )
+local platform = system.getInfo( "platform" )
 
 -- Change audio format based on the target platform
 local audioFileFormat = "ogg"
-if ( platformName == "iPhone OS" or platformName == "tvOS" ) then
+if ( platform == "ios" or platform == "tvos" ) then
 	audioFileFormat = "aac"
 end
 
@@ -397,10 +398,10 @@ function scene:create( event )
 	display.setDefault( "textureWrapY", "repeat" )
 
 	-- Create a background image
-	local background = display.newRect( sceneGroup, display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentHeight )
-	background.fill = { type="image", filename="grass.png" }
-	background.fill.scaleX = 0.5
-	background.fill.scaleY = 0.5
+	local background = display.newRect( sceneGroup, display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentWidth )
+	background.fill = { type="image", filename="tile.png" }
+	background.fill.scaleX = 496/display.actualContentWidth/2
+	background.fill.scaleY = 496/display.actualContentWidth/2
 
 	-- Restore defaults
 	local textureWrapDefault = "clampToEdge"
@@ -449,10 +450,12 @@ function scene:create( event )
 	sndPew2Handle = audio.loadSound( "pew2." .. audioFileFormat )
 
 	-- Create spinner
-	if ( system.getInfo("platformName") ~= "tvOS" ) then
+	if ( platform ~= "tvos" ) then
 		spinner = widget.newSpinner{
 			x = display.contentCenterX,
-			y = display.contentCenterY
+			y = display.contentCenterY,
+			deltaAngle = 10,
+			incrementEvery = 10
 		}
 		sceneGroup:insert( spinner )
 	end

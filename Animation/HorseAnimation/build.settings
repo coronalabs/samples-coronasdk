@@ -1,6 +1,6 @@
 --
--- For more information on build.settings see the Corona SDK Build Guide at:
--- http://docs.coronalabs.com/guide/distribution/buildSettings/index.html
+-- For more information on build.settings, see the Project Build Settings guide at:
+-- https://docs.coronalabs.com/guide/distribution/buildSettings
 --
 
 settings =
@@ -14,6 +14,7 @@ settings =
 	{
 		plist =
 		{
+			UIStatusBarHidden = false,
 			UILaunchStoryboardName = "LaunchScreen",
 			CFBundleIconFiles =
 			{

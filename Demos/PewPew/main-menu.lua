@@ -10,11 +10,11 @@ local controllersTableView
 local buttonGroup
 local focusIndex
 
-local platformName = system.getInfo( "platformName" )
+local platform = system.getInfo( "platform" )
 
 -- Change audio format based on the target platform
 local audioFileFormat = "ogg"
-if ( platformName == "iPhone OS" or platformName == "tvOS" ) then
+if ( platform == "ios" or platform == "tvos" ) then
 	audioFileFormat = "aac"
 end
 
@@ -219,7 +219,7 @@ function scene:create( event )
 	sceneGroup:insert( buttonGroup )
 	
 	-- Exit button. Do not show on iOS or tvOS, as per Apple's guidelines
-	if ( platformName ~= "iPhone OS" and platformName ~= "tvOS" ) then
+	if ( platform ~= "ios" and platform ~= "tvos" ) then
 		local exitButton = widget.newButton{
 			x = display.contentCenterX,
 			y = 84,

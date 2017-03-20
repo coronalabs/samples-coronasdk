@@ -12,7 +12,7 @@ local widget = require( "widget" )
 local json = require( "json" )
 local presetControls = require( "presetControls" )
 
-local platformName = system.getInfo( "platformName" )
+local platform = system.getInfo( "platform" )
 
 ------------------------------
 -- CONFIGURE STAGE
@@ -24,12 +24,8 @@ display.getCurrentStage():insert( sampleUI.frontGroup )
 composer.setVariable( "letterboxWidth", (display.actualContentWidth-display.contentWidth)/2 )
 composer.setVariable( "letterboxHeight", (display.actualContentHeight-display.contentHeight)/2 )
 
--- Set app font based on platform
-if ( "Win" == platformName or "Android" == platformName ) then
-	composer.setVariable( "appFont", native.systemFont )
-else
-	composer.setVariable( "appFont", "HelveticaNeue-Light" )
-end
+-- Set app font
+composer.setVariable( "appFont", sampleUI.appFont )
 
 
 local function getEventDevice( event )
@@ -53,7 +49,7 @@ composer.setVariable( "getNiceDeviceName", getNiceDeviceName )
 -- Load preset controller file
 local controls = {}
 
-if ( platformName == "Win" or platformName == "Mac OS X" ) then
+if ( platform == "win32" or platform == "macos" ) then
 	controls.Keyboard = presetControls.presetForKeyboard()
 end
 

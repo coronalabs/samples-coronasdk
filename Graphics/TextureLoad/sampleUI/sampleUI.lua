@@ -1,5 +1,5 @@
 
--- Version: 1.1
+-- Version: 1.2
 ---------------------------------------------------------------------------------------
 
 local widget = require( "widget" )
@@ -13,17 +13,20 @@ function M:newUI( options )
 	local backGroup = display.newGroup()
 	local frontGroup = display.newGroup()
 	local textGroupContainer = display.newContainer( 288, 240 ) ; frontGroup:insert( textGroupContainer )
-	local barContainer = display.newContainer( 624, 36 ) ; frontGroup:insert( barContainer ) ; barContainer.anchorY = 0
+	local barContainer = display.newContainer( display.actualContentWidth, 30 )
+	frontGroup:insert( barContainer )
+	barContainer.anchorX = 0
+	barContainer.anchorY = 0
+	barContainer.anchorChildren = false
+	barContainer.x = display.screenOriginX
+	barContainer.y = display.screenOriginY
 
 	local scrollBounds
 	local infoBoxState = "canOpen"
 	local transComplete
-	local defaultOrientation
 	local themeName = options.theme or "darkgrey"
 	local sampleCodeTitle = options.title or "Sample"
 	local buildNum
-	local offsetX = (display.actualContentWidth-display.contentWidth)/2
-	local offsetY = (display.actualContentHeight-display.contentHeight)/2
 
 	-- Read from the ReadMe.txt file
 	local readMeText = ""
@@ -31,21 +34,26 @@ function M:newUI( options )
 	if readMeFilePath then
 		local readMeFile = io.open( readMeFilePath )
 		local rt = readMeFile:read( "*a" )
-		local function trimString( s )
-			return string.match( s, "^()%s*$" ) and "" or string.match( s, "^%s*(.*%S)" )
-		end
-		rt = trimString( rt )
+		--local function trimString( s )
+		--	return string.match( s, "^()%s*$" ) and "" or string.match( s, "^%s*(.*%S)" )
+		--end
+		--rt = trimString( rt )
 		if string.len( rt ) > 0 then readMeText = rt end
 		io.close( readMeFile ) ; readMeFile = nil ; rt = nil
 	end
 
 	-- Create background image by theme value
-	local background = display.newImageRect( backGroup, "sampleUI/back-"..themeName..".png", 360, 640 )
+	local background = display.newImageRect( backGroup, "sampleUI/back-" .. themeName .. ".png", 360, 640 )
 	background.x, background.y = display.contentCenterX, display.contentCenterY
 
-	local topBarBack = display.newRect( frontGroup, 0, 0, 624, 37 )
-	topBarBack:setFillColor( 0,0,0,0.2 ) ; topBarBack.anchorY = 0 ; topBarBack:toBack()
-	local topBarOver = display.newRect( barContainer, 0, 0, 624, 36 )
+	local topBarBack = display.newRect( barContainer, 0, 0, barContainer.contentWidth, barContainer.contentHeight )
+	topBarBack.anchorX = 0
+	topBarBack.anchorY = 0
+	topBarBack:setFillColor( 0,0,0,0.2 )
+--	topBarBack:toBack()
+	local topBarOver = display.newRect( barContainer, 0, 0, barContainer.contentWidth, barContainer.contentHeight - 2 )
+	topBarOver.anchorX = 0
+	topBarOver.anchorY = 0
 	topBarOver:setFillColor( { type="gradient", color1={ 0.144 }, color2={ 0.158 } } )
 	textGroupContainer:toBack()
 
@@ -58,94 +66,91 @@ function M:newUI( options )
 	self.appFont = useFont
 
 	-- Place Corona title
-	local siteLink = display.newText( frontGroup, "Corona SDK", 0, 0, useFont, 14 ) ; siteLink.anchorX = 0
+	local siteLink = display.newText( barContainer, "Corona SDK", 8, topBarOver.contentHeight / 2, useFont, 14 )
+	siteLink.anchorX = 0
 	siteLink:setFillColor( 0.961, 0.494, 0.125 )
-	siteLink:addEventListener( "touch",
-		function( event )
-			if event.phase == "began" then
-				system.openURL( "http://www.coronalabs.com" )
-			end
-			return true
-		end )
+	if system.canOpenURL( "https://www.coronalabs.com" ) then
+		siteLink:addEventListener( "touch",
+			function( event )
+				if event.phase == "began" then
+					system.openURL( "https://www.coronalabs.com" )
+				end
+				return true
+			end )
+	end
 
 	-- Place sample app title
-	local title = display.newText( frontGroup, sampleCodeTitle, 0, 0, useFont, 14 ) ; title.anchorX = 1
+	local title = display.newText( barContainer, sampleCodeTitle, barContainer.contentWidth - 28, topBarOver.contentHeight / 2, useFont, 14 )
+	title.anchorX = 1
 
 	if options.showBuildNum == true then
-		buildNum = display.newText( frontGroup, "Build "..tonumber( system.getInfo( "build" ):sub(-4) ), 0, 0, useFont, 10 )
-		buildNum.anchorX = 1 ; buildNum.anchorY = 1
+		buildNum = display.newText( frontGroup, "Build " .. tonumber( system.getInfo( "build" ):sub(-4) ), 0, 0, useFont, 10 )
+		buildNum.anchorX = 1
+		buildNum.anchorY = 1
 		if ( themeName == "darkgrey" or themeName == "mediumgrey" ) then buildNum:setFillColor( 0.8 ) else buildNum:setFillColor( 0.2 ) end
 	end
 
 	-- Create shade rectangle
-	local screenShade = display.newRect( frontGroup, 0, 0, display.contentWidth+400, display.contentHeight+400 )
+	local screenShade = display.newRect( frontGroup, 0, 0, display.actualContentWidth, display.actualContentHeight )
 	screenShade:setFillColor( 0,0,0 ) ; screenShade.alpha = 0
 	screenShade.x, screenShade.y = display.contentCenterX, display.contentCenterY
 	screenShade.isHitTestable = false ; screenShade:toBack()
 
 	-- Create info button (initially invisible)
-	local infoButton = display.newImageRect( frontGroup, "sampleUI/infobutton.png", 25, 25 ) ; infoButton.anchorX = 1
+	local infoButton = display.newImageRect( barContainer, "sampleUI/infobutton.png", 25, 25 )
+	infoButton.anchorX = 1
+	infoButton.x = barContainer.contentWidth - 3
+	infoButton.y = topBarOver.contentHeight / 2
 	infoButton.isVisible = false
 	infoButton.id = "infoButton"
 
 	-- Create table for initial object positions
 	local objPos = { infoBoxOffY=0, infoBoxDestY=0 }
 
-	if ( system.orientation == "landscapeLeft" or system.orientation == "landscapeRight" ) then
-		defaultOrientation = "landscape"
-		background.x, background.y, background.rotation = display.contentCenterX, display.contentCenterY, 90
-	elseif ( system.orientation == "portrait" or system.orientation == "portraitUpsideDown" ) then
-		defaultOrientation = "portrait"
-		background.x, background.y, background.rotation = display.contentCenterX, display.contentCenterY, 0
-	end
-
-	-- Position core objects
-	objPos["infoBoxOffY"] = -130-offsetY
-	objPos["infoBoxDestY"] = 158-offsetY
-	barContainer.x, barContainer.y = display.contentCenterX, -offsetY-8
-	topBarBack.x, topBarBack.y = display.contentCenterX, -offsetY-7
-	siteLink.x, siteLink.y = 8-offsetX, (barContainer.height/2)-offsetY-4
-	title.x, title.y = display.contentWidth-28+offsetX, (barContainer.height/2)-offsetY-4
-	if buildNum then buildNum.x, buildNum.y = display.contentWidth+offsetX-7, display.contentHeight+offsetY-8 end
-	textGroupContainer.x = display.contentCenterX
-	infoButton.x, infoButton.y = display.contentWidth+offsetX-3, (barContainer.height/2)-offsetY-4
-
 	-- Resize change handler
 	local function onResize( event )
 
-		local ox, oy = offsetX, offsetY
-		local orientation = "landscape"
-		if display.contentHeight > display.contentWidth then orientation = "portrait" end
-		if orientation ~= defaultOrientation then ox, oy = offsetY, offsetX end
-
-		if orientation == "portrait" then
+		if display.contentHeight >= display.contentWidth then
 			background.x, background.y, background.rotation = display.contentCenterX, display.contentCenterY, 0
 		else
 			background.x, background.y, background.rotation = display.contentCenterX, display.contentCenterY, 90
 		end
 
-		objPos["infoBoxOffY"] = -130-oy
-		objPos["infoBoxDestY"] = 158-oy
-		barContainer.x, barContainer.y = display.contentCenterX, -oy-8
-		topBarBack.x, topBarBack.y = display.contentCenterX, -oy-7
-		siteLink.x, siteLink.y = 8-ox, (barContainer.height/2)-oy-4
-		title.x, title.y = display.contentWidth-28+ox, (barContainer.height/2)-oy-4
-		if buildNum then buildNum.x, buildNum.y = display.contentWidth+ox-7, display.contentHeight+oy-8 end
+		barContainer.x = display.screenOriginX
+		barContainer.y = display.screenOriginY
+		barContainer.width = display.actualContentWidth
+		topBarBack.width = barContainer.width
+		topBarOver.width = barContainer.width
+		title.x = barContainer.contentWidth - 28
+		infoButton.x = barContainer.contentWidth - 3
+		screenShade.x = display.contentCenterX
+		screenShade.y = display.contentCenterY
+		screenShade.width = display.actualContentWidth
+		screenShade.height = display.actualContentHeight
 		textGroupContainer.x = display.contentCenterX
-		infoButton.x, infoButton.y = display.contentWidth+ox-3, (barContainer.height/2)-oy-4
+		if buildNum then
+			buildNum.x = display.contentCenterX + (display.actualContentWidth / 2) - 7
+			buildNum.y = display.contentCenterY + (display.actualContentHeight / 2) - 8
+		end
 
 		-- If info box is opening or already open, snap it entirely on screen
+		objPos["infoBoxOffY"] = display.screenOriginY - 130
+		objPos["infoBoxDestY"] = (barContainer.y + barContainer.contentHeight + 130)
 		if ( infoBoxState == "opening" or infoBoxState == "canClose" ) then
 			transition.cancel( "infoBox" )
 			textGroupContainer.xScale, textGroupContainer.yScale = 1,1
 			textGroupContainer.y = objPos["infoBoxDestY"]
-			scrollBounds.x, scrollBounds.y = display.contentCenterX, objPos["infoBoxDestY"]
+			if scrollBounds then
+				scrollBounds.x, scrollBounds.y = display.contentCenterX, objPos["infoBoxDestY"]
+			end
 			transComplete()
 		-- If info box is closing or already closed, snap it entirely off screen
 		elseif ( infoBoxState == "closing" or infoBoxState == "canOpen" ) then
 			transition.cancel( "infoBox" )
 			textGroupContainer.y = objPos["infoBoxOffY"]
-			scrollBounds.x, scrollBounds.y = display.contentCenterX, objPos["infoBoxOffY"]
+			if scrollBounds then
+				scrollBounds.x, scrollBounds.y = display.contentCenterX, objPos["infoBoxOffY"]
+			end
 			transComplete()
 		end
 	end
@@ -180,11 +185,42 @@ function M:newUI( options )
 		local infoTextGroup = display.newGroup()
 		textGroupContainer:insert( infoTextGroup )
 
+		-- Find and then sub out documentation links
+		local docLinks = {}
+		for linkTitle, linkURL in string.gmatch( readMeText, "%[([%w\%s\%p\%—]-)%]%(([%w\%p]-)%)" ) do
+			docLinks[#docLinks+1] = { linkTitle, linkURL }
+		end
+		readMeText = string.gsub( readMeText, "%[([%w\%s\%p\%—]-)%]%(([%w\%p]-)%)", "" )
+
 		-- Create the info text and anchoring box
 		local infoText = display.newText( infoTextGroup, "", 0, 0, 260, 0, useFont, 12 )
 		infoText:setFillColor( 0 )
-		infoText.text = "\n"..readMeText.."\n\n"
+		local function trimString( s )
+			return string.match( s, "^()%s*$" ) and "" or string.match( s, "^%s*(.*%S)" )
+		end
+		readMeText = trimString( readMeText )
+		infoText.text = "\n" .. readMeText
 		infoText.anchorY = 0
+
+		-- Add documentation links as additional clickable text objects below main text
+		if #docLinks > 0 then
+			for i = 1,#docLinks do
+				local docLink = display.newText( docLinks[i][1], 0, 0, 260, 0, useFont, 12 )
+				docLink:setFillColor( 0.9, 0.1, 0.2 )
+				docLink.anchorY = 0
+				docLink.y = infoTextGroup.contentBounds.yMax + 6
+				infoTextGroup:insert( docLink )
+				if system.canOpenURL( docLinks[i][2] ) then
+					docLink:addEventListener( "touch",
+						function( event )
+							if event.phase == "began" then
+								system.openURL( docLinks[i][2] )
+							end
+							return true
+					end )
+				end
+			end
+		end
 
 		local textHeight = 240
 		if infoText.height < 240 then textHeight = infoText.height end
@@ -277,6 +313,7 @@ function M:newUI( options )
 	self.titleBarBottom = barContainer.contentBounds.yMax
 	backGroup:toBack() ; self.backGroup = backGroup
 	frontGroup:toFront() ; self.frontGroup = frontGroup
+	onResize()
 end
 
 function M:isInfoShowing()
