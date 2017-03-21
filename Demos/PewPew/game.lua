@@ -84,7 +84,7 @@ local function createPew( player )
 
 		local isCorona = math.random() <= 0.95
 		local pew = {
-			sprite = display.newImageRect( scene.view, isCorona and "pew.png" or "pew2.png", 25, 25 ),
+			sprite = display.newImageRect( scene.view, isCorona and "pew.png" or "pew2.png", 24, 24 ),
 			dmg = isCorona and 5 or 2,
 			v = { x=0, y=0 },
 			lifetime = 1.2,

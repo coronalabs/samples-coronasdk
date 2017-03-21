@@ -59,9 +59,10 @@ function M:newUI( options )
 
 	-- Check system for font selection
 	local useFont
-	if "Win" == system.getInfo( "platformName" ) then useFont = native.systemFont
-	elseif "Android" == system.getInfo( "platformName" ) then useFont = native.systemFont
-	else useFont = "HelveticaNeue-Light"
+	if ( "android" == system.getInfo( "platform" ) or "win32" == system.getInfo( "platform" ) ) then
+		useFont = native.systemFont
+	else
+		useFont = "HelveticaNeue-Light"
 	end
 	self.appFont = useFont
 
@@ -200,30 +201,34 @@ function M:newUI( options )
 		end
 		readMeText = trimString( readMeText )
 		infoText.text = "\n" .. readMeText
+		infoText.anchorX = 0
 		infoText.anchorY = 0
+		infoText.x = -130
 
 		-- Add documentation links as additional clickable text objects below main text
 		if #docLinks > 0 then
 			for i = 1,#docLinks do
-				local docLink = display.newText( docLinks[i][1], 0, 0, 260, 0, useFont, 12 )
+				local docLink = display.newText( docLinks[i][1], 0, 0, useFont, 12 )
 				docLink:setFillColor( 0.9, 0.1, 0.2 )
+				docLink.anchorX = 0
 				docLink.anchorY = 0
-				docLink.y = infoTextGroup.contentBounds.yMax + 6
+				docLink.x = -130
+				docLink.y = infoTextGroup.contentBounds.yMax + 5
 				infoTextGroup:insert( docLink )
 				if system.canOpenURL( docLinks[i][2] ) then
-					docLink:addEventListener( "touch",
+					docLink:addEventListener( "tap",
 						function( event )
-							if event.phase == "began" then
-								system.openURL( docLinks[i][2] )
-							end
+							system.openURL( docLinks[i][2] )
 							return true
 					end )
 				end
 			end
 		end
+		local spacer = display.newRect( infoTextGroup, 0, infoTextGroup.contentBounds.yMax, 10, 15 )
+		spacer.anchorY = 0 ; spacer.isVisible = false
 
 		local textHeight = 240
-		if infoText.height < 240 then textHeight = infoText.height end
+		if infoTextGroup.height < 240 then textHeight = infoTextGroup.height end
 
 		local infoTextAnchorBox = display.newRect( infoTextGroup, 0, 0, 288, textHeight )
 		infoTextAnchorBox.anchorY = 0

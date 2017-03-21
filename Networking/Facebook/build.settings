@@ -1,6 +1,6 @@
 --
--- For more information on build.settings see the Corona SDK Build Guide at:
--- http://docs.coronalabs.com/guide/distribution/buildSettings/index.html
+-- For more information on build.settings, see the Project Build Settings guide at:
+-- https://docs.coronalabs.com/guide/distribution/buildSettings
 --
 
 settings =
@@ -14,7 +14,6 @@ settings =
 	{
 		plist =
 		{
-			MinimumOSVersion = "7.0",
 			UIApplicationExitsOnSuspend = false,
 
 			CFBundleURLTypes =
@@ -43,7 +42,7 @@ settings =
 			},
 			LSApplicationQueriesSchemes =
 			{
-				"fb",	-- Needed for the facebook-v4.isFacebookAppEnabled() API
+				"fb",  -- Needed for the facebook-v4.isFacebookAppEnabled() API
 				"fbapi",
 				"fbauth2",
 				"fb-messenger-api",
@@ -69,8 +68,7 @@ settings =
 	{
 		["plugin.facebook.v4"] =
 		{
-			publisherId = "com.coronalabs",
-			supportedPlatforms = { iphone=true, android=true, ["android-kindle"]=true }
+			publisherId = "com.coronalabs"
 		},
 	},
 }

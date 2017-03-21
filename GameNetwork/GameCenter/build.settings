@@ -44,8 +44,7 @@ settings =
     {
         ["CoronaProvider.gameNetwork.apple"] =
         {
-            publisherId = "com.coronalabs",
-            supportedPlatforms = { iphone=true },
+            publisherId = "com.coronalabs"
         },
     },
 }
