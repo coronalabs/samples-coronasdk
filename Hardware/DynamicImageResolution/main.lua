@@ -1,38 +1,7 @@
--- Project: DynamicImageResolution
---
--- File name: main.lua
---
--- Author: Corona Labs
---
--- Abstract:	Tests multiple resolution mode using display.newRectImage
---
--- Demonstrates: 
---		display.newRectImage (with image resolution table defined in config.lua)
---
--- File dependencies: config.lua
---
--- Target devices: Simulator and devices
---
--- Limitations: 
---
--- Update History:
---	Sept 12, 2010	v1.0
---	Jan 21, 2016	v1.1	Updated to @15x and @2x; added screen size
---
--- Comments:
---
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
---
+-- Abstract: DynamicImageResolution
+-- Version: 1.2
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
-
--- The "newImageRect" function selects the best image for the resolution of the current device
--- and displays it at the specified size. 
--- In the example below, the specified image size is 200 x 200 in base content coordinates.
--- (The base content size is 320x480, defined in config.lua)
-
--- If no high-resolution alternates are found, the base image filename is used instead.
--- See the config.lua file for the "imageSuffix" naming table for alternate images.
 
 display.setStatusBar( display.HiddenStatusBar )
 
@@ -40,7 +9,10 @@ display.setStatusBar( display.HiddenStatusBar )
 -- RENDER THE SAMPLE CODE UI
 ------------------------------
 local sampleUI = require( "sampleUI.sampleUI" )
-sampleUI:newUI( { theme="whiteorange", title="Dynamic Image Resolution", showBuildNum=true } )
+sampleUI:newUI( { theme="whiteorange", title="Dynamic Image Resolution", showBuildNum=false } )
+
+-- The following property represents the bottom Y position of the sample title bar
+local titleBarBottom = sampleUI.titleBarBottom
 
 ------------------------------
 -- CONFIGURE STAGE
@@ -53,24 +25,24 @@ display.getCurrentStage():insert( sampleUI.frontGroup )
 -- BEGIN SAMPLE CODE
 ----------------------
 
+-- Set app font
+local appFont = sampleUI.appFont
+
 local contentSizeRect = display.newRect( mainGroup, display.contentCenterX, display.contentCenterY, display.contentWidth,
          display.contentHeight )
-contentSizeRect:setFillColor( 0.5, 0.5 )             -- regular content area
-contentSizeRect.x = display.contentCenterX
-contentSizeRect.y = display.contentCenterY
+contentSizeRect:setFillColor( 0.5, 0.6 )  -- Regular content area
 
-local function GetScreenParamsStr(portraitOrientation)
+
+local function getScreenParamsStr( portraitOrientation )
 	local separator = "\n" -- (portraitOrientation) and "\n" or " / "
 
-	local paramsStr = string.format( "display.contentWidth/Height: %4.0f x %4.0f ✪ display.actualContentWidth/Height: %4.0f x %4.0f%sdisplay.pixelWidth/Height: %4.0f x %4.0f ✪ Scale Factor (height): %2.2f ✪ display.imageSuffix: %s",
+	local paramsStr = string.format( "display.contentWidth/Height: %4.0f ×%4.0f\ndisplay.actualContentWidth/Height: %4.0f ×%4.0f%sdisplay.pixelWidth/Height: %4.0f × %4.0f\nScale Factor (height): %2.2f  •  display.imageSuffix: %s",
 		display.contentWidth, display.contentHeight,
 		display.actualContentWidth, display.actualContentHeight,
 		separator,
 		display.pixelWidth, display.pixelHeight,
 		(display.pixelHeight / display.actualContentHeight),
 		(display.imageSuffix == nil and "(none)" or display.imageSuffix))
-
-	print(paramsStr)
 
 	return paramsStr
 end
@@ -83,34 +55,36 @@ theImage.x = display.contentCenterX
 theImage.y = display.contentCenterY
 
 -- Create text message labels
-local descOptions = 
-{
+local descOptions = {
 	text = "",
 	parent = mainGroup,
-    x = width/2,
-    y = 60,
-    font = native.systemFont,   
-    fontSize = 12,
-    align = "center",
+	x = width/2,
+	y = 60,
+	font = appFont,
+	fontSize = 12,
+	align = "center",
 }
 local description = display.newText( descOptions )
-description.text = "View in different simulated devices\n(best resolution image is chosen automatically)\n\nGrey rectangle is content area"
-description:setFillColor(130/255, 159/255, 249/255)
+description.text = "View in different simulated devices\n(best resolution image is chosen automatically)\n\nGrey rectangle is Corona content area"
+description:setFillColor( 0 )
 
 local paramOptions = 
 {
-	text = GetScreenParamsStr(true),
+	text = getScreenParamsStr( true ),
 	parent = mainGroup,
-    font = native.systemFont,   
-    fontSize = 6,
+    font = appFont,
+    fontSize = 8,
     align = "center",
 }
 local params = display.newText( paramOptions )
-params:setFillColor(130/255, 159/255, 249/255)
+params.anchorY = 0
+params:setFillColor( 0 )
 
-local function onResizeChange( )
-	local isPortrait = (display.contentWidth < display.contentHeight)
-	local screenParamsStr = GetScreenParamsStr(isPortrait)
+
+local function onResizeChange()
+
+	local isPortrait = ( display.contentWidth < display.contentHeight )
+	local screenParamsStr = getScreenParamsStr( isPortrait )
 	params.text = screenParamsStr
 
 	contentSizeRect.x = display.contentCenterX
@@ -120,17 +94,21 @@ local function onResizeChange( )
 
 	description.x = display.contentCenterX
 	theImage.x = display.contentCenterX
-	theImage.y = display.contentCenterY
+
 	if isPortrait then
 		theImage.width = display.contentWidth - 2
 		theImage.height = theImage.width * 0.75
+		theImage.anchorY = 0.5
+		theImage.y = display.contentCenterY
 	else
-		theImage.height = display.contentHeight - 70
 		theImage.width = theImage.height * (4000/3000)
+		theImage.height = display.contentHeight - 100
+		theImage.anchorY = 0
+		theImage.y = titleBarBottom + 10
 	end
 
 	params.x = display.contentCenterX
-	params.y =  theImage.y + (theImage.height / 2) + (params.height / 2) + 10
+	params.y =  theImage.contentBounds.yMax + 10
 
 	description.isVisible = isPortrait
 end

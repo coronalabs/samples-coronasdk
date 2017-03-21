@@ -3,3 +3,6 @@ This sample exhibits the performance difference between pre-loading and caching 
 The performance difference is more apparent when this sample is built/deployed to an actual mobile device.
 
 Note that network connectivity is required to initially download the large image files.
+
+RELATED GUIDES
+[Texture Loading/Management](https://docs.coronalabs.com/guide/graphics/textureManagement.html)

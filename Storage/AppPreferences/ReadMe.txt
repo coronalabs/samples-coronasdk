@@ -5,3 +5,8 @@ The "Save" button will save the current widget settings to storage.
 The "Restore" button will load the last saved widget settings from storage.
 
 The "Reset" button will delete the app's preferences from storage and then reset the widgets back to their default settings.
+
+RELATED DOCUMENTATION
+[system.getPreference()](https://docs.coronalabs.com/api/library/system/getPreference.html)
+[system.setPreferences()](https://docs.coronalabs.com/api/library/system/setPreferences.html)
+[system.deletePreferences()](https://docs.coronalabs.com/api/library/system/deletePreferences.html)

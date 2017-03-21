@@ -169,10 +169,11 @@ function M:newUI( options )
 			height = 240,
 			horizontalScrollDisabled = true,
 			hideBackground = true,
+			hideScrollBar = true,
 			topPadding = 0,
 			bottomPadding = 0
 		}
-		scrollBounds:setIsLocked( true )
+		scrollBounds:setIsLocked( true, "vertical" )
 		scrollBounds.x, scrollBounds.y = display.contentCenterX, objPos["infoBoxOffY"]
 		frontGroup:insert( scrollBounds )
 
@@ -248,7 +249,7 @@ function M:newUI( options )
 			if infoBoxState == "opening" then
 				scrollBounds:insert( infoTextGroup )
 				infoTextGroup.x = 144 ; infoTextGroup.y = 120
-				scrollBounds:setIsLocked( false )
+				scrollBounds:setIsLocked( false, "vertical" )
 				scrollBounds.x, scrollBounds.y = display.contentCenterX, objPos["infoBoxDestY"]
 				infoBoxState = "canClose"
 				infoShowing = true
@@ -297,7 +298,7 @@ function M:newUI( options )
 					textGroupContainer:insert( infoTextGroup )
 					local scrollX, scrollY = scrollBounds:getContentPosition()
 					infoTextGroup.x = 0 ; infoTextGroup.y = scrollY
-					scrollBounds:setIsLocked( true )
+					scrollBounds:setIsLocked( true, "vertical" )
 					transition.cancel( "infoBox" )
 					transition.to( screenShade, { time=400, tag="infoBox", alpha=0, transition=easing.outQuad } )
 					transition.to( textGroupContainer, { time=400, tag="infoBox", xScale=0.96, yScale=0.96, transition=easing.outQuad } )
@@ -315,7 +316,7 @@ function M:newUI( options )
 	end
 
 	self.infoButton = infoButton
-	self.titleBarBottom = barContainer.contentBounds.yMax
+	self.titleBarBottom = topBarOver.y + topBarOver.contentHeight
 	backGroup:toBack() ; self.backGroup = backGroup
 	frontGroup:toFront() ; self.frontGroup = frontGroup
 	onResize()

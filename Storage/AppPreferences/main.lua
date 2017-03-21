@@ -30,9 +30,10 @@ display.getCurrentStage():insert( sampleUI.frontGroup )
 -- Load libraries/plugins
 local widget = require( "widget" )
 
-if system.getInfo("platform") == "android" then
+if system.getInfo( "platform" ) == "android" then
 	widget.setTheme( "widget_theme_android_holo_dark" )
 end
+
 
 -- Increments the number of time this app has been launched by 1 and saves to storage
 local function incrementAppLaunchCount()
@@ -50,10 +51,6 @@ end
 incrementAppLaunchCount()
 
 
---------------------------------------------------
--- "App Launch Count" Fields
---------------------------------------------------
-
 -- Display the app launch count header text
 local launchCountHeader = display.newText( sceneGroup, "App Launch Count:", 20, 40, sampleUI.appFont, 20 )
 launchCountHeader:setFillColor( 1, 0.7, 0.35 )
@@ -67,10 +64,7 @@ launchCountValueText.anchorX = 0
 launchCountValueText.anchorY = 0
 
 
---------------------------------------------------
 -- "Boolean" On/Off Switch Fields
---------------------------------------------------
-
 -- Set up the on/off switch's header text
 local onOffHeader = display.newText( sceneGroup, "Boolean:", 20, 90, sampleUI.appFont, 20 )
 onOffHeader:setFillColor( 1, 0.7, 0.35 )
@@ -96,10 +90,7 @@ local onOffSwitch = widget.newSwitch(
 sceneGroup:insert( onOffSwitch )
 
 
---------------------------------------------------
 -- "Number" Stepper Fields
---------------------------------------------------
-
 -- Set up the stepper's header text
 local stepperHeader = display.newText( sceneGroup, "Number:", 20, 140, sampleUI.appFont, 20 )
 stepperHeader:setFillColor( 1, 0.7, 0.35 )
@@ -126,10 +117,7 @@ local stepper = widget.newStepper(
 sceneGroup:insert( stepper )
 
 
---------------------------------------------------
 -- "String" Segmented Control Fields
---------------------------------------------------
-
 -- Set up the segmented control's header text
 local segmentedHeader = display.newText( sceneGroup, "String:", 20, 190, sampleUI.appFont, 20 )
 segmentedHeader:setFillColor( 1, 0.7, 0.35 )
@@ -164,9 +152,7 @@ local function selectSegementByName( name )
 end
 
 
---------------------------------------------------
--- App Preferences Functions
---------------------------------------------------
+-- App preferences functions
 
 -- Fetches preferences from storage and updates the screen's UI
 local function loadPreferences()
@@ -262,11 +248,7 @@ local function deletePreferences()
 end
 
 
---------------------------------------------------
 -- Save, Restore, and Reset Buttons
---------------------------------------------------
-
--- Set up a button used to save this app's current widget settings to local storage
 local saveButton = widget.newButton(
 {
 	left = 20,
@@ -283,8 +265,6 @@ local saveButton = widget.newButton(
 } )
 sceneGroup:insert( saveButton )
 
--- Set up a button used to load this app's preferences from local storage
--- and then update the UI with these loaded settings
 local restoreButton = widget.newButton(
 {
 	left = 116,
@@ -301,9 +281,6 @@ local restoreButton = widget.newButton(
 } )
 sceneGroup:insert( restoreButton )
 
-
--- Set up a reset button used to delete this app's preferences from storage
--- and reset its widgets back to their default values
 local resetButton = widget.newButton(
 {
 	left = 212,

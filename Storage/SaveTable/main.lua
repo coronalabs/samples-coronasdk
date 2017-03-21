@@ -93,7 +93,7 @@ end
 local function processData()
 
 	-- Show initial data
-	local yPos = 30
+	local yPos = 60
 	local textHeader1 = display.newText( sceneGroup, "Data before saving", 25, yPos-12, sampleUI.appFont, 20 )
 	textHeader1:setFillColor( 1, 0.7, 0.35 )
 	for k,v in pairs( dataTable ) do

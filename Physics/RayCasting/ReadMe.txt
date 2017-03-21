@@ -1,7 +1,5 @@
-This sample project exhibits physics ray casting and reflection. Both the physics.rayCast() and physics.reflectRay() functions are utilized, such that the laser beam reflects off all physical surfaces until there are no more rays to cast.
+This sample project exhibits physics ray casting. Ray reflection is also utilized, such that the laser beam reflects off all physical surfaces until there are no more rays to cast.
 
-CREDITS/ASSETS
-
-Laser sound:
-ani_music
-www.freesound.org/people/ani_music
+RELATED DOCUMENTATION
+[physics.rayCast()](https://docs.coronalabs.com/api/library/physics/rayCast.html)
+[physics.reflectRay()](https://docs.coronalabs.com/api/library/physics/reflectRay.html)
