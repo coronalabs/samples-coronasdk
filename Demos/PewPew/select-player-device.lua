@@ -1,7 +1,6 @@
 
 local composer = require( "composer" )
 local widget = require( "widget" )
-widget.setTheme( "widget_theme_android_holo_light" )
 
 local scene = composer.newScene()
 

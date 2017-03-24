@@ -1,7 +1,6 @@
 
 local composer = require( "composer" )
 local widget = require( "widget" )
-widget.setTheme( "widget_theme_android_holo_light" )
 
 local generateCharacter = require( "character" )
 local particleDesigner = require( "particleDesigner" )
