@@ -400,8 +400,8 @@ function scene:create( event )
 	-- Create a background image
 	local background = display.newRect( sceneGroup, display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentWidth )
 	background.fill = { type="image", filename="tile.png" }
-	background.fill.scaleX = 496/display.actualContentWidth/2
-	background.fill.scaleY = 496/display.actualContentWidth/2
+	background.fill.scaleX = 256/display.actualContentWidth/2
+	background.fill.scaleY = 256/display.actualContentWidth/2
 
 	-- Restore defaults
 	local textureWrapDefault = "clampToEdge"
