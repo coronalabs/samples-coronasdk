@@ -1,5 +1,5 @@
 
--- Version: 1.2
+-- Version: 1.25
 ---------------------------------------------------------------------------------------
 
 local widget = require( "widget" )
@@ -34,10 +34,6 @@ function M:newUI( options )
 	if readMeFilePath then
 		local readMeFile = io.open( readMeFilePath )
 		local rt = readMeFile:read( "*a" )
-		--local function trimString( s )
-		--	return string.match( s, "^()%s*$" ) and "" or string.match( s, "^%s*(.*%S)" )
-		--end
-		--rt = trimString( rt )
 		if string.len( rt ) > 0 then readMeText = rt end
 		io.close( readMeFile ) ; readMeFile = nil ; rt = nil
 	end
@@ -50,7 +46,6 @@ function M:newUI( options )
 	topBarBack.anchorX = 0
 	topBarBack.anchorY = 0
 	topBarBack:setFillColor( 0,0,0,0.2 )
---	topBarBack:toBack()
 	local topBarOver = display.newRect( barContainer, 0, 0, barContainer.contentWidth, barContainer.contentHeight - 2 )
 	topBarOver.anchorX = 0
 	topBarOver.anchorY = 0
@@ -316,7 +311,7 @@ function M:newUI( options )
 	end
 
 	self.infoButton = infoButton
-	self.titleBarBottom = topBarOver.y + topBarOver.contentHeight
+	self.titleBarBottom = barContainer.y + barContainer.contentHeight - 2
 	backGroup:toBack() ; self.backGroup = backGroup
 	frontGroup:toFront() ; self.frontGroup = frontGroup
 	onResize()
