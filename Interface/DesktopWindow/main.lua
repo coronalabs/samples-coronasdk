@@ -19,8 +19,8 @@ widget.setTheme("widget_theme_android_holo_dark")
 -- Determine if this app is running in a desktop window.
 local isRunningOnDesktop = false
 if (system.getInfo("environment") == "device") then
-	local platformName = system.getInfo("platformName")
-	if (platformName == "Win") or (platformName == "Mac OS X") then
+	local platform = system.getInfo("platform")
+	if (platform == "win32") or (platform == "macos") then
 		isRunningOnDesktop = true
 	end
 end
@@ -168,7 +168,7 @@ if (false == isRunningOnDesktop) then
 	local message =
 			"This app's desktop features are not supported on mobile devices or in the Corona Simulator.\n" ..
 			"\n" ..
-			"Please build this app for OS X or Win32 to test it."
+			"Please build this app for macOS or Win32 to test it."
 	display.newText(
 			message, display.contentCenterX, display.contentCenterY, display.contentWidth * 0.8, 0,
 			native.systemFont, 16)

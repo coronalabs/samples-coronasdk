@@ -13,7 +13,7 @@ settings =
 		},
 	},
 
-	-- This table configures the desktop window for OS X and Win32 apps.
+	-- This table configures the desktop window for macOS and Win32 apps.
 	window =
 	{
 		-- Sets up how the window should be launched on startup. (Default is "normal".)
@@ -63,10 +63,6 @@ settings =
 	-- This makes the build exclude files from the app's "system.ResourceDirectory".
 	excludeFiles =
 	{
-		all = { "*.ico", "*.icns" },
-		android = { "Icon*.png", "LaunchScreen.storyboardc", },
-		iphone = { "Icon*dpi.png" },
-		osx = { "Icon*.png", "LaunchScreen.storyboardc", },
-		win32 = { "Icon*.png", "LaunchScreen.storyboardc", },
+		all = { "*.ico", "*.icns", "Icon.png", },
 	},
 }

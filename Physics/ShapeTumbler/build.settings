@@ -7,65 +7,29 @@ settings =
 {
 	orientation =
 	{
+		-- Supported values for orientation:
+		-- portrait, portraitUpsideDown, landscapeLeft, landscapeRight
 		default = "landscapeRight",
 		supported = { "landscapeRight" }
 	},
 
 	iphone =
 	{
+		xcassets = "Images.xcassets",
 		plist =
 		{
 			UILaunchStoryboardName = "LaunchScreen",
-			CFBundleIconFiles =
-			{
-				"Icon-40.png",
-				"Icon-58.png",
-				"Icon-76.png",
-				"Icon-80.png",
-				"Icon-87.png",
-				"Icon-120.png",
-				"Icon-152.png",
-				"Icon-167.png",
-				"Icon-180.png",
-			},
+			ITSAppUsesNonExemptEncryption = false, -- This sample doesn't use custom encryption
 		},
 	},
 
 	tvos =
 	{
-		-- tvOS app icons require multiple layers, and you must provide both a small and a large size
-		icon =
+		xcassets = "Images.xcassets",
+		plist =
 		{
-			-- A collection of 400x240 pngs, in order of top to bottom
-			small =
-			{
-				"Icon-tvOS-Small-LogoA.png",
-				"Icon-tvOS-Small-LogoB.png",
-				"Icon-tvOS-Small-Background.png",
-			},
-			-- A collection of 1280x768 pngs, in order of top to bottom
-			large =
-			{
-				"Icon-tvOS-Large-LogoA.png",
-				"Icon-tvOS-Large-LogoB.png",
-				"Icon-tvOS-Large-Background.png",
-			}
+			ITSAppUsesNonExemptEncryption = false, -- This sample doesn't use custom encryption
 		},
-
-		-- A 1920x720 image file, displayed when your app is on the "top shelf"
-        topShelfImage = "Icon-tvOS-TopShelf.png",
-
-        -- A 2320x720 image file, displayed when your app is on the "top shelf" of a widescreen TV
-        topShelfImageWide = "Icon-tvOS-TopShelfWide.png",
-
-		-- A 1920x1080 png file, displayed briefly as your app loads
-		launchImage = "Icon-tvOS-Launch.png",
-	},
-
-	excludeFiles =
-	{
-        ios = { "Icon-tvOS*.png", "Icon.png", "Icon-*dpi.png", },
-        android = { "Icon-tvOS*.png", "Icon.png", "Icon-??.png", "Icon-???.png", "LaunchScreen.storyboardc", },
 	},
 
 	window =

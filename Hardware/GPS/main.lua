@@ -1,152 +1,123 @@
---
--- Project: GPS
---
--- File name: main.lua
---
--- Author: Corona Labs
---
--- Abstract: GPS sample app, showing available location event properties
---
--- Demonstrates: locations events, buttons, touch
---
--- File dependencies:
---
--- Target devices: iPhone 3GS or newer for GPS data.
---
--- Limitations: Location events not supported on Simulator
---
--- Update History:
---	v1.2	8/19/10		Added Simulator warning message
---	v1.3	11/28/11	Added test for Location error & alert box
---	v1.4	7/13/15		Changed check from Simulator to system.hasEventSource( )
---	v1.5	11/17/16	Added system.canOpenURL( ) check	
---
--- Comments: 
--- This example shows you how to access the various properties of the "location" events, which
--- are returned by the GPS listener. Devices without GPS will have less accurate location data
---
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010-2016 Corona Labs Inc. All Rights Reserved.
---
--- Supports Graphics 2.0
+
+-- Abstract: GPS
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
-
--- Require the widget library
-local widget = require( "widget" )
-
-local currentLatitude = 0
-local currentLongitude = 0
 
 display.setStatusBar( display.HiddenStatusBar )
 
-display.setDefault( "anchorX", 0.0 )	-- default to Left anchor point
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="GPS", showBuildNum=false } )
 
-local background = display.newImage("gps_background.png")
-background.anchorY = 0.0		-- Top anchor
-local latitude = display.newText( "--", 0, 0, native.systemFont, 26 )
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
 
-latitude.anchorX = 0
-latitude.x, latitude.y = 135, 64
-latitude:setFillColor( 1, 85/255, 85/255 )
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
 
-local longitude = display.newText( "--", 0, 0, native.systemFont, 26 )
-longitude.x, longitude.y = 135, latitude.y + 50
-longitude:setFillColor( 1, 85/255, 85/255 )
+-- Require libraries/plugins
+local widget = require( "widget" )
 
-local altitude = display.newText( "--", 0, 0, native.systemFont, 26 )
-altitude.x, altitude.y = 135, longitude.y + 50
-altitude:setFillColor( 1, 85/255, 85/255 )
+-- Set app font
+local appFont = sampleUI.appFont
 
-local accuracy = display.newText( "--", 0, 0, native.systemFont, 26 )
-accuracy.x, accuracy.y = 135, altitude.y + 50
-accuracy:setFillColor( 1, 85/255, 85/255 )
+-- Local variables and forward references
+local currentLatitude = 0
+local currentLongitude = 0
 
-local speed = display.newText( "--", 0, 0, native.systemFont, 26 )
-speed.x, speed.y = 135, accuracy.y + 50
-speed:setFillColor( 1, 85/255, 85/255 )
+-- Create data labels
+display.setDefault( "anchorX", 1.0 )
+local yStart = math.max( sampleUI.titleBarBottom+30, 40 )
+local latitudeLabel = display.newText( mainGroup, "Latitude", 120, yStart, appFont, 19 )
+local longitudeLabel = display.newText( mainGroup, "Longitude", 120, latitudeLabel.y+50, appFont, 19 )
+local altitudeLabel = display.newText( mainGroup, "Altitude", 120, longitudeLabel.y+50, appFont, 19 )
+local accuracyLabel = display.newText( mainGroup, "Accuracy", 120, altitudeLabel.y+50, appFont, 19 )
+local speedLabel = display.newText( mainGroup, "Speed", 120, accuracyLabel.y+50, appFont, 19 )
+local directionLabel = display.newText( mainGroup, "Direction", 120, speedLabel.y+50, appFont, 19 )
+local timeLabel = display.newText( mainGroup, "Time", 120, directionLabel.y+50, appFont, 19 )
 
-local direction = display.newText( "--", 0, 0, native.systemFont, 26 )
-direction.x, direction.y = 135, speed.y + 50
-direction:setFillColor( 1, 85/255, 85/255 )
+-- Create data values
+display.setDefault( "anchorX", 0.0 )
+display.setDefault( "fillColor", 1, 0.3, 0.3 )
+local latitude = display.newText( mainGroup, "?", 140, latitudeLabel.y, appFont, 19 )
+local longitude = display.newText( mainGroup, "?", 140, longitudeLabel.y, appFont, 19 )
+local altitude = display.newText( mainGroup, "?", 140, altitudeLabel.y, appFont, 19 )
+local accuracy = display.newText( mainGroup, "?", 140, accuracyLabel.y, appFont, 19 )
+local speed = display.newText( mainGroup, "?", 140, speedLabel.y, appFont, 19 )
+local direction = display.newText( mainGroup, "?", 140, directionLabel.y, appFont, 19 )
+local time = display.newText( mainGroup, "?", 140, timeLabel.y, appFont, 19 )
 
-local time = display.newText( "--", 0, 0, native.systemFont, 26 )
-time.x, time.y = 135, direction.y + 50
-time:setFillColor( 1, 85/255, 85/255 )
+-- Reset default values
+display.setDefault( "anchorX", 0.5 )
+display.setDefault( "fillColor", 1, 1, 1 )
 
-display.setDefault( "anchorX", 0.5 )	-- default to Center anchor point
+-- Button event handler
+local buttonOnRelease = function( event )
 
-local buttonPress = function( event )
-	-- Show location on map
-	mapURL = "https://maps.google.com/maps?q=Hello,+Corona!@" .. currentLatitude .. "," .. currentLongitude
+	local mapURL = "https://maps.google.com/maps?q=Hello,+Corona!@" .. currentLatitude .. "," .. currentLongitude
 	if system.canOpenURL( mapURL ) then
+		-- Show location on map
 		system.openURL( mapURL )
 	else
 		native.showAlert( "Alert", "No browser found to show location on map!", { "OK" } )
 	end
 end
 
-local button1 = widget.newButton
-{
-	defaultFile = "buttonRust.png",
-	overFile = "buttonRustOver.png",
-	label = "Show on Map",
-	labelColor = 
-	{ 
-		default = { 200/255, 200/255, 200/255, 1}, 
-		over = { 200/255, 200/255, 200/255, 128/255 } 
-	},
-	font = native.systemFontBold,
-	fontSize = 22,
-	emboss = true,
-	onPress = buttonPress,
-}
-button1.x, button1.y = 160, 422
+-- Map button
+local showMapButton = widget.newButton(
+	{
+		label = "Show on Map",
+		shape = "rectangle",
+		x = display.contentCenterX,
+		y = timeLabel.y+60,
+		width = 278,
+		height = 32,
+		font = appFont,
+		fontSize = 15,
+		fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.132,0.352,0.572,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
+		onRelease = buttonOnRelease
+	})
+mainGroup:insert( showMapButton )
 
+-- Location event listener function
 local locationHandler = function( event )
 
-	-- Check for error (user may have turned off Location Services)
+	-- Check for error (user may have turned off location services)
 	if event.errorCode then
-		native.showAlert( "GPS Location Error", event.errorMessage, {"OK"} )
-		print( "Location error: " .. tostring( event.errorMessage ) )
+		native.showAlert( "GPS Location Error", event.errorMessage, { "OK" } )
+
+	-- If location events are enabled, update text values
 	else
-	
-		local latitudeText = string.format( '%.4f', event.latitude )
-		currentLatitude = latitudeText
-		latitude.text = latitudeText
-		
-		local longitudeText = string.format( '%.4f', event.longitude )
-		currentLongitude = longitudeText
-		longitude.text = longitudeText
-		
-		local altitudeText = string.format( '%.3f', event.altitude )
-		altitude.text = altitudeText
-	
-		local accuracyText = string.format( '%.3f', event.accuracy )
-		accuracy.text = accuracyText
-		
-		local speedText = string.format( '%.3f', event.speed )
-		speed.text = speedText
-	
-		local directionText = string.format( '%.3f', event.direction )
-		direction.text = directionText
-	
-		-- Note: event.time is a Unix-style timestamp, expressed in seconds since Jan. 1, 1970
-		local timeText = string.format( '%.0f', event.time )
-		time.text = timeText 
-		
+		currentLatitude = event.latitude
+		latitude.text = string.format( "%.4f", event.latitude )
+		currentLongitude = event.longitude
+		longitude.text = string.format( "%.4f", event.longitude )
+		altitude.text = string.format( "%.3f", event.altitude )
+		accuracy.text = string.format( "%.3f", event.accuracy )
+		speed.text = string.format( "%.3f", event.speed )
+		direction.text = string.format( "%.3f", event.direction )
+		time.text = string.format( "%.0f", event.time )
 	end
 end
 
-		
---
--- Check if this platform supports location events
---
-if not system.hasEventSource( "location" ) then
-	msg = display.newText( "Location events not supported on this device", 0, 230, native.systemFontBold, 13 )
-	msg.x = display.contentWidth/2		-- center title
-	msg:setFillColor( 1,1,1 )
+-- Detect if platform supports location events
+if system.hasEventSource( "location" ) then
+
+	-- Activate location listener
+	Runtime:addEventListener( "location", locationHandler )
+else
+	local shade = display.newRect( mainGroup, display.contentCenterX, display.contentHeight-display.screenOriginY-18, display.actualContentWidth, 36 )
+	shade:setFillColor( 0, 0, 0, 0.7 )
+
+	local msg = display.newText( mainGroup, "Location events not supported on this platform", display.contentCenterX, shade.y, appFont, 13 )
+	msg:setFillColor( 1, 0, 0.2 )
 end
-
--- Activate location listener
-Runtime:addEventListener( "location", locationHandler )
-

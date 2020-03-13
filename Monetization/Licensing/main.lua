@@ -1,78 +1,127 @@
--- Abstract: Store Licensing sample project
---
--- Version: 1.0
--- 
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
---
--- This sample app will not work correctly unless it is built and uploaded to the google play store, although you don't have to publish it.
--- You also have to put in your own key into the config.lua file.
--- It might take the play store a few hours to register your uploaded app.  During this time you will get a "Not market managed" error.
---
--- History
---
---	Supports Graphics 2.0
+
+-- Abstract: Licensing
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
 
+display.setStatusBar( display.HiddenStatusBar )
+
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Licensing (Android)", showBuildNum=false } )
+
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
+
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
+
+-- Require libraries/plugins
 local widget = require( "widget" )
+widget.setTheme( "widget_theme_android_holo_light" )
+local licensing = require( "licensing" )
 
-display.setDefault( "background", 100/255 )
+-- Set local variables
+local setupComplete = false
 
-local response = display.newText( "Waiting for verification...", display.contentCenterX, 70, native.systemFont, 18)
+-- Set app font
+local appFont = sampleUI.appFont
 
--- Load Corona 'licensing' library
-local licensing = require "licensing"
+-- Create spinner widget for indicating ad status
+local spinner = widget.newSpinner( { x=display.contentCenterX, y=display.contentCenterY, deltaAngle=10, incrementEvery=10 } )
+mainGroup:insert( spinner )
+spinner.alpha = 0
 
--- The name of the licensing provider.
-local provider = "google"
-local store = require("store")
-if store.target == provider then
-   licensing.init( provider )
-end
--- Initializes the licensing module for this particular provider.
-
-local t = {}
-function t:licensing( event )
-	--Prints the name of this event, "licensing".
-	print(event.name)
-	--Prints the name of the provider for this licensing instance, "google"
-	print(event.provider)
-	--Prints true if it has been verified else it prints false.
-	print(event.isVerified)
-	--Prints true if there was an error during verification else it will return nil.  Errors can be anything from configuration errors to network errors.
-	print(event.isError)
-	--Prints the type of error, "configuration" or "network".  If there was no error then this will return nil.
-	print(event.errorType)
-	--Prints a translated response from the licensing server.
-	print(event.response)
-	--Prints the expiration time of the expiration time of the cached license.
-	print(event.expiration)
-
-	local verifiedText = "NOT verified :("
-	if event.isVerified then
-		verifiedText = "Verified! :)"
-	end
-	response.text = verifiedText
-end
-
---Once the button is pressed, the license will try to verify
-local buttonHandler = function ( event )
-	-- If the target store isn't for this provider then the verify will not call the listener.
-	if store.target == provider and event.phase == "ended" then
-	   licensing.verify( t )
+-- Function to manage spinner appearance/animation
+local function manageSpinner( action )
+	if ( action == "show" ) then
+		spinner:start()
+		transition.cancel( "spinner" )
+		transition.to( spinner, { alpha=1, tag="spinner", time=((1-spinner.alpha)*320), transition=easing.outQuad } )
+	elseif ( action == "hide" ) then
+		transition.cancel( "spinner" )
+		transition.to( spinner, { alpha=0, tag="spinner", time=((1-(1-spinner.alpha))*320), transition=easing.outQuad,
+			onComplete=function() spinner:stop(); end } )
 	end
 end
 
+-- Licensing listener
+local licensingListener = {}
+function licensingListener:licensing( event )
 
-local verifyButton = widget.newButton
+	if not ( event.isVerified ) then
+		-- Failed to verify app from the Google Play store
+		local errorMsg = ""
+		if ( event.isError == true and event.response ) then
+			errorMsg = event.response
+		end
+		local alert = native.showAlert( "Licensing Error", "Application could not be verified!" .. errorMsg, { "OK" } )
+	else
+		-- License verified!
+		local alert = native.showAlert( "Licensing Success", "Application verified!", { "OK" } )
+	end
+	manageSpinner( "hide" )
+end
+
+-- Button handler
+local function buttonHandler( event )
+	licensing.verify( licensingListener )
+	manageSpinner( "show" )
+end
+
+-- Button to verify license
+local verifyButton = widget.newButton(
 {
-	top = 20,
-	id = "verifyButton",
-	label = "Verify",
-	labelColor = 
-	{ 
-		default = { 51/255, 51/255, 51/255 },
-	},
-	fontSize = 22,
-	onEvent = buttonHandler,
-}
+	label = "Verify License",
+	x = display.contentCenterX,
+	y = display.contentHeight-120,
+	shape = "rectangle",
+	width = 200,
+	height = 32,
+	font = appFont,
+	fontSize = 15,
+	fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.132,0.352,0.572,1 } },
+	labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
+	onRelease = buttonHandler
+})
+mainGroup:insert( verifyButton )
+verifyButton:setEnabled( false )
+verifyButton.alpha = 0.3
+
+-- Detect if licensing is supported (Android only)
+if not ( system.getInfo("platform") == "android" ) then
+	local shade = display.newRect( mainGroup, display.contentCenterX, display.contentHeight-display.screenOriginY-18, display.actualContentWidth, 36 )
+	shade:setFillColor( 0, 0, 0, 0.7 )
+	local msg = display.newText( mainGroup, "Licensing is not supported on this platform", display.contentCenterX, shade.y, appFont, 13 )
+	msg:setFillColor( 1, 0, 0.2 )
+else
+	-- Check if license key is specified
+	local config = require( "config" )
+	local json = require( "json" )
+	local keyCheck = string.find( json.encode(application), '{"google":{"key":"YOUR_LICENSE_KEY"' )
+	if keyCheck then
+		local alert = native.showAlert( "Important", 'Confirm that you have specified your unique Google license key within "config.lua" on line 23. This must be a Base64-encoded RSA public key from the "Services & APIs" section of the Google Play Developer Console.', { "OK", "documentation" },
+			function( event )
+				if ( event.action == "clicked" and event.index == 2 ) then
+					system.openURL( "https://docs.coronalabs.com/api/library/licensing/index.html" )
+				end
+			end )
+	else
+		if ( system.getInfo("targetAppStore") == "google" ) then
+			licensing.init( "google" )
+			setupComplete = true
+		end
+	end
+end
+
+if ( setupComplete == true ) then
+	verifyButton:setEnabled( true )
+	verifyButton.alpha = 1
+end

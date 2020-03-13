@@ -1,548 +1,285 @@
--- Project: NativeDisplayObjects
---
--- File name: main.lua
---
--- Code type: Sample code
---
--- Author: Corona Labs
---
--- Demonstrates:
---	Native Display Objects
---		native.newTextField
---		native.newTextBox
---		native.showAlert
---		native.setActivityIndicator
---		native.showWebPopup
---
---	Using UI library for buttons and labels
---	System orientation events
---	Display changes between portrait and landscape modes
---
--- File dependencies:
---
--- Target devices: Devices, Simulator (limited features on Windows)
---
--- Limitations: No native text display or text input on Windows simulator.
---
--- Update History:
---	v1.1	Android: added warning that ActivityIndicator not supported
---			Android: Submit button (webpoup) not supported
---
---  v1.2	Increased native.textField height when running on Android device
---			Removed texthandler parameter from native.textBox (not used)
---
---  v1.3	Android: Added ActivityIndicator support.
---
---  v1.4    11/30/10	Modified project to work properly on Mac OS X simulator, since
--- 			support for native display objects has been added.
---
---	v1.5	11/29/11	TextBox can now be edited.
---	v1.6	19/7/12		Updated with new textfield listener type.
---  v1.7	11/4/2013	Added "Dismiss KB" button for Textbox
---  v1.8	12/10/2014	Updated to support auto-sizing of text fields.
---  v1.9	08/12/2015  Added TextField and TextBox support on Windows.
---  v1.10	12/20/2016  Added WebPopup support on Windows.
---
--- Comments: 
---		The program detects it running in the Corona simulator and changes the
---		native.newTextField and native.newTextBox to display.newRect to simulate
---		the location and properties of the native text objects.
---
--- TO-DO
--- o Add WebPopUp object (using local HTML file)
---
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
---
--- Supports Graphics 2.0
+
+-- Abstract: NativeDisplayObjects
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
 
--- Require the widget library
-local widget = require( "widget" );
+display.setStatusBar( display.HiddenStatusBar )
 
-display.setStatusBar( display.HiddenStatusBar )		-- hide status bar
-
---------------------------------
--- Code Execution Start Here
---------------------------------
-
-local isPortrait = true			-- assume we are in Portrait screen mode
-
-local textMode = false			-- true when text keyboard is present
-local kDimBtn = 0.6				-- Button dim value (when disabled)
-
--- forward references
-local screenCenter
-local clrKbButton
-local txtFieldButton
-local txtBoxButton
-local webPopButton
-
-local background = display.newImage("wood_bg.jpg", display.contentCenterX, display.contentCenterY )		-- Load background image
-
-		
--------------------------------------------
--- *** Create Labels ***
--------------------------------------------
-
--- Title
---
-
-local titleLabel = display.newText( "Native Display Objects", 0, 0, native.systemFontBold, 24 )
-titleLabel.anchorY = 0
---titleLabel:setReferencePoint(display.TopCenterReferencePoint)
-titleLabel.x, titleLabel.y = display.contentCenterX, 5
-titleLabel:setFillColor( 240/255, 240/255, 90/255 )
-
--- Orientation
---
--- Display current orientation using "system.orientation"
--- (default orientation is determined in build.settings file)
---
-
-local orientationLabel = display.newText( "Orientation: " .. system.orientation, 0, 0, native.systemFontBold, 16 )
-orientationLabel.anchorY = 0
---orientationLabel:setReferencePoint(display.TopCenterReferencePoint)
-orientationLabel.x, orientationLabel.y = display.contentCenterX, 40
-
--- Keyboard Label
---
-
-local keyboardLabel = display.newText( "Click text field (above) to enter text", 0, 0, native.systemFontBold, 16 )
-keyboardLabel.anchorY = 0
---keyboardLabel:setReferencePoint(display.TopCenterReferencePoint)
-keyboardLabel.x, keyboardLabel.y = display.contentCenterX, 120
-keyboardLabel.isVisible = false
-
--------------------------------------------
---  *** Button Press Routines ***
--------------------------------------------
-
-local function exitTextMode()
-	native.setKeyboardFocus( nil )    -- remove keyboard
-	clrKbButton.isVisible = false     -- hide Dismiss KB button
-	textMode = false                  -- exit text mode
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local darkMode = system.getInfo("darkMode")
+local theme = "darkgrey"
+if darkMode then
+	theme = "mediumgrey"
 end
 
--- Handle the textField keyboard input
---
-local function fieldHandler( event )
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme = theme, title = "Native Display Objects", showBuildNum = false } )
 
-	if ( "began" == event.phase ) then
-		-- This is the "keyboard has appeared" event
-		-- In some cases you may want to adjust the interface when the keyboard appears.
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
 
-		-- Show Dismiss Keyboard button if in portrait mode
-		if isPortrait then
-			clrKbButton.isVisible = true
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
+
+-- Require libraries/plugins
+local widget = require( "widget" )
+
+-- Set app font
+local appFont = sampleUI.appFont
+
+-- Local variables and forward references
+local labelGroup = display.newGroup() ; mainGroup:insert( labelGroup )
+local mapLocationAttempts = 0
+local currentObject = ""
+local textField
+local textBox
+local mapView
+local webView
+
+-- Create invisible background element for hiding the keyboard (when applicable)
+local backRect = display.newRect( mainGroup, display.contentCenterX, display.contentCenterY, 1000, 1000 )
+backRect.isVisible = false
+backRect.isHitTestable = true
+
+local objectLabel = display.newText( mainGroup, "", display.contentCenterX, display.screenOriginY+54, appFont, 17 )
+objectLabel:setFillColor( 1, 0.4, 0.25 )
+
+-- Cleanup function
+local function cleanUp( event )
+
+	-- Remove existing labels
+	for i = labelGroup.numChildren,1,-1 do
+		display.remove( labelGroup[i] )
+		labelGroup[i] = nil
+	end
+	objectLabel.text = ""
+	currentObject = ""
+
+	-- Remove existing native objects
+	if ( textField ) then
+		display.remove( textField )
+		textField = nil
+	elseif ( textBox ) then
+		display.remove( textBox )
+		textBox = nil
+	elseif ( mapView ) then
+		display.remove( mapView )
+		mapView = nil
+	elseif ( webView ) then
+		display.remove( webView )
+		webView = nil
+	end
+end
+
+local function closeKeyboard()
+	if ( sampleUI:isInfoShowing() == true ) then return end
+	backRect:removeEventListener( "touch", closeKeyboard )
+	native.setKeyboardFocus( nil )
+	if ( textBox and textBox.tip ) then
+		transition.to( textBox.tip, { time=250, alpha=0, transition=easing.outQuad } )
+	end
+	return true
+end
+
+local function closeMap( event )
+	if ( sampleUI:isInfoShowing() == true ) then return end
+	if ( mapView and event.y > mapView.y-(mapView.height/2) ) then return end
+	if ( event.phase == "began" ) then
+		backRect:removeEventListener( "touch", closeMap )
+		cleanUp()
+	end
+	return true
+end
+
+local function closeWebView( event )
+	if ( sampleUI:isInfoShowing() == true ) then return end
+	if ( webView and event.y > webView.y-(webView.height/2) ) then return end
+	if ( event.phase == "began" ) then
+		backRect:removeEventListener( "touch", closeWebView )
+		cleanUp()
+	end
+	return true
+end
+
+-- Input handler for text field/box
+local function inputListener( event )
+
+	if ( event.phase == "began" ) then
+		if ( textBox and textBox.tip and system.getInfo("environment") ~= "simulator" ) then
+			transition.to( textBox.tip, { time=250, alpha=1, transition=easing.outQuad } )
 		end
-		
-		textMode = true
-	
-	elseif ( "ended" == event.phase ) then
-		-- This event is called when the user stops editing a field: for example, when they touch a different field
-	
-	elseif ( "submitted" == event.phase ) then
-		-- This event occurs when the user presses the "return" key (if available) on the onscreen keyboard
-		exitTextMode()
+		backRect:addEventListener( "touch", closeKeyboard )
+	elseif ( event.phase == "ended" or event.phase == "submitted" ) then
+		closeKeyboard()
 	end
-
 end
 
+-- Location handler for map view
+local function locationHandler( event )
 
--- textField Button Pressed
---
--- Display a one line text box and accept keyboard input
---
-local textFieldButtonPress = function( event )
-	
-	if textField then
-		textField:removeSelf()
-		textField = nil				-- set to nil so we recreate it next time
-		exitTextMode()
-		txtBoxButton.alpha = 1.0			-- Restore the other text object button
-		keyboardLabel.isVisible = false		-- hide our text
+	if ( mapView == nil ) then return end
+	local currentLocation = mapView:getUserLocation()
+
+	if ( currentLocation.errorCode or ( currentLocation.latitude == 0 and currentLocation.longitude == 0 ) ) then
+		-- Location may not be returned on first attempt, so continue querying every 500 milliseconds
+		mapLocationAttempts = mapLocationAttempts + 1
+		if ( mapLocationAttempts > 10 ) then
+			native.showAlert( "Location Error", currentLocation.errorMessage, { "OK" } )
+		else
+			timer.performWithDelay( 500, locationHandler )
+		end
 	else
-		-- Only allow one text object at a time
-		if textBox then return end	-- return if other object active
-		
-		-- Create Native Text Field
-		textField = native.newTextField( 15, 80, 280, 30 )
-		textField:addEventListener( "userInput", fieldHandler )
---		textField.anchorX = 0
-		textField.anchorY = 0		
-		textField.isVisible = false
---		textField:setReferencePoint(display.TopCenterReferencePoint)
-		textField.x = screenCenter
-		textField.isVisible = true
-		
-		txtBoxButton.alpha = kDimBtn		-- Dim the other text object button
-		keyboardLabel.isVisible = true		-- display our text
+		-- Center map at current latitude and longitude
+		mapView:setCenter( currentLocation.latitude, currentLocation.longitude )
 	end
-
 end
 
--- textBox Button Pressed
---
--- Display text box with preloaded text
---
-local textBoxButtonPress = function( event )
+-- Button handler function
+local function onButtonRelease( event )
 
-	if textBox then
-		textBox:removeSelf()
-		textBox = nil				-- set to nil so we recreate it next time
-		exitTextMode()
-		txtFieldButton.alpha = 1.0			-- Restore the other text object button
-	else
-		-- Only allow one text object at a time
-		if textField then return end	-- return if other object active
-		
-		-- Create Native Text Box
-		textBox = native.newTextBox( 15, 70, 280, 70 )
-		textBox:addEventListener( "userInput", fieldHandler )
---		textBox.anchorX = 0
-		textBox.anchorY = 0	
-		textBox.text = "This is information placed into the Text Box all on one line.\nThis is text forced to a new line.\nYou can now edit this box."
---		textBox:setReferencePoint(display.TopCenterReferencePoint)
-		textBox.x = screenCenter
-		textBox.size = 16
+	local buttonID = event.target.id
+
+	if ( event.target.id == currentObject or mapView ~= nil ) then return end
+	-- Remove existing objects before creating new ones
+	cleanUp()
+
+	if ( buttonID == "Text Field" ) then
+		-- Create native text field
+		textField = native.newTextField( display.contentCenterX, objectLabel.y+40, 260, 30 )
+		textField.font = native.newFont( appFont )
+		textField:resizeFontToFitHeight()
+		textField:setReturnKey( "done" )
+		textField.placeholder = "Enter text"
+		textField:addEventListener( "userInput", inputListener )
+		native.setKeyboardFocus( textField )
+		objectLabel.text = "Text Field"
+
+	elseif ( buttonID == "Text Box" ) then
+		-- Create native text box
+		textBox = native.newTextBox( display.contentCenterX, objectLabel.y+65, 260, 80 )
+		textBox.font = native.newFont( appFont, 17 )
 		textBox.isEditable = true
-		txtFieldButton.alpha = kDimBtn	-- Dim the other text object button
+		textBox.placeholder = "Enter your text"
+		textBox:addEventListener( "userInput", inputListener )
+		objectLabel.text = "Text Box"
+		textBox.tip = display.newText( labelGroup, "(touch outside box to close keyboard)", display.contentCenterX, textBox.y+60, appFont, 14 )
+		textBox.tip:setFillColor( 0.6 )
+		textBox.tip.alpha = 0
 
-	end
-
-end
-
--- Dismiss Keyboard Button Pressed
---
-local clrKbButtonPress = function( event )
-	exitTextMode()
-end
-
--- Alert Button Pressed
---
-local alertButtonPress = function( event )
-	-- Create Native Alert Box
-	local alertBox = native.showAlert( "My Alert Box",
-			"Your message goes here ©Corona Labs",
-			{"OK", "Cancel"} )
-end
-
-
--- Activity Indicator Button Pressed
---
--- Display for 1 second
-local activityButton = function( event )
-	-- Create Activity Indicator
-	native.setActivityIndicator( true )
-	
-	timer.performWithDelay( 1000, 
-		function() native.setActivityIndicator( false ) end 
-	)
-end
-
--- WebPopUp Listener
---
-local function webListener( event )
-	local shouldLoad = true
-
-	local url = event.url
-	if 1 == string.find( url, "corona:close" ) then
-		-- Close the web popup
-		shouldLoad = false
-		isWebPopup = false			-- show Web object is gone
-	end
-	
-	return shouldLoad
-end
-
--- Display WebPopUp object
---
--- Used for WebPopup button and on orientation change
---
-local dispWebPopUp = function()
-	local options = { hasBackground=true, baseUrl=system.ResourceDirectory,
-		urlRequest=webListener }
-		
-	local x = (display.contentWidth - 320) /2
-		
-	if isPortrait then
-		y = 80			-- Portrait
-	else
-		y = 75			-- Landscape
-	end
-	
-	-- x, y, w, h, url, options
-	native.showWebPopup(x, y, 320, 180, "localpage.html", options )
-	isWebPopup = true
-end
-
--- WebPopUp Button Pressed
---
--- Display local HTML page
---
-local webPopButtonButtonPress = function( event )
-	if isWebPopup then
-		native.cancelWebPopup()
-		isWebPopup = false
-	else			
-		dispWebPopUp()
-	end
-end
-
--------------------------------------------
--- *** Create Buttons ***
--------------------------------------------
-
--- textField Button
---
-txtFieldButton = widget.newButton
-{
-	defaultFile = "btnBlueMedium.png",
-	overFile = "btnBlueMediumOver.png",
-	label = "textField",
-	fontSize = 16,
-	labelColor = 
-	{ 
-		default = { 255, 255, 255 }, 
-	},
-	emboss = true,
-	onPress = textFieldButtonPress,	
-}
-txtFieldButton.anchorY = 0
---txtFieldButton:setReferencePoint(display.TopCenterReferencePoint)
-
--- textBox Button
---
-txtBoxButton = widget.newButton
-{
-	defaultFile = "btnBlueMedium.png",
-	overFile = "btnBlueMediumOver.png",
-	label = "textBox",
-	fontSize = 16,
-	labelColor = 
-	{ 
-		default = { 255, 255, 255 },
-	},
-	emboss = true,
-	onPress = textBoxButtonPress,
-}
-txtBoxButton.anchorY = 0
---txtBoxButton:setReferencePoint(display.TopCenterReferencePoint)
-
--- Clear Keyboard Button
--- Invisible until used in Portrait text mode
---
-clrKbButton = widget.newButton
-{
-	defaultFile = "btnBlueMedium.png",
-	overFile = "btnBlueMediumOver.png",
-	label = "Dismiss KB",
-	fontSize = 16,
-	labelColor = 
-	{ 
-		default = { 255, 255, 255 },
-	},
-	emboss = true,
-	onPress = clrKbButtonPress,
-}
-clrKbButton.isVisible = false		-- we will use it later
-clrKbButton.anchorY = 0
---txtBoxButton:setReferencePoint(display.TopCenterReferencePoint)
-
--- Alert Button
---
-local alertButton = widget.newButton
-{
-	defaultFile = "btnBlueMedium.png",
-	overFile = "btnBlueMediumOver.png",
-	label = "Alert",
-	fontSize = 16,
-	labelColor = 
-	{ 
-		default = { 255, 255, 255 }, 
-	},
-	emboss = true,
-	onRelease = alertButtonPress,			-- used onRelease to avoid system interaction
-}
-alertButton.anchorY = 0
---alertButton:setReferencePoint(display.TopCenterReferencePoint)
-
--- Activity Indicator Button
---
-local activityButton = widget.newButton
-{
-	defaultFile = "btnBlueMedium.png",
-	overFile = "btnBlueMediumOver.png",
-	label = "Activity",
-	fontSize = 16,
-	labelColor = 
-	{ 
-		default = { 255, 255, 255 },
-	},
-	emboss = true,
-	onRelease = activityButton,			-- used onRelease to avoid system interaction
-}
-activityButton.anchorY = 0
---activityButton:setReferencePoint(display.TopCenterReferencePoint)
-
--- WebPopup Button
---
-webPopButton = widget.newButton
-{
-	defaultFile = "btnBlueMedium.png",
-	overFile = "btnBlueMediumOver.png",
-	label = "WebPopup",
-	fontSize = 16,
-	labelColor = 
-	{ 
-		default = { 255, 255, 255 },
-	},
-	emboss = true,
-	onPress = webPopButtonButtonPress,
-}
-webPopButton.anchorY = 0
---webPopButton:setReferencePoint(display.TopCenterReferencePoint)
-
-
------------------------------------------------
--- *** Locate the buttons on the screen ***
------------------------------------------------
-
--- Adjust objects for Portrait or Landscape mode
---
--- Enter: mode = orientation mode
---
-local function changeOrientation( mode )
-
-local Y_Btn_P = 310		-- First button Y position for Portrait
-local Y_Btn_L = 155		-- First button Y position for Landscape
-local BtnOffset = 55	-- offset between buttons
-	
-	clrKbButton.alpha = 0.0			-- hide it during the transition
-
-	-- Ignore "faceUp" and "faceDown" modes
-	if mode == "portrait" or mode == "portraitUpsideDown" then
-		background:removeSelf()
-		background = display.newImage("wood_bg.jpg")		-- Load portrait background image
-		background.parent:insert(1, background )
-	
-		background.x = display.contentCenterX
-		background.y = display.contentCenterY
-		
-		isPortrait = true
-		screenCenter = display.contentWidth * 0.5
-				
-		txtFieldButton.x = screenCenter - 80;
-		txtBoxButton.x = screenCenter +80;
-		txtFieldButton.y = Y_Btn_P
-		txtBoxButton.y = Y_Btn_P
-
-		alertButton.x = screenCenter - 80;
-		activityButton.x = screenCenter +80;
-		alertButton.y = Y_Btn_P + BtnOffset*1
-		activityButton.y = Y_Btn_P + BtnOffset*1
-
-		webPopButton.x = screenCenter;
-		webPopButton.y = Y_Btn_P + BtnOffset*2
-		
-		-- Adjust WebPopUp box if present
-		--
-		if isWebPopup then
-			-- Since we can relocate the object, close and reopen
-			native.cancelWebPopup()			-- close it first
-			-- Delay some time before showing the Webpopup again
-			timer.performWithDelay( 400, dispWebPopUp )
-		end
-		
-		if textMode then
-			clrKbButton.isVisible = true		-- make Dismiss KB button visible
-		end
-	elseif	mode == "landscapeLeft" or mode == "landscapeRight" then
-	
-			-- Remove old background image and insert new image at the bottom
-			background:removeSelf()
-			background = display.newImage("wood_bg_lc.jpg")		-- Load landscape background image
-			background.parent:insert( 1, background )
-
-			background.x = display.contentCenterX
-			background.y = display.contentCenterY
-			
-			isPortrait = false
-			screenCenter = display.contentWidth * 0.5
-
-			txtFieldButton.x = screenCenter - 100;
-			txtBoxButton.x = screenCenter +100;
-			txtFieldButton.y = Y_Btn_L
-			txtBoxButton.y = Y_Btn_L
-	
-			alertButton.x = screenCenter - 100;
-			activityButton.x = screenCenter +100;
-			alertButton.y = Y_Btn_L + BtnOffset*1
-			activityButton.y = Y_Btn_L + BtnOffset*1
-	
-			webPopButton.x = screenCenter;
-			webPopButton.y = Y_Btn_L + BtnOffset*2
-			
-			clrKbButton.isVisible = false		-- hide Dismiss button
-
-			-- Adjust WebPopUp box if present
-			--
-			if isWebPopup then
-				-- Since we can relocate the object, close and reopen
-				native.cancelWebPopup()			-- close it first
-				-- Delay some time before showing the Webpopup again
-				timer.performWithDelay( 400, dispWebPopUp )
-
---[[
-				local options = { hasBackground=true, baseUrl=system.ResourceDirectory,
-					urlRequest=webListener }
-					
-				local x = (display.contentWidth - 320) /2
-				-- Delay some time before showing the Webpopup again
-				-- x, y, w, h, url, options
-				timer.performWithDelay( 200,
-					function() native.showWebPopup( x,
-						80, 320, 180, "localpage.html", options )
-					end )
---]]
+	elseif ( buttonID == "Alert" ) then
+		-- Create native alert
+		local alertBox = native.showAlert( "Custom Alert", "This is a native alert with customizable title, text, and buttons which can perform various actions upon being clicked.", { "OK", "coronalabs.com" },
+			function( event )
+				if ( event.action == "clicked" ) then
+					if ( event.index == 2 ) then
+						system.openURL( "https://www.coronalabs.com" )
+					end
+					cleanUp()
+				end
 			end
+		)
+		objectLabel.text = ""
+
+	elseif ( buttonID == "Activity" ) then
+		-- Show native activity indicator
+		native.setActivityIndicator( true )
+		-- Hide it after 2 seconds
+		timer.performWithDelay( 2000,
+			function()
+				native.setActivityIndicator( false )
+				cleanUp()
+			end
+		)
+		objectLabel.text = ""
+
+	elseif ( buttonID == "Map View" ) then
+		-- Create native map view
+		local mapHeight = display.actualContentHeight - ( objectLabel.y - display.screenOriginY + 50 )
+		mapView = native.newMapView( display.contentCenterX, objectLabel.y+(mapHeight/2)+50, display.actualContentWidth, mapHeight )
+		mapView.mapType = "standard"
+		objectLabel.text = "Map View"
+		mapView.tip = display.newText( labelGroup, "(touch outside map to close)", display.contentCenterX, objectLabel.y+25, appFont, 14 )
+		mapView.tip:setFillColor( 0.6 )
+		backRect:addEventListener( "touch", closeMap )
+		mapLocationAttempts = 0
+		locationHandler()
+	
+	elseif ( buttonID == "Web View" ) then
+		-- Create native web view
+		local viewHeight = display.contentHeight - ( objectLabel.y - display.screenOriginY + 50 )
+		webView = native.newWebView( display.contentCenterX, objectLabel.y+(viewHeight/2)+50, display.actualContentWidth, viewHeight )
+		webView:request( "https://www.coronalabs.com" )
+		objectLabel.text = "Web View"
+		webView.tip = display.newText( labelGroup, "(touch outside web view to close)", display.contentCenterX, objectLabel.y+25, appFont, 14 )
+		webView.tip:setFillColor( 0.6 )
+		backRect:addEventListener( "touch", closeWebView )
 	end
 
-	-- Adjustments that are common to all screen orientations
-	if textField then
-		textField.x = screenCenter
-	end
-	
-	if textBox then
-		textBox.x = screenCenter
-	end
-
-	clrKbButton.x = screenCenter
-	clrKbButton.y = 180
-	
-	-- Auto center our text strings
-	orientationLabel.x = screenCenter
-	titleLabel.x = screenCenter
-	keyboardLabel.x = screenCenter
-	
-	transition.to( clrKbButton, {time = 500, alpha = 1.0} )			-- restore the alpha channel
+	currentObject = event.target.id
+	return true
 end
 
--- Set up the display after the app starts
-changeOrientation( system.orientation )
+-- Callback function for showing/hiding info box
+sampleUI.onInfoEvent = function( event )
 
--- Come here when an Orientation Change event occurs
---
--- Change the display to fix the new mode
--- Display the change on screen
---
-local function onOrientationChange( event )
-
-	changeOrientation( event.type )
-	orientationLabel.text = "Orientation: " .. event.type
+	if ( event.action == "show" and event.phase == "will" ) then
+		native.setKeyboardFocus( nil )
+		if ( textField ) then textField.isVisible = false end
+		if ( textBox ) then textBox.isVisible = false end
+		if ( mapView ) then mapView.isVisible = false end
+		if ( webView ) then webView.isVisible = false end
+	elseif ( event.action == "hide" and event.phase == "did" ) then
+		if ( textField ) then textField.isVisible = true end
+		if ( textBox ) then textBox.isVisible = true end
+		if ( mapView ) then mapView.isVisible = true end
+		if ( webView ) then webView.isVisible = true end
+	end
 end
 
--- Add listerner for Orientation changes
---
-Runtime:addEventListener( "orientation", onOrientationChange )
+-- Table of labels for buttons
+local menuButtons = { "Text Field", "Text Box", "Alert", "Activity", "Map View", "Web View" }
+
+-- Loop through table to display buttons
+local rowNum = 0
+local buttonGroup = display.newGroup()
+for i = 1,#menuButtons do
+	rowNum = rowNum+1
+	local button = widget.newButton(
+	{
+		label = menuButtons[i],
+		id = menuButtons[i],
+		shape = "rectangle",
+		width = 130,
+		height = 32,
+		font = appFont,
+		fontSize = 15,
+		fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.132,0.352,0.572,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
+		onRelease = onButtonRelease
+	})
+	if ( i <= 3 ) then
+		button.x = display.contentCenterX - 74
+	else
+		if ( rowNum == 4 ) then rowNum = 1 end
+		button.x = display.contentCenterX + 74
+	end
+	button.y = 165 + ((rowNum-1)*50)
+	buttonGroup:insert( button )
+	
+	if ( menuButtons[i] == "Map View" and ( system.getInfo("environment") == "simulator" or system.getInfo("platform") == "macos" or system.getInfo("platform") == "win32" ) ) then
+		button:setEnabled( false )
+		button.alpha = 0.3
+	end
+end
+mainGroup:insert( buttonGroup )
+buttonGroup.anchorChildren = true
+buttonGroup.x = display.contentCenterX
+buttonGroup.y = display.contentHeight - (buttonGroup.contentHeight/2) - display.safeScreenOriginY - 18

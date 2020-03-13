@@ -30,7 +30,7 @@ function scene:create( event )
 		width = 128,
 		height = 32,
 		font = composer.getVariable( "appFont" ),
-		fontSize = 16,
+		fontSize = 15,
 		alphaFade = false,
 		fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.132,0.352,0.572,1 } },
 		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
@@ -53,8 +53,8 @@ function scene:create( event )
 	shape.x, shape.y = display.contentCenterX, 300
 	bodies[#bodies+1] = shape
 
-	touchPoint = display.newCircle( bodiesGroup, 0, 0, 15 )
-	touchPoint:setFillColor( 1,0,0.2 )
+	touchPoint = display.newImageRect( bodiesGroup, "dot.png", 32, 32 )
+	touchPoint.blendMode = "add"
 	touchPoint.alpha = 0
 
 	shape:toBack()

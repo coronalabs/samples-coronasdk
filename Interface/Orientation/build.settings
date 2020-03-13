@@ -1,5 +1,5 @@
 --
--- For more information on build.settings see the Corona SDK Build Guide at:
+-- For more information on build.settings see the Project Build Settings Guide at:
 -- http://docs.coronalabs.com/guide/distribution/buildSettings/index.html
 --
 
@@ -7,28 +7,22 @@ settings =
 {
 	orientation =
 	{
+		-- Supported values for orientation:
+		-- portrait, portraitUpsideDown, landscapeLeft, landscapeRight
 		default = "portrait",
-		supported = { "portrait", },
+		supported = { "portrait", "portraitUpsideDown", "landscapeLeft", "landscapeRight" },
 	},
+
 	iphone =
 	{
+		xcassets = "Images.xcassets",
 		plist =
 		{
 			UILaunchStoryboardName = "LaunchScreen",
-			CFBundleIconFiles =
-			{
-				"Icon-40.png",
-				"Icon-58.png",
-				"Icon-76.png",
-				"Icon-80.png",
-				"Icon-87.png",
-				"Icon-120.png",
-				"Icon-152.png",
-				"Icon-167.png",
-				"Icon-180.png",
-			},
+			ITSAppUsesNonExemptEncryption = false, -- This sample doesn't use custom encryption
 		},
 	},
+
 	window =
 	{
 		titleText =

@@ -1,1 +1,0 @@
-A simplified "Crush the Castle" game demo, where objects have internal listeners for collision events.

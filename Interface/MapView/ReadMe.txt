@@ -1,1 +1,0 @@
-Demonstrates the API for embedded maps and location data. The user can add markers to the map by typing an address and pressing the "Find Location" button.  The helpInfo cannot be displayed because native fields will always be on top.

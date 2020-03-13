@@ -1,34 +1,47 @@
 --
--- For more information on build.settings see the Corona SDK Build Guide at:
--- http://docs.coronalabs.com/guide/distribution/buildSettings/index.html
+-- For more information on build.settings, see the Project Build Settings guide at:
+-- https://docs.coronalabs.com/guide/distribution/buildSettings
 --
 
 settings =
 {
 	orientation =
 	{
-		default = "portrait", 
-		supported = { "landscapeLeft", "landscapeRight", "portrait", "portraitUpsideDown" },
+		-- Supported values for orientation:
+		-- portrait, portraitUpsideDown, landscapeLeft, landscapeRight
+		default = "portrait",
+		supported = { "portrait" },
 	},
-	iphone =
+
+	android =
 	{
-		plist =
+		usesPermissions =
 		{
-			UILaunchStoryboardName = "LaunchScreen",
-			CFBundleIconFiles =
-			{
-				"Icon-40.png",
-				"Icon-58.png",
-				"Icon-76.png",
-				"Icon-80.png",
-				"Icon-87.png",
-				"Icon-120.png",
-				"Icon-152.png",
-				"Icon-167.png",
-				"Icon-180.png",
-			},
+			"android.permission.INTERNET",
+			"android.permission.ACCESS_FINE_LOCATION",
+			"android.permission.ACCESS_COARSE_LOCATION",
+		},
+		usesFeatures =
+		{
+			{ name = "android.hardware.location", required = false },
+			{ name = "android.hardware.location.gps", required = false },
+			{ name = "android.hardware.location.network", required = false }
 		},
 	},
+
+	iphone =
+	{
+		xcassets = "Images.xcassets",
+		plist =
+		{
+			UIStatusBarHidden = false,
+			UILaunchStoryboardName = "LaunchScreen",
+			ITSAppUsesNonExemptEncryption = false, -- This sample doesn't use custom encryption
+			NSLocationAlwaysUsageDescription = "This app would like to use location services.",
+            NSLocationWhenInUseUsageDescription = "This app would like to use location services.",
+		},
+	},
+
 	window =
 	{
 		titleText =

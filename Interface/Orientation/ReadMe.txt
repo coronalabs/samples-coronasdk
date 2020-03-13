@@ -1,1 +1,7 @@
-Demonstrates how to handle orientation changes manually.  Note that the Corona stage remains fixed in place, and only the text rotates in this case.  With this method you have full control over how to handle the change; however, native UI elements will not rotate.  Alternatively, you can use the device's automatic orientation changes to rotate the entire stage, which will also rotate native UI elements.
+This sample demonstrates how "orientation" event detection functions on various devices. Rotate and flip the actual device (or Simulator) to see the different options.
+
+Note that "faceUp" and "faceDown" orientations are only supported on iOS.
+
+RELATED DOCUMENTATION
+[Basic Interactivity and Event Detection](https://docs.coronalabs.com/guide/events/detectEvents/index.html)
+[orientation (event)](https://docs.coronalabs.com/api/event/orientation/index.html)

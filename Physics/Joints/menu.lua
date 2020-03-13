@@ -32,7 +32,7 @@ function scene:create( event )
 				width = 110,
 				height = 32,
 				font = composer.getVariable( "appFont" ),
-				fontSize = 16,
+				fontSize = 15,
 				fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.132,0.352,0.572,1 } },
 				labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
 				onRelease = onButtonRelease

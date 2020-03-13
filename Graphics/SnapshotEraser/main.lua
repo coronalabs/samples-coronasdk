@@ -1,61 +1,79 @@
--- 
--- Abstract: SnapshotEraser sample app
---  
+
+-- Abstract: SnapshotEraser
 -- Version: 2.0
--- 
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2013 Corona Labs Inc. All Rights Reserved.
---
--- Supports Graphics 2.0
-------------------------------------------------------------
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
+---------------------------------------------------------------------------------------
 
-local w = display.actualContentWidth
-local h = display.actualContentHeight
+display.setStatusBar( display.HiddenStatusBar )
 
-local aquarium = display.newImage( "aquarium.jpg", display.contentCenterX, display.contentCenterY )
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Snapshot Eraser", showBuildNum=false } )
 
-local snapshot = display.newSnapshot( w,h )
-snapshot:translate( display.contentCenterX, display.contentCenterY )
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
 
-local background = display.newImage( "world.jpg" )
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
 
-snapshot.canvas:insert( background )
-snapshot:invalidate( "canvas" )
+-- Set app font
+local appFont = sampleUI.appFont
 
+-- Local variables and forward declarations
 local previousX, previousY
-local threshold = 10
+local threshold = 6
 local thresholdSq = threshold*threshold
 
-local function draw( x, y )
-	local o = display.newImage( "brush.png", x, y )
-	o.fill.blendMode = { srcColor = "zero", dstColor="oneMinusSrcAlpha" }
+-- Create images and snapshot
+local imageUnder = display.newImageRect( mainGroup, "balloon.jpg", 360, 570 )
+imageUnder.x, imageUnder.y = display.contentCenterX, display.contentCenterY
 
+local snapshot = display.newSnapshot( mainGroup, display.actualContentWidth, display.actualContentHeight )
+snapshot.x, snapshot.y = display.contentCenterX, display.contentCenterY
+
+local imageOver = display.newImageRect( "sampleUI/back-darkgrey.png", 360, 640 )
+snapshot.canvas:insert( imageOver )
+snapshot:invalidate( "canvas" )
+
+local function erase( x, y )
+
+	local o = display.newImageRect( "eraser.png", 64, 64 )
+	o.x, o.y = x, y
+	o.fill.blendMode = { srcColor="zero", dstColor="oneMinusSrcAlpha" }
 	snapshot.canvas:insert( o )
-	snapshot:invalidate( "canvas" ) -- accumulate changes w/o clearing
+	snapshot:invalidate( "canvas" )  -- Accumulate changes without clearing
 end
 
-local function listener( event )
-	local x,y = event.x - snapshot.x, event.y - snapshot.y
+local function touchListener( event )
+
+	local relX, relY = event.x-snapshot.x, event.y-snapshot.y
 
 	if ( event.phase == "began" ) then
-		previousX,previousY = x,y
-		draw( x, y )
+		previousX, previousY = relX, relY
+		erase( relX, relY )
+
 	elseif ( event.phase == "moved" ) then
-		local dx = x - previousX
-		local dy = y - previousY
+		local dx = relX - previousX
+		local dy = relY - previousY
 		local deltaSq = dx*dx + dy*dy
 		if ( deltaSq > thresholdSq ) then
-			draw( x, y )
-			previousX,previousY = x,y
+			erase( relX, relY )
+			previousX, previousY = relX, relY
 		end
 	end
+	return true
 end
+Runtime:addEventListener( "touch", touchListener )
 
-Runtime:addEventListener( "touch", listener )
-
-display.newText{
-	text="Touch screen to reveal image underneath",
-	x = display.contentCenterX,
-	y = 30,
-	fontSize=12,
-}
+-- Instructions
+local shade = display.newRect( mainGroup, display.contentCenterX, display.contentHeight-display.screenOriginY-18, display.actualContentWidth, 36 )
+shade:setFillColor( 0, 0, 0, 0.7 )
+local msg = display.newText( mainGroup, "Touch screen to reveal image underneath", display.contentCenterX, shade.y, appFont, 13 )
+msg:setFillColor( 1, 0.9, 0.2 )

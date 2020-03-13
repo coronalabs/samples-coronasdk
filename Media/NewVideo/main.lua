@@ -1,163 +1,149 @@
--- Abstract: New Video sample app
--- 
--- Project: NewVideo
---
--- File name: main.lua
---
--- Author: Corona Labs
---
--- Abstract: Displays video from WWW.BIGBUCKBUNNY.ORG
---
--- Demonstrates: native.newVideo and all it's properties and methods
---
--- File dependencies: none
---
--- Target devices: iOS
---
--- Limitations: Does not work in the Mac or Windows simulator or on Android
---
--- Update History:
---	v1.0	8/10/2013	Initial release
---
--- Comments: 
---
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2011 Corona Labs Inc. All Rights Reserved.
---
--- Video licensed as Creative Commons Attribute 3.0.
--- WWW.BIGBUCKBUNNY.ORG
---
--- Supports Graphics 2.0
----------------------------------------------------------------------------------------
 
-local widget = require( "widget" )
+-- Abstract: NewVideo
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
+-- Video licensed as Creative Commons Attribute 3.0: https://peach.blender.org
+---------------------------------------------------------------------------------------
 
 display.setStatusBar( display.HiddenStatusBar )
 
-local centerX = display.contentCenterX
-local centerY = display.contentCenterY
-local _W = display.contentWidth
-local _H = display.contentHeight
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="mediumgrey", title="New Video", showBuildNum=false } )
 
-local video			-- forward reference
-local playButton, seekButton, muteButton, stopButton	-- forward references
-local seekValue = 25		-- forward reference
-local totalPlayTime
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
 
-local videoPaused = false
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
 
-display.setDefault( "background", 100/255 )
+-- Require libraries/plugins
+local widget = require( "widget" )
 
---local posterFrame = display.newImage( "PosterFrame.png", centerX, centerY )
+-- Set app font
+local appFont = sampleUI.appFont
 
-local videoWidth = _W - 20
-local videoHeight = _H - 40 
+-- Local variables and forward references
+local msg
+local video
+local playButton, stopButton, seekButton, muteButton
+local seekValue = 25
+local timeOutput
+local countTimer
+local videoPaused = true
+local videoHeight = display.actualContentHeight - 100
+local videoRatio = 16/9  -- Video aspect ratio is 16:9
 
-local stoppedTimeString = "----"
-local runningTime = display.newText( stoppedTimeString, _W - 45, _H - 30, native.systemFont, 13 )
-local totalTime = display.newText( stoppedTimeString, _W - 45, _H - 15, native.systemFont, 13 )
+-- Create a "frame" which shows where video will appear
+local videoFrame = display.newRect( mainGroup, display.contentCenterX, display.contentCenterY, videoHeight*videoRatio, videoHeight )
+videoFrame:setFillColor( 0, 0, 0, 0.6 )
 
-videoRatio = 180/320		-- used to create our video container based on video size (320 x 180)
-
-local posterFrame = display.newRoundedRect( centerX, centerY - 20, _W, _H - 40, 20 )
-posterFrame:setFillColor( 200/255 )
-
--- Determine if running on Corona Simulator
---
-local isSimulator = "simulator" == system.getInfo("environment")
-
--- Video is not supported on Simulator
---
-if isSimulator then
-	msg = display.newText( "native.newVideo() not supported in Simulator", centerX, 80, native.systemFontBold, 22 )
-else
-	msg = display.newText( "Press Play to start video", centerX, 60, native.systemFontBold, 22 )
---	posterFrame:addEventListener( "tap", posterFrame )		-- add Tap listener
+-- Function to enable or disable buttons
+local function setButtonEnabled( button, isEnabled )
+	button:setEnabled( isEnabled )
 end
 
-msg:setFillColor( 0, 0, 1 )
+-- Function to update video time/duration output
+local function updateTime( currentTime, totalTime )
 
--------------------------------
--- Enable/Disable Buttons
--------------------------------
---
--- Called when video is started or ended to enable/disable button touches
---
-local function buttonsEnable( value )
-	stopButton:setEnabled( value )
-	seekButton:setEnabled( value )
-	muteButton:setEnabled( value )
+	local ct, tt = 0, 0
+	if ( tonumber(currentTime) and tonumber(totalTime) ) then
+		ct = currentTime
+		tt = totalTime
+	else
+		if ( video ~= nil ) then
+			ct = video.currentTime
+			tt = video.totalTime
+		end
+	end
+	local currentMinutes = math.floor( ct / 60 )
+	local currentSeconds = ct % 60
+	local totalMinutes = math.floor( tt / 60 )
+	local totalSeconds = tt % 60
+	timeOutput.text = string.format( "%02d:%02d", currentMinutes, currentSeconds ) .. " / " .. string.format( "%02d:%02d", totalMinutes, totalSeconds )
 end
 
--------------------------------
--- Stop video (removes object)
--------------------------------
---
--- Called when Stop button pressed or video "done" listener
---
-local function stopCtl( event )
+-- Stop video function
+local function stopVideo()
+
 	if video then
+		if ( countTimer ) then timer.cancel( countTimer ) end
 		video:removeSelf()
 		video = nil
 		seekValue = 25
+		videoFrame.isVisible = true
 		playButton:setLabel( "Play" )
+		seekButton:setLabel( "—" )
 		muteButton:setLabel( "Mute" )
-		seekButton:setLabel( "Seek 25%" )
-		runningTime.text = stoppedTimeString
-		totalTime.text = stoppedTimeString
-		msg.text = "Stopped"
-		buttonsEnable( false )
+		updateTime( 0, 0 )
+		msg.text = "Press play button to start video"
+		setButtonEnabled( playButton, true )
+		setButtonEnabled( stopButton, false )
+		setButtonEnabled( seekButton, false )
+		setButtonEnabled( muteButton, false )
 	end
 end
 
--------------------------------
--- Play or Pause the video
--------------------------------
---
-function playCtl( event )
+-- Play or pause video function
+local function playVideo( event )
 
-	if not isSimulator and not video then
-	
+	-- Video object does not exist; create it, load video, and play it upon loading
+	if ( video == nil ) then
+
 		local function videoListener( event )
-			print( "Video Listener called: ", event.phase )
-			if "ready" == event.phase then
-				totalPlayTime = video.totalTime		-- get total video time (in seconds)
-				totalTime.text = string.format( "Total: %.0f sec.", totalPlayTime )
-			end
-			if "ended" == event.phase then
-				stopCtl( event )		-- remove and clean up the video player
-				msg.text = "Video Done"
+			if ( "ready" == event.phase ) then
+				videoFrame.isVisible = false
+				msg.text = ""
+				video:play()
+				videoPaused = false
+				seekValue = 25
+				playButton:setLabel( "Pause" )
+				seekButton:setLabel( "Seek " .. seekValue .. "%" )
+				setButtonEnabled( playButton, true )
+				setButtonEnabled( stopButton, true )
+				setButtonEnabled( seekButton, true )
+				setButtonEnabled( muteButton, true )
+				updateTime( 0, video.totalTime )
+				countTimer = timer.performWithDelay( 1000, updateTime, 0 )
+			elseif ( "ended" == event.phase ) then
+				stopVideo()
 			end
 		end
-		
-		msg.text = "Loading Video ..."		-- message will appear after the video finishes
-		video = native.newVideo( display.contentCenterX, 140, videoWidth, videoWidth * videoRatio )
+
+		msg.text = "(loading)"
+		video = native.newVideo( videoFrame.x, videoFrame.y, videoFrame.width, videoFrame.height )
 		video:load( "https://www.coronalabs.com/video/bbb/BigBuckBunny_640x360.m4v", media.RemoteSource )
-		videoPaused = true
 		video:addEventListener( "video", videoListener )
-		buttonsEnable( true )
-	end
-	
-	if video then
-		if videoPaused then	
+		setButtonEnabled( playButton, false )
+
+	-- Video object already exists; handle pause and resume
+	else
+		if ( videoPaused == true ) then
+			if ( countTimer ) then timer.resume( countTimer ) end
 			video:play()
 			videoPaused = false
 			playButton:setLabel( "Pause" )
 		else
+			if ( countTimer ) then timer.pause( countTimer ) end
 			video:pause()
 			videoPaused = true
 			playButton:setLabel( "Resume" )
 		end
+		updateTime( video.currentTime, video.totalTime )
 	end
-	
 end
 
--------------------------------
--- Mute video sound
--------------------------------
---
-local function muteCtl( event )
-	if video then
+-- Mute/un-mute video function
+local function muteVideo( event )
+
+	if ( video ~= nil ) then
 		if video.isMuted then
 			video.isMuted = false
 			muteButton:setLabel( "Mute" )
@@ -168,118 +154,143 @@ local function muteCtl( event )
 	end
 end
 
------------------------------------
--- Seek video (25%, 50%, 95%, 0%)
------------------------------------
---
-local function seekCtl( event )
-	if video then
-		local newSeekValue = 0
-		
-		if seekValue == 0 then
-			newSeekValue = 25
-		elseif seekValue == 25 then
-			newSeekValue = 50
+-- Seek video function
+local function seekVideo( event )
+
+	if ( video ~= nil ) then
+		-- Seek to percentage of total time
+		video:seek( video.totalTime * seekValue/100 )
+
+		local nextSeekValue = 0
+		if seekValue == 25 then
+			nextSeekValue = 50
 		elseif seekValue == 50 then
-			newSeekValue = 95
-		else
-			newSeekValue = 0
+			nextSeekValue = 75
+		elseif seekValue == 75 then
+			seekButton:setLabel( "—" )
+			setButtonEnabled( seekButton, false )
 		end
-		
-		video:seek( totalPlayTime * seekValue/100 )		-- seek to percentage of total time
-		print( "seeking to ", totalPlayTime * seekValue/100 )
-		seekValue = newSeekValue
-		seekButton:setLabel( "Seek " .. seekValue .. "%" )
+
+		seekValue = nextSeekValue
+		if ( seekValue ~= 0 ) then
+			seekButton:setLabel( "Seek " .. seekValue .. "%" )
+		end
 	end
 end
 
--------------------------------
--- Create the buttons
--------------------------------
+-- Callback function for showing/hiding info box
+sampleUI.onInfoEvent = function( event )
 
-buttonTop = _H - 35
-FONT_SIZE = 14
-
-playButton = widget.newButton
-	{
-	    left = 5,
-	    top = buttonTop,
-		width = 90,
-		height = 30,
-		font = native.systemFontBold,
-		fontSize = FONT_SIZE,
-		id = "playButton",
-	    label = "Play",
-	    onRelease = playCtl,
-	}
-
-stopButton = widget.newButton
-	{
-	    left = 100,
-	    top = buttonTop,
-		width = 90,
-		height = 30,
-		font = native.systemFontBold,
-		fontSize = FONT_SIZE,
-		id = "stopButton",
-	    label = "Stop",
-	    onRelease = stopCtl,
-	}
-	
-seekButton = widget.newButton
-	{
-	    left = 195,
-	    top = buttonTop,
-		width = 90,
-		height = 30,
-		font = native.systemFontBold,
-		fontSize = FONT_SIZE,
-		id = "seekButton",
-	    label = "Seek 25%",
-	    onRelease = seekCtl,
-	}
-
-muteButton = widget.newButton
-	{
-	    left = 290,
-	    top = buttonTop,
-		width = 90,
-		height = 30,
-		font = native.systemFontBold,
-		fontSize = FONT_SIZE,
-		id = "muteButton",
-	    label = "Mute",
-	    onRelease = muteCtl,
-	}
-
-buttonsEnable( false )		-- disable all but the Play button
-
--------------------------------------------------
--- Update the movie time on the screen
--------------------------------------------------
---
-local function updateTime( event )
-	-- Don't update the time if the video is not running
-	if video then
-		local currentTime = video.currentTime
-		if currentTime > 0 and currentTime < 2 then
-			-- Clear the "Loading" message once the video starts playing
-			msg.text = ""
+	if ( video ~= nil ) then
+		if ( event.action == "show" and event.phase == "will" ) then
+			-- If video is playing, pause it
+			if ( videoPaused == false ) then playVideo() end
+			videoFrame.isVisible = true
+			video.isVisible = false
+		elseif ( event.action == "hide" and event.phase == "did" ) then
+			videoFrame.isVisible = false
+			video.isVisible = true
 		end
-		runningTime.text = string.format( "Time: %.0f sec.", currentTime )
 	end
 end
 
-timer.performWithDelay( 1000, updateTime, 0 )
+-- Create control buttons
+playButton = widget.newButton(
+{
+	left = 0 + display.screenOriginX,
+	top = display.contentHeight - display.screenOriginY - 32,
+	width = 90,
+	height = 32,
+	shape = "rectangle",
+	font = appFont,
+	fontSize = 14,
+	label = "Play",
+	fillColor = { default={ 0,0,0,0.5 }, over={ 0,0,0,0.7 } },
+	labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
+	onRelease = playVideo
+})
+mainGroup:insert( playButton )
+playButton:setEnabled( false )
 
--- for tvOS bind play/pause to the button on remote
-if system.getInfo( "platformName" ) == "tvOS" then
+stopButton = widget.newButton(
+{
+	left = playButton.x + 47,
+	top = display.contentHeight - display.screenOriginY - 32,
+	width = 70,
+	height = 32,
+	shape = "rectangle",
+	font = appFont,
+	fontSize = 14,
+	label = "Stop",
+	fillColor = { default={ 0,0,0,0.5 }, over={ 0,0,0,0.7 } },
+	labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
+	onRelease = stopVideo
+})
+mainGroup:insert( stopButton )
+stopButton:setEnabled( false )
+
+seekButton = widget.newButton(
+{
+	left = stopButton.x + 37,
+	top = display.contentHeight - display.screenOriginY - 32,
+	width = 104,
+	height = 32,
+	shape = "rectangle",
+	font = appFont,
+	fontSize = 14,
+	label = "—",
+	fillColor = { default={ 0,0,0,0.5 }, over={ 0,0,0,0.7 } },
+	labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
+	onRelease = seekVideo
+})
+mainGroup:insert( seekButton )
+seekButton:setEnabled( false )
+
+muteButton = widget.newButton(
+{
+	left = seekButton.x + 54,
+	top = display.contentHeight - display.screenOriginY - 32,
+	width = 90,
+	height = 32,
+	shape = "rectangle",
+	font = appFont,
+	fontSize = 14,
+	label = "Mute",
+	fillColor = { default={ 0,0,0,0.5 }, over={ 0,0,0,0.7 } },
+	labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
+	onRelease = muteVideo
+})
+mainGroup:insert( muteButton )
+muteButton:setEnabled( false )
+
+-- Create object to output video time/duration
+local shade = display.newRect( mainGroup, muteButton.x+47, display.contentHeight-display.screenOriginY-32, display.actualContentWidth-360, 32 )
+shade:setFillColor( 0, 0, 0, 0.5 )
+shade.anchorX, shade.anchorY = 0, 0
+timeOutput = display.newText( mainGroup, "", shade.x+(shade.width*0.5), shade.y+16, appFont, 14 )
+updateTime( 0, 0 )
+timeOutput.rightX = timeOutput.contentBounds.xMax
+timeOutput.anchorX = 1
+timeOutput.x = timeOutput.rightX
+timeOutput:setFillColor( 1, 0.4, 0.25 )
+
+-- Check if "native.newVideo()" is supported on platform
+if ( system.getInfo("environment") == "simulator" and system.getInfo("platform") == "win32" ) then
+	msg = display.newText( mainGroup, "Video objects not supported on this platform", display.contentCenterX, videoFrame.y, appFont, 13 )
+	msg:setFillColor( 1, 0, 0.2 )
+else
+	msg = display.newText( mainGroup, "Press play button to start video", display.contentCenterX, videoFrame.y, appFont, 13 )
+	msg:setFillColor( 1, 0.4, 0.25 )
+	setButtonEnabled( playButton, true )
+end
+
+-- For tvOS, bind play/pause to the button on remote
+if ( system.getInfo("platform") == "tvos" ) then
 	local function onKeyEvent( event )
-	    if ( event.keyName == "buttonX" and event.phase=="down" ) then
-	        playCtl()
-	    end
-	    return false
+		if ( event.keyName == "buttonX" and event.phase=="down" ) then
+			playVideo()
+		end
+		return false
 	end
-
 	Runtime:addEventListener( "key", onKeyEvent )
 end

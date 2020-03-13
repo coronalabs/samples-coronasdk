@@ -1,128 +1,209 @@
--- 
--- Abstract: CollisionDetection sample project
--- Demonstrates global and local collision listeners, along with collision forces
--- 
--- Version: 1.2 (revised for Alpha 3, demonstrates "collision" event and new "preCollision" and "postCollision" events)
--- 
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
---
---	Supports Graphics 2.0
+
+-- Abstract: CollisionDetection
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
+-- Fish sprite images courtesy of Kenney; see http://kenney.nl/
 ---------------------------------------------------------------------------------------
 
-local centerX = display.contentCenterX
-local centerY = display.contentCenterY
-local _W = display.contentWidth
-local _H = display.contentHeight
+display.setStatusBar( display.HiddenStatusBar )
+math.randomseed( os.time() )
 
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Collision Detection", showBuildNum=false } )
+
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
+
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
+
+-- Local variables and forward references
+local letterboxWidth = math.abs(display.screenOriginX)
+local letterboxHeight = math.abs(display.screenOriginY)
+local currentDrawMode = "normal"
+
+-- Require libraries/plugins
+local widget = require( "widget" )
 local physics = require( "physics" )
 physics.start()
+physics.setDrawMode( currentDrawMode )
 
-local sky = display.newImage( "bkg_clouds.png", centerX, 195 )
+-- Set app font
+local appFont = sampleUI.appFont
 
-local ground = display.newImage( "ground.png", centerX, 445 )
-ground.myName = "ground"
+-- Create image sheet for fish
+local sheetOptions = {
+	width = 55,
+	height = 42,
+	numFrames = 2,
+	sheetContentWidth = 110,
+	sheetContentHeight = 42
+}
+local imageSheet = graphics.newImageSheet( "fish.png", sheetOptions )
 
--- The parameter "myName" is arbitrary; you can add any parameters, functions or data to Corona display objects
+-- Create "walls" around screen
+local wallL = display.newRect( mainGroup, 0-letterboxWidth, display.contentCenterY, 20, display.actualContentHeight )
+wallL.myName = "Left Wall"
+wallL.anchorX = 1
+physics.addBody( wallL, "static", { bounce=0.5, friction=0.1 } )
 
-physics.addBody( ground, "static", { friction=0.5, bounce=0.3 } )
+local wallR = display.newRect( mainGroup, 320+letterboxWidth, display.contentCenterY, 20, display.actualContentHeight )
+wallR.myName = "Right Wall"
+wallR.anchorX = 0
+physics.addBody( wallR, "static", { bounce=0.5, friction=0.1 } )
 
-local crate1 = display.newImage( "crate.png", 180, -50 )
-crate1.myName = "first crate"
+local wallT = display.newRect( mainGroup, display.contentCenterX, 0-letterboxHeight, display.actualContentWidth, 20 )
+wallT.myName = "Top Wall"
+wallT.anchorY = 1
+physics.addBody( wallT, "static", { bounce=0.5, friction=0.1 } )
 
-local crate2 = display.newImage( "crate.png", 180, -150 )
-crate2.myName = "second crate"
+local wallB = display.newRect( mainGroup, display.contentCenterX, 480+letterboxHeight, display.actualContentWidth, 20 )
+wallB.myName = "Bottom Wall"
+wallB.anchorY = 0
+physics.addBody( wallB, "static", { bounce=0.5, friction=0.1 } )
 
-physics.addBody( crate1, { density=3.0, friction=0.5, bounce=0.3 } )
-physics.addBody( crate2, { density=3.0, friction=0.5, bounce=0.3 } )
+-- Function to place a visual "burst" at the collision point and animate it
+local function newBurst( collisionX, collisionY )
 
--- Uncomment this to obtain collision positions in content coordinates.
---physics.setReportCollisionsInContentCoordinates( true )
+	local burst = display.newImageRect( mainGroup, "burst.png", 64, 64 )
+	burst.x, burst.y = collisionX, collisionY
+	burst.blendMode = "add"
+	burst:toBack()
+	transition.to( burst, { time=1000, rotation=45, alpha=0, transition=easing.outQuad,
+		onComplete = function()
+			display.remove( burst )
+		end
+	})
+end
 
--- Uncomment this to obtain an average of all collision positions.
---physics.setAverageCollisionPositions( true )
-
-----------------------------------------------------------
--- Two collision types (run Corona Terminal to see output)
-----------------------------------------------------------
-
-
--- METHOD 1: Use table listeners to make a single object report collisions between "self" and "other"
-
+-- METHOD 1: "local" collision detection reports collisions between "self" and "event.other"
 local function onLocalCollision( self, event )
+
 	if ( event.phase == "began" ) then
-
-		print( self.myName .. ": collision began with " .. event.other.myName )
-
-	elseif ( event.phase == "ended" ) then
-
-		print( self.myName .. ": collision ended with " .. event.other.myName )
-
+		print( "LOCAL REPORT: " .. self.myName .. " & " .. event.other.myName )
+		newBurst( event.x, event.y )
 	end
 end
 
-crate1.collision = onLocalCollision
-crate1:addEventListener( "collision" )
-
-crate2.collision = onLocalCollision
-crate2:addEventListener( "collision" )
-
-
--- METHOD 2: Use a runtime listener to globally report collisions between "object1" and "object2"
--- Note that the order of object1 and object2 may be reported arbitrarily in any collision
-
+-- METHOD 2: "global" collision detection uses a Runtime listener to report collisions between "event.object1" and "event.object2"
+-- Note that the order of "event.object1" and "event.object2" may be reported arbitrarily in any collision
 local function onGlobalCollision( event )
+
 	if ( event.phase == "began" ) then
-
-		print( "Global report: " .. event.object1.myName .. " & " .. event.object2.myName .. " collision began" )
-
-	elseif ( event.phase == "ended" ) then
-
-		print( "Global report: " .. event.object1.myName .. " & " .. event.object2.myName .. " collision ended" )
-
+		print( "GLOBAL REPORT: " .. event.object1.myName .. " & " .. event.object2.myName )
+		newBurst( event.x, event.y )
 	end
-	
-	print( "**** " .. event.element1 .. " -- " .. event.element2 )
-	
 end
-
 Runtime:addEventListener( "collision", onGlobalCollision )
 
-
--------------------------------------------------------------------------------------------
--- New pre- and post-collision events (run Corona Terminal to see output)
---
--- preCollision can be quite "noisy", so you probably want to make its listeners
--- local to the specific objects you care about, rather than a global Runtime listener
--------------------------------------------------------------------------------------------
-
-local function onLocalPreCollision( self, event )
-	-- This new event type fires shortly before a collision occurs, so you can use this if you want
-	-- to override some collisions in your game logic. For example, you might have a platform game
-	-- where the character should jump "through" a platform on the way up, but land on the platform
-	-- as they fall down again.
-	
-	-- Note that this event is very "noisy", since it fires whenever any objects are somewhat close!
-
-	print( "preCollision: " .. self.myName .. " is about to collide with " .. event.other.myName )
-
+-- Create blue fish
+for b = 1,2 do
+	local blueFish = display.newSprite( mainGroup, imageSheet, { name="swim", start=1, count=2, time=200 } )
+	blueFish.x, blueFish.y = letterboxWidth, 60*b
+	blueFish:setFillColor( 0.8, 1, 1 )
+	blueFish.myName = "Blue Fish " .. b
+	blueFish.fill.effect = "filter.hue"
+	blueFish.fill.effect.angle = 10
+	blueFish:play()
+	physics.addBody( blueFish, "dynamic", { bounce=1, friction=0, radius=20 } )
+	blueFish.isFixedRotation = true
+	blueFish:applyLinearImpulse( math.random(2,6)/50, 0, blueFish.x, blueFish.y )
+	-- Add local collision detection to this fish (an alternative to global detection set via line 105)
+	--blueFish.collision = onLocalCollision
+	--blueFish:addEventListener( "collision" )
 end
 
-local function onLocalPostCollision( self, event )
-	-- This new event type fires only after a collision has been completely resolved. You can use 
-	-- this to obtain the calculated forces from the collision. For example, you might want to 
-	-- destroy objects on collision, but only if the collision force is greater than some amount.
-	
-	if ( event.force > 5.0 ) then
-		print( "postCollision force: " .. event.force .. ", friction: " .. event.friction )
+-- Create orange fish
+for r = 1,2 do
+	local orangeFish = display.newSprite( mainGroup, imageSheet, { name="swim", start=1, count=2, time=200 } )
+	orangeFish.x, orangeFish.y = 320-letterboxWidth, 60*r
+	orangeFish:setFillColor( 1, 1, 0.5 )
+	orangeFish.myName = "Orange Fish " .. r
+	orangeFish.fill.effect = "filter.hue"
+	orangeFish.fill.effect.angle = 250
+	orangeFish.xScale = -1
+	orangeFish:play()
+	physics.addBody( orangeFish, "dynamic", { bounce=1, friction=0, radius=20 } )
+	orangeFish.isFixedRotation = true
+	orangeFish:applyLinearImpulse( (math.random(2,6)/50)*-1, 0, orangeFish.x, orangeFish.y )
+	-- Add local collision detection to this fish (an alternative to global detection set via line 105)
+	--orangeFish.collision = onLocalCollision
+	--orangeFish:addEventListener( "collision" )
+end
+
+-- Obtain collision positions in content coordinates
+physics.setReportCollisionsInContentCoordinates( true )
+
+-- Obtain an average of all collision positions
+physics.setAverageCollisionPositions( true )
+
+-- Physics "draw mode" buttons
+local normalButton = widget.newButton(
+{
+	x = 60,
+	y = 450 + letterboxHeight,
+	label = "normal",
+	id = "normal",
+	shape = "rectangle",
+	width = 90,
+	height = 32,
+	font = appFont,
+	fontSize = 15,
+	fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.132,0.352,0.572,1 } },
+	labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
+	onRelease = function( event ) currentDrawMode = event.target.id; physics.setDrawMode( currentDrawMode ); end
+})
+mainGroup:insert( normalButton )
+
+local hybridButton = widget.newButton(
+{
+	x = display.contentCenterX,
+	y = 450 + letterboxHeight,
+	label = "hybrid",
+	id = "hybrid",
+	shape = "rectangle",
+	width = 90,
+	height = 32,
+	font = appFont,
+	fontSize = 15,
+	fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.132,0.352,0.572,1 } },
+	labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
+	onRelease = function( event ) currentDrawMode = event.target.id; physics.setDrawMode( currentDrawMode ); end
+})
+mainGroup:insert( hybridButton )
+
+local debugButton = widget.newButton(
+{
+	x = 260,
+	y = 450 + letterboxHeight,
+	label = "debug",
+	id = "debug",
+	shape = "rectangle",
+	width = 90,
+	height = 32,
+	font = appFont,
+	fontSize = 15,
+	fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.132,0.352,0.572,1 } },
+	labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,1 } },
+	onRelease = function( event ) currentDrawMode = event.target.id; physics.setDrawMode( currentDrawMode ); end
+})
+mainGroup:insert( debugButton )
+
+-- Include callback function for showing/hiding info box
+-- In this sample, the physics draw mode is adjusted when appropriate
+sampleUI.onInfoEvent = function( event )
+
+	if ( event.action == "show" and event.phase == "will" ) then
+		physics.setDrawMode( "normal" )
+	elseif ( event.action == "hide" and event.phase == "did" ) then
+		physics.setDrawMode( currentDrawMode )
 	end
-
 end
-
--- Here we assign the above two functions to local listeners within crate1 only, using table listeners:
-
-crate1.preCollision = onLocalPreCollision
-crate1:addEventListener( "preCollision", crate1 )
-
-crate1.postCollision = onLocalPostCollision
-crate1:addEventListener( "postCollision", crate1 )

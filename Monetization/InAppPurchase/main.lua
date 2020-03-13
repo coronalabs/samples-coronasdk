@@ -327,10 +327,12 @@ local function transactionCallback( event )
 		storeUI.printToConsole( "Unknown event" )
 	end
 
-	-- Tell the store we are done with the transaction.
-	-- If you are providing downloadable content, do not call this until
-	-- the download has completed.
-	store.finishTransaction( event.transaction )
+	if store.availableStores.apple then
+		-- Tell the store we are done with the transaction.
+		-- If you are providing downloadable content, do not call this until
+		-- the download has completed.
+		store.finishTransaction( event.transaction )
+	end
 
 	-- Tell the user to select another option now that this transaction has finished
 	timer.performWithDelay( 2000, storeUI.printOptionPrompt )

@@ -1,131 +1,71 @@
--- 
+
 -- Abstract: SpriteTiles
---
--- Version: 1.0
--- 
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
---
---	Supports Graphics 2.0
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
+-- Artwork used within this project is licensed under Public Domain Dedication: https://creativecommons.org/publicdomain/zero/1.0/
 ---------------------------------------------------------------------------------------
 
---display.setDefault( "background", 1 )
 display.setStatusBar( display.HiddenStatusBar )
 
-local options = 
-{
-	-- Required params
-	width = 64,
-	height = 64,
-	numFrames = 256,
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="mediumgrey", title="Sprite Tiles", showBuildNum=false } )
 
-	-- content scaling
-	sheetContentWidth = 1024,
-	sheetContentHeight = 1024,
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
+
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
+
+-- Seed the pseudo-random number generator
+math.randomseed( os.time() )
+
+-- Create player sprite sheet
+local sheetOptions = {
+	width = 50,
+	height = 50,
+	numFrames = 64,
+	sheetContentWidth = 800,
+	sheetContentHeight = 200
 }
-local sheet = graphics.newImageSheet( "dancers.png", options )
+local characterSheet = graphics.newImageSheet( "sprites.png", sheetOptions )
 
-local sequenceData = {}
+-- Create display group for sprites
+local group = display.newGroup()
+mainGroup:insert( group )
 
-local w = 64
-local h = 64
-local halfW = w*0.5
-local halfH = h*0.5
+-- Calculate how many total rows and columns will fill screen
+local tilesPerRow = math.ceil( display.actualContentWidth / 60 )
+local totalRows = math.ceil( (display.actualContentHeight-30) / 60 )
 
-local function createTiles( x, y, xMax, yMax, group )
-	local xStart = x
-	local j = 0
-	while ( true ) do
-		local i = 1+math.fmod( j, 16 )
-		j = j + 1
-		
-		local dancer = "dancer" .. i
-		local numFrames = 16
-		local start = (i % 16)*numFrames + 1
-		local sequence = { name=dancer, start=start, count=numFrames, loopDirection="bounce" }
+-- Generate sprites
+for i = 1,totalRows do
+	for j = 1,tilesPerRow do
 
-		local sprite
+		local rnd = math.random( 1,16 )
 
-		if ( group ) then
-			sprite = display.newSprite( sheet, sequence )
-			group:insert( sprite )
-		else
-			sprite = display.newSprite( sheet, sequence )
-		end
-
-		sprite:translate( x, y )
+		local sequenceData = {
+			name = "character",
+			start = (rnd * 4) - 3,
+			count = 4,
+			time = 600
+		}
+		local sprite = display.newSprite( group, characterSheet, sequenceData )
+		sprite.x = j * 60
+		sprite.y = i * 60
 		sprite:play()
-
-		x = x + w
-		if ( x > xMax ) then
-			x = xStart
-			y = y + h
-		end
-
-		if ( y > yMax ) then
-			break
-		end
-	end
-
-end
-
-local function createTileGroup( nx, ny )
-	local group = display.newGroup( )
-	-- local group = display.newImageGroup( sheet )
-	group.xMin = -(nx-1)*display.contentWidth - halfW
-	group.yMin = -(ny-1)*display.contentHeight - halfH
-	group.xMax = halfW
-	group.yMax = halfH
-	function group:touch( event )
-		if ( "began" == event.phase ) then
-			self.xStart = self.x
-			self.yStart = self.y
-			self.xBegan = event.x
-			self.yBegan = event.y
-		elseif ( "moved" == event.phase ) then
-			local dx = event.x - self.xBegan
-			local dy = event.y - self.yBegan
-			local x = dx + self.xStart
-			local y = dy + self.yStart
-			if ( x < self.xMin ) then x = self.xMin end
-			if ( x > self.xMax ) then x = self.xMax end
-			if ( y < self.yMin ) then y = self.yMin end
-			if ( y > self.yMax ) then y = self.yMax end
-			self.x = x
-			self.y = y
-		end
-		return true
-	end
-	group:addEventListener( "touch", group )
-	
-	
-	local x = halfW
-	local y = halfH
-	
-	local xMax = nx * display.contentWidth
-	local yMax = ny * display.contentHeight
-	
-	createTiles( x, y, xMax, yMax, group )
-
-	return group
-end
-
-local nx = 2
-local ny = 2
-local group = createTileGroup( nx, ny )
-
-local prevTime = system.getTimer()
-local fps = display.newText( "30", 30, 47, nil, 24 )
-fps:setFillColor( 1 )
-fps.prevTime = prevTime
-
-local function enterFrame( event )
-	local curTime = event.time
-	local dt = curTime - prevTime
-	prevTime = curTime
-	if ( (curTime - fps.prevTime ) > 100 ) then
-		-- limit how often fps updates
-		fps.text = string.format( '%.2f', 1000 / dt )
 	end
 end
-Runtime:addEventListener( "enterFrame", enterFrame )
+
+-- Re-position entire group on screen
+group.anchorChildren = true
+group.anchorY = 0
+group.x = display.contentCenterX
+group.y = sampleUI.titleBarBottom + 8

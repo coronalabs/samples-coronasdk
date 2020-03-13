@@ -1,237 +1,167 @@
---
--- Project: NativeKeyboard2
---
--- Date: November 30, 2010
---
--- Version: 1.6
---
--- File name: main.lua
---
--- Author: Corona Labs
---
--- Abstract: Shows different native text entry options (keypad, normal, phone, etc.)
---
--- Demonstrates: 	Adding and removing native text fields objects
---					Changing button labels on the flyable
---					Tapping the background to dismiss the native keyboard.
---
--- File dependencies:
---
--- Target devices: Devices only
---
--- Limitations: Native Text Fields not supported on the windows Simulator
---
--- Update History:
---	v1.2	Added Simulator warning message
---			Buttons now remove and add text fields
---
---  v1.3	Increased native.textField height when running on Android device
---	v1.4 	Updated with new textfield listener type.
---  v1.5	Updated to support auto-sized text field heights.
---  v1.6	Added native TexField and TextBox support on Windows.
---
--- Comments: Slight tweak added for Android textfields, which have more chrome
---
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
---
--- Supports Graphics 2.0
+
+-- Abstract: NativeKeyboard
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
 
--- Require the widget library
+display.setStatusBar( display.HiddenStatusBar )
+
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local darkMode = system.getInfo("darkMode")
+local theme = "darkgrey"
+if darkMode then
+	theme = "mediumgrey"
+end
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme = theme, title = "Native Keyboard", showBuildNum = false } )
+
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
+
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
+
+-- Require libraries/plugins
 local widget = require( "widget" )
+widget.setTheme( "widget_theme_ios7" )
 
-display.setDefault( "background", 80/255 )
+-- Set app font
+local appFont = sampleUI.appFont
 
--------------------------------------------
--- General event handler for fields
--------------------------------------------
+-- Local variables and forward references
+local letterboxWidth = math.abs(display.safeScreenOriginX)
+local field
 
--- You could also assign different handlers for each textfield
+-- Label/value for the phase of the keyboard input
+local phaseLabel = display.newText( mainGroup, "Input Phase:", 30-letterboxWidth, sampleUI.titleBarBottom+382 + display.safeScreenOriginY, appFont, 17 )
+phaseLabel.anchorX = 0
+phaseLabel:setFillColor( 1, 0.4, 0.25 )
+local phaseValue = display.newText( mainGroup, "—", phaseLabel.contentBounds.xMax+5, phaseLabel.y, appFont, 17 )
+phaseValue.anchorX = 0
+phaseValue:setFillColor( 0.8 )
 
-local function fieldHandler( textField )
-	return function( event )
-		if ( "began" == event.phase ) then
-			-- This is the "keyboard has appeared" event
-			-- In some cases you may want to adjust the interface when the keyboard appears.
-		
-		elseif ( "ended" == event.phase ) then
-			-- This event is called when the user stops editing a field: for example, when they touch a different field
-			
-		elseif ( "editing" == event.phase ) then
-		
-		elseif ( "submitted" == event.phase ) then
-			-- This event occurs when the user presses the "return" key (if available) on the onscreen keyboard
-			print( textField().text )
-			
-			-- Hide keyboard
+-- Input handler
+local function inputListener( event )
+
+	-- Update displayed phase value
+	phaseValue.text = event.phase
+
+	if ( event.phase == "began" ) then
+		-- User begins selection/editing of field
+
+	elseif ( event.phase == "ended" or event.phase == "submitted" ) then
+		-- Output resulting text from field
+        print( "FINAL INPUT: " .. event.target.text )
+
+	elseif ( event.phase == "editing" ) then
+		-- Output new characters and current field input
+		print( "NEW CHARACTERS: " .. event.newCharacters )
+		print( "CURRENT INPUT: " .. event.text )
+	end
+end
+
+local function createField( fieldType )
+
+	native.setKeyboardFocus( nil )
+
+	-- Destroy existing input field/box
+	if ( field ) then
+		display.remove( field ) ; field = nil
+	end
+
+	-- Create new basic input field or box
+	if ( fieldType == "Multi-Line" ) then
+		field = native.newTextBox( display.contentCenterX, sampleUI.titleBarBottom+195 - display.safeScreenOriginY, 260+(letterboxWidth*2), 60 )
+		field.font = native.newFont( appFont, 17 )
+		field.isEditable = true
+	else
+		field = native.newTextField( display.contentCenterX, sampleUI.titleBarBottom+195 - display.safeScreenOriginY, 260+(letterboxWidth*2), 30 )
+		field.font = native.newFont( appFont )
+		field:resizeFontToFitHeight()
+	end
+	field:addEventListener( "userInput", inputListener )
+
+	-- Set additional properties based on type
+	if ( fieldType == "Numeric" ) then
+		field.inputType = "number"
+	elseif ( fieldType == "Decimal" ) then
+		field.inputType = "decimal"
+	elseif ( fieldType == "Phone" ) then
+		field.inputType = "phone"
+	elseif ( fieldType == "URL" ) then
+		field.inputType = "url"
+	elseif ( fieldType == "Email" ) then
+		field.inputType = "email"
+	elseif ( fieldType == "No Emoji" ) then
+		field.inputType = "no-emoji"
+	elseif ( fieldType == "Password" ) then
+		field.isSecure = true
+	end
+end
+
+-- Create default input field initially
+createField( "Default" )
+
+-- Label reference for picker wheel
+local inputTypeLabels = { "Default", "Multi-Line", "Numeric", "Decimal", "Phone", "URL", "Email", "No Emoji", "Password" }
+
+-- Create picker wheel for input types
+local columnData = {
+	{
+		align = "center",
+		width = display.actualContentWidth,
+		startIndex = 1,
+		labels = inputTypeLabels
+	}
+}
+
+local pickerWheel = widget.newPickerWheel(
+{
+	left = 0-letterboxWidth,
+	top = sampleUI.titleBarBottom - display.safeScreenOriginY,
+	columns = columnData,
+	style = "resizable",
+	width = display.actualContentWidth,
+	rowHeight = 30,
+	font = appFont,
+	fontSize = 15,
+	onValueSelected = function( event ) phaseValue.text = "—"; createField( inputTypeLabels[event.row] ); end
+})
+mainGroup:insert( pickerWheel )
+
+-- Create invisible background element for hiding the keyboard
+local backRect = display.newRect( mainGroup, display.contentCenterX, display.contentCenterY, 1000, 1000 )
+backRect.isVisible = false
+backRect.isHitTestable = true
+backRect:toBack()
+backRect:addEventListener( "touch",
+	function( event )
+		if ( sampleUI:isInfoShowing() == true ) then return end
+		if ( event.phase == "began" ) then
 			native.setKeyboardFocus( nil )
 		end
+		return true
+	end
+)
+
+-- Callback function for showing/hiding info box
+sampleUI.onInfoEvent = function( event )
+
+	if ( event.action == "show" and event.phase == "will" ) then
+		native.setKeyboardFocus( nil )
+		if ( field ) then field.isVisible = false end
+		phaseLabel.isVisible = false
+		phaseValue.isVisible = false
+	elseif ( event.action == "hide" and event.phase == "did" ) then
+		if ( field ) then field.isVisible = true end
+		phaseLabel.isVisible = true
+		phaseValue.isVisible = true
 	end
 end
-
--- Predefine local objects for use later
-local defaultField, numberField, phoneField, urlField, emailField, passwordField
-local fields = display.newGroup()
-
--------------------------------------------
--- *** Buttons Presses ***
--------------------------------------------
-
--- Default Button Pressed
-local defaultButtonPress = function( event )
-	
-	-- Make sure display object still exists before removing it
-	if defaultField then
-		print("Default button pressed ... removing textField")
-		fields:remove( defaultField )
-		defaultButton:setLabel( "Add Default textField" )
-		
-		defaultField = nil				-- do this so we don't remove it a second time
-	else
-		-- Add the text field back again
-		defaultField = native.newTextField( 10, 30, 180, 30 )
-		defaultField:addEventListener( "userInput", fieldHandler( function() return defaultField end ) ) 
-		fields:insert(defaultField)
-		defaultButton:setLabel( "Remove Default textField" )
-	end
-end
-
--- Number Button Pressed
-local numberButtonPress = function( event )
-	print("Number button pressed ... removing textField")
-	
-	-- Make sure display object still exists before removing it
-	if numberField then
-		numberField:removeSelf()
-		numberButton:setLabel( "Add Number textField" )
-		numberField = nil				-- do this so we don't remove it a second time
-	else
-		-- Add the text field back again
-		numberField = native.newTextField( 10, 70, 180, 30 )
-		numberField.inputType = "number"
-		numberField:addEventListener( "userInput", fieldHandler( function() return numberField end ) ) 
-		fields:insert(numberField)
-		numberButton:setLabel( "Remove Number textField" )
-	end
-end
-
--------------------------------------------
--- *** Create native input textfields ***
--------------------------------------------
-
-display.setDefault( "anchorX", 0.0 )	-- default to TopLeft anchor point for new objects
-display.setDefault( "anchorY", 0.0 )
-
-defaultField = native.newTextField( 10, 30, 180, 30 )
-defaultField:addEventListener( "userInput", fieldHandler( function() return defaultField end ) ) 
-
-numberField = native.newTextField( 10, 70, 180, 30 )
-numberField.inputType = "number"
-numberField:addEventListener( "userInput", fieldHandler( function() return numberField end ) ) 
-
-phoneField = native.newTextField( 10, 110, 180, 30 )
-phoneField.inputType = "phone"
-phoneField:addEventListener( "userInput", fieldHandler( function() return phoneField end ) ) 
-
-urlField = native.newTextField( 10, 150, 180, 30 )
-urlField.inputType = "url"
-urlField:addEventListener( "userInput", fieldHandler( function() return urlField end ) ) 
-
-emailField = native.newTextField( 10, 190, 180, 30 )
-emailField.inputType = "email"
-emailField:addEventListener( "userInput", fieldHandler( function() return emailField end ) ) 
-
-passwordField = native.newTextField( 10, 230, 180, 30 )
-passwordField.isSecure = true
-passwordField:addEventListener( "userInput", fieldHandler( function() return passwordField end ) ) 
-
--- Add fields to our new group
-fields:insert(defaultField)
-fields:insert(numberField)
-
--------------------------------------------
--- *** Add field labels ***
--------------------------------------------
-
-local defaultLabel = display.newText( "Default", 200, 35, native.systemFont, 18 )
-defaultLabel:setFillColor( 170/255, 170/255, 1 )
-
-local defaultLabel = display.newText( "Number", 200, 75, native.systemFont, 18 )
-defaultLabel:setFillColor( 1, 150/255, 180/255 )
-
-local defaultLabel = display.newText( "Phone", 200, 115, native.systemFont, 18 )
-defaultLabel:setFillColor( 1, 220/255, 120/255 )
-
-local defaultLabel = display.newText( "URL", 200, 155, native.systemFont, 18 )
-defaultLabel:setFillColor( 170/255, 1, 170/255 )
-
-local defaultLabel = display.newText( "Email", 200, 195, native.systemFont, 18 )
-defaultLabel:setFillColor( 120/255, 1, 245/255 )
-
-local defaultLabel = display.newText( "Password", 200, 235, native.systemFont, 18 )
-defaultLabel:setFillColor( 1, 235/255, 170/255 )
-
---display.setDefault( "anchorX", 0.5 )	-- restore anchor points for new objects to center anchor point
---display.setDefault( "anchorY", 0.5 )
-
--------------------------------------------
--- *** Create Buttons ***
--------------------------------------------
-
--- "Remove Default" Button
-defaultButton = widget.newButton
-{
-	defaultFile = "buttonBlue.png",
-	overFile = "buttonBlueOver.png",
-	label = "Remove Default textField",
-	labelColor = 
-	{ 
-		default = { 1, 1, 1 }, 
-	},
-	fontSize = 18,
-	emboss = true,
-	onPress = defaultButtonPress,
-}
-
--- "Remove Number" Button
-numberButton = widget.newButton
-{
-	defaultFile = "buttonBlue.png",
-	overFile = "buttonBlueOver.png",
-	label = "Remove Number textField",
-	labelColor = 
-	{ 
-		default = { 1, 1, 1 }, 
-	},
-	fontSize = 18,
-	emboss = true,
-	onPress = numberButtonPress,
-}
-
--- Position the buttons on screen
-defaultButton.x = display.contentCenterX - defaultButton.contentWidth/2;	defaultButton.y = 325
-numberButton.x =  display.contentCenterX - numberButton.contentWidth/2;	numberButton.y = 400
-
--------------------------------------------
--- Create a Background touch event
--------------------------------------------
-
-local bkgd = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
-bkgd:setFillColor( 0, 0, 0, 0 )		-- set Alpha = 0 so it doesn't cover up our buttons/fields
-
--- Tapping screen dismisses the keyboard
---
--- Needed for the Number and Phone textFields since there is
--- no return key to clear focus.
-
-local listener = function( event )
-	-- Hide keyboard
-	print("tap pressed")
-	native.setKeyboardFocus( nil )
-	
-	return true
-end
-
--- Add listener to background for user "tap"
-bkgd:addEventListener( "tap", listener )

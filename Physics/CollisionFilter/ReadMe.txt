@@ -1,1 +1,0 @@
-Demonstrates using "categoryBits" and "maskBits" for collision filtering so balloons of different color wont hit each other.

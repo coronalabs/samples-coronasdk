@@ -1,1 +1,0 @@
-This sample demonstrates how to fade out a rectangle 

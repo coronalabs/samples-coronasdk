@@ -1,217 +1,80 @@
--- Project: DeviceInfo
---
--- File name: main.lua
---
--- Author: Corona Labs
---
--- Abstract: Displays Device and Corona Information on Screen
---
--- Demonstrates: system.getInfo() API, system.getPreference() API
---
--- File dependencies: none
---
--- Target devices: Simulator, iPhone/iPad, Android, macOS, tvOS, Win32
---
--- Limitations:
---
--- Update History:
---	v1.1				Fixed UDID display problem
---  v1.2	2010.10.07	Add system.getPreference() API
---  v1.3	2013.03.26	Added store.target field
---  v1.4	2015.12.15	Modified for landscape/portrait modes for tvOS
---  v1.5	2016.12.08	Modernization of all system.getInfo() calls.
---
--- Comments:
---
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010-2015 Corona Labs Inc. All Rights Reserved.
---
----------------------------------------------------------------------------------
 
-display.setStatusBar( display.HiddenStatusBar )		-- hide status bar
+-- Abstract: DeviceInfo
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
+---------------------------------------------------------------------------------------
 
-local background = display.newImage( "wood_bg.jpg", true )
-background.x = display.contentCenterX
-background.y = display.contentCenterY
-background.alpha = 0.8
+display.setStatusBar( display.HiddenStatusBar )
 
-display.setDefault( "anchorX", 0.0 )	-- default to TopLeft anchor point for new objects
-display.setDefault( "anchorY", 0.0 )
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Device Info", showBuildNum=true } )
 
--- Define colors for labels
-lbl = {red = 1, green = 180/255, blue = 90/255}
-txt = {red = 1, green = 1, blue = 1}
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
 
--------------------------------------------
--- *** Add Device labels ***
--------------------------------------------
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
 
-local x = 20		-- x value for label fields
-local y = 5		-- y value for label fields	
-local yOffset = 30	-- y offset between fields
+-- Set app font
+local appFont = sampleUI.appFont
 
-local title = display.newText( "Device Info",0, 0, native.systemFont, 24 )
-title:setFillColor( 1, 1, 1)
-title.anchorX = 0.5
+local y = sampleUI.titleBarBottom + 10
+local yOffset = 25  -- Vertical offset between fields
+local labelX = 140  -- Right edge point for all labels
+local valueX = 155  -- Left edge point for all values
+display.setDefault( "anchorX", 1.0 )
+display.setDefault( "fillColor", 1, 0.7, 0.35 )
 
-itemLabel = display.newText( "name:", x+85, y+yOffset*1, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
+-- Output labels
+local itemLabel = display.newText( mainGroup, "name", labelX, y+yOffset*1, appFont, 16 )
+itemLabel = display.newText( mainGroup, "manufacturer", labelX, y+yOffset*2, appFont, 16 )
+itemLabel = display.newText( mainGroup, "model", labelX, y+yOffset*3, appFont, 16 )
+itemLabel = display.newText( mainGroup, "environment", labelX, y+yOffset*4, appFont, 16 )
+itemLabel = display.newText( mainGroup, "platform", labelX, y+yOffset*5, appFont, 16 )
+itemLabel = display.newText( mainGroup, "platform version", labelX, y+yOffset*6, appFont, 16 )
+itemLabel = display.newText( mainGroup, "version (Corona)", labelX, y+yOffset*7, appFont, 16 )
+itemLabel = display.newText( mainGroup, "build (Corona)", labelX, y+yOffset*8, appFont, 16 )
+itemLabel = display.newText( mainGroup, "language", labelX, y+yOffset*9, appFont, 16 )
+itemLabel = display.newText( mainGroup, "country", labelX, y+yOffset*10, appFont, 16 )
+itemLabel = display.newText( mainGroup, "locale", labelX, y+yOffset*11, appFont, 16 )
+itemLabel = display.newText( mainGroup, "language code", labelX, y+yOffset*12, appFont, 16 )
+itemLabel = display.newText( mainGroup, "target store", labelX, y+yOffset*13, appFont, 16 )
+itemLabel = display.newText( mainGroup, "device ID", display.contentCenterX, y+yOffset*15-10, appFont, 16 )
+itemLabel:setFillColor( 1, 0.4, 0.25 )
+itemLabel.anchorX = 0.5
 
-itemLabel = display.newText( "manufacturer:", x+28, y+yOffset*2, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
+display.setDefault( "fillColor", 1, 1, 1 )
+display.setDefault( "anchorX", 0.0 )
 
-itemLabel = display.newText( "model:", x+78, y+yOffset*3, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
+-- Output values (call "system.getInfo()" to set the field values)
+local itemText = display.newText( mainGroup, system.getInfo( "name" ), valueX, y+yOffset*1, appFont, 16 )
+itemText = display.newText( mainGroup, system.getInfo( "manufacturer" ), valueX, y+yOffset*2, appFont, 16 )
+itemText = display.newText( mainGroup, system.getInfo( "model" ), valueX, y+yOffset*3, appFont, 16 )
+itemText = display.newText( mainGroup, system.getInfo( "environment" ), valueX, y+yOffset*4, appFont, 16 )
+itemText = display.newText( mainGroup, system.getInfo( "platform" ), valueX, y+yOffset*5, appFont, 16 )
+itemText = display.newText( mainGroup, system.getInfo( "platformVersion" ), valueX, y+yOffset*6, appFont, 16 )
+itemText = display.newText( mainGroup, system.getInfo( "version" ), valueX, y+yOffset*7, appFont, 16 )
+itemText = display.newText( mainGroup, system.getInfo( "build" ), valueX, y+yOffset*8, appFont, 16 )
+itemText = display.newText( mainGroup, system.getPreference( "ui", "language" ), valueX, y+yOffset*9, appFont, 16 )
+itemText = display.newText( mainGroup, system.getPreference( "locale", "country" ), valueX, y+yOffset*10, appFont, 16 )
+itemText = display.newText( mainGroup, system.getPreference( "locale", "identifier" ), valueX, y+yOffset*11, appFont, 16 )
+itemText = display.newText( mainGroup, system.getPreference( "locale", "language" ), valueX, y+yOffset*12, appFont, 16 )
+itemText = display.newText( mainGroup, system.getInfo( "targetAppStore" ), valueX, y+yOffset*13, appFont, 16 )
+itemText = display.newText( mainGroup, system.getInfo( "deviceID" ), display.contentCenterX, y+yOffset*15+12, appFont, 14 )
+itemText.anchorX = 0.5
 
-itemLabel = display.newText( "environment:", x+30, y+yOffset*4, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
+display.setDefault( "anchorX", 0.5 )
 
-itemLabel = display.newText( "platform:", x+60, y+yOffset*5, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
-
-itemLabel = display.newText( "platformVersion:", x+2, y+yOffset*6, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
-
-itemLabel = display.newText( "version (Corona):", x, y+yOffset*7, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
-
-itemLabel = display.newText( "build (Corona):", x+19, y+yOffset*8, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
-
-itemLabel = display.newText( "deviceID:", x+10, y+yOffset*9, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
-
-itemLabel = display.newText( "language:", x+57, y+yOffset*11, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
-
-itemLabel = display.newText( "country:", x+69, y+yOffset*12, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
-
-itemLabel = display.newText( "locale:", x+83, y+yOffset*13, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
-
-itemLabel = display.newText( "language code:", x+15, y+yOffset*14, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
-
-itemLabel = display.newText( "target store:", x+45, y+yOffset*15, native.systemFont, 16 )
-itemLabel:setFillColor(lbl.red, lbl.green, lbl.blue)
-
-
--------------------------------------------
--- *** Add Device text ***
--------------------------------------------
-
--- Calls system.getInfo to fill in the Device Info fields
-
-local xText = 160		-- x value for Text fields
-local itemText
-
-itemText = display.newText( system.getInfo( "name" ),
-	xText, y+yOffset*1, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getInfo( "manufacturer" ),
-	xText, y+yOffset*2, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getInfo( "model" ),
-	xText, y+yOffset*3, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getInfo( "environment" ),
-	xText, y+yOffset*4, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getInfo( "platform" ),
-	xText, y+yOffset*5, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getInfo( "platformVersion" ),
-	xText, y+yOffset*6, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getInfo( "version" ),
-	xText, y+yOffset*7, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getInfo( "build" ),
-	xText, y+yOffset*8, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getInfo( "deviceID" ),
-	30, y+yOffset*9+25, native.systemFont, 14 )
-itemText.anchorX = 0.5	-- center anchor
-	itemText.x = display.contentCenterX				-- center long string (40 chars)
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getPreference( "ui", "language" ),
-	xText, y+yOffset*11, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getPreference( "locale", "country" ),
-	xText, y+yOffset*12, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getPreference( "locale", "identifier" ),
-	xText, y+yOffset*13, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-itemText = display.newText( system.getPreference( "locale", "language" ),
-	xText, y+yOffset*14, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-local store = require "store"
-
-itemText = display.newText( store.target,
-	xText, y+yOffset*15, native.systemFont, 16 )
-itemText:setFillColor(txt.red, txt.green, txt.blue)
-
-display.setDefault( "anchorX", 0.5 )	-- set back to default values (center)
-display.setDefault( "anchorY", 0.5 )
-
------------------------------------------------------------------------
--- Change the orientation of the app here
---
--- Adjust objects for Portrait or Landscape mode
---
--- Enter: mode = orientation mode
------------------------------------------------------------------------
---
-function changeOrientation( mode ) 
-	print( "changeOrientation ...", mode )
-
-	_W = display.contentWidth
-	_H = display.contentHeight
-
-	background.x = _W / 2
-	background.y = _H / 2
-	title.x = _W / 2
-
-	if string.find( mode, "portrait") then 
-		background.rotation = 0
-	elseif string.find( mode, "landscape") then
-		background.rotation = 90
-	end
-end
-
------------------------------------------------------------------------
--- Come here on Resize Events
--- Display the Orientation Message on the screen
------------------------------------------------------------------------
---
-function onResizeEvent( event ) 
-	print ("onResizeEvent: " .. event.name)
-	changeOrientation( system.orientation )
-end
-
--- Set up the display after the app starts
-changeOrientation( system.orientation )
-
--- Add the Orientation callback event
-Runtime:addEventListener( "resize", onResizeEvent )
-
-print("")
-print("System Information:")
+--[[
+print( " \nSYSTEM INFORMATION" )
 local platform = system.getInfo("platform")
 if platform == "android" then
 	print("androidApiLevel: " .. tostring(system.getInfo("androidApiLevel")))
@@ -251,3 +114,4 @@ print("maxTextureSize: " .. tostring(system.getInfo("maxTextureSize")))
 print("targetAppStore: " .. tostring(system.getInfo("targetAppStore")))
 print("textureMemoryUsed: " .. tostring(system.getInfo("textureMemoryUsed")))
 print("version: " .. tostring(system.getInfo("version")))
+--]]

@@ -124,7 +124,9 @@ function scene:create( event )
 
 	composer.setVariable( "photoTimers", photoTimers )
 	
-	widget.setTheme( "widget_theme_android_holo_light" )
+	if system.getInfo( "platform" ) ~= "tvos" then
+		widget.setTheme( "widget_theme_android_holo_light" )
+	end
 	spinner = widget.newSpinner( { x=114, y=283, deltaAngle=10, incrementEvery=10 } )
 	sceneGroup:insert( spinner )
 	composer.setVariable( "spinner", spinner )

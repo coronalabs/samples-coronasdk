@@ -26,7 +26,7 @@ display.getCurrentStage():insert( sampleUI.frontGroup )
 -- Require libraries/plugins
 local json = require( "json" )
 local widget = require( "widget" )
-local facebook = require( "plugin.facebook.v4" )
+local facebook = require( "plugin.facebook.v4a" )
 
 -- Set app font
 local appFont = sampleUI.appFont
@@ -44,16 +44,13 @@ local commandProcessedByFB
 
 -- Facebook commands
 local LOGIN = 0
-local POST_MSG = 1
-local POST_LINK = 2
-local POST_PHOTO = 3
-local SHOW_REQUEST_DIALOG = 4
-local SHARE_LINK_DIALOG = 5
-local SHARE_PHOTO_DIALOG = 6
-local GET_USER_INFO = 7
-local PUBLISH_INSTALL = 8
-local IS_FACEBOOK_APP_ENABLED = 9
-local LOGOUT = 10
+local SHOW_REQUEST_DIALOG = 1
+local SHARE_LINK_DIALOG = 2
+local SHARE_PHOTO_DIALOG = 3
+local GET_USER_INFO = 4
+local PUBLISH_INSTALL = 5
+local IS_FACEBOOK_APP_ENABLED = 6
+local LOGOUT = 7
 
 
 -- Check for an item inside the provided table
@@ -87,38 +84,8 @@ local function processFBCommand()
 
 	local response = {}
 
-	-- This code posts a message to your Facebook wall
-	if requestedFBCommand == POST_MSG then
-		local time = os.date("*t")
-		local postMsg = {
-			message = "Posting from Corona! " ..
-				os.date("%A, %B %e")  .. ", " .. time.hour .. ":"
-				.. time.min .. "." .. time.sec
-		}
-		response = facebook.request( "me/feed", "POST", postMsg )  -- Posting the message
-
-	-- This code posts a link to your Facebook Wall with a message about it
-	elseif requestedFBCommand == POST_LINK then
-		local attachment = {
-			name = "Developing a Facebook app using Corona",
-			link = "https://docs.coronalabs.com/guide/social/usingFacebook/index.html",
-			caption = "Link caption",
-			description = "Corona is great for developing mobile apps with the same codebase.",
-			picture = "http://www.coronalabs.com/links/demo/Corona90x90.png",
-			message = "Check it out!",
-		}
-		response = facebook.request( "me/feed", "POST", attachment )  -- Posting the photo
-
-	-- This code posts a photo from the Internet to your Facebook wall
-	elseif requestedFBCommand == POST_PHOTO then
-		local attachment = {
-			caption = "Photo Caption",
-			url = "http://www.coronalabs.com/links/demo/Corona90x90.png",
-		}
-		response = facebook.request( "me/photos", "POST", attachment )		-- posting the photo
-
 	-- This displays a Facebook dialog to requests friends to play with you
-	elseif requestedFBCommand == SHOW_REQUEST_DIALOG then
+	if requestedFBCommand == SHOW_REQUEST_DIALOG then
 		response = facebook.showDialog( "requests", { 
 			title = "Choose Friends to Play With",
 			message = "You should download this game!",
@@ -131,7 +98,7 @@ local function processFBCommand()
 			name = "Facebook plugin for Corona",
 			link = "https://docs.coronalabs.com/guide/social/usingFacebook/index.html",
 			description = "More Facebook awesomeness for Corona!",
-			picture = "https://coronalabs.com/wp-content/uploads/2014/11/Corona-Icon.png",
+			picture = "https://coronalabs.com/wordpress/wp-content/uploads/2018/07/orange_vertikal_RGB.png",
 		}
 		response = facebook.showDialog( "link", linkData )
 
@@ -140,8 +107,7 @@ local function processFBCommand()
 		-- Create table with photo data to share
 		local photoData = {
 			photos = {
-				{ url = "https://coronalabs.com/wp-content/uploads/2014/11/Corona-Icon.png", },
-				{ url = "https://www.coronalabs.com/links/demo/Corona90x90.png", },
+				{ url = "https://coronalabs.com/wordpress/wp-content/uploads/2018/07/orange_vertikal_RGB.png", },
 			},
 		}
 		response = facebook.showDialog( "photo", photoData )		
@@ -155,28 +121,12 @@ local function processFBCommand()
 	printTable( response )
 end
 
-
-local function needPublishActionsPermission()
-	return requestedFBCommand ~= LOGIN
-		and requestedFBCommand ~= SHOW_REQUEST_DIALOG
-		and requestedFBCommand ~= GET_USER_INFO
-		and requestedFBCommand ~= PUBLISH_INSTALL
-		and requestedFBCommand ~= IS_FACEBOOK_APP_ENABLED
-		and requestedFBCommand ~= LOGOUT
-end
-
-
 local function enforceFacebookLoginAndPermissions()
 	if facebook.isActive then
 		local accessToken = facebook.getCurrentAccessToken()
 		if accessToken == nil then
 			print( "Need to log in!" )
 			facebook.login()
-		-- Get publish_actions permission only if we're not getting user info or issuing a game request
-		elseif needPublishActionsPermission() and not valueInTable( accessToken.grantedPermissions, "publish_actions" ) then
-			print( "Logged in, but need 'publish_actions' permission" )
-			printTable( accessToken )
-			facebook.login( { "publish_actions" } )
 		else
 			print( "Already logged in with necessary permissions" )
 			printTable( accessToken )
@@ -243,16 +193,7 @@ local function listener( event )
 
 			print( "Facebook Command: " .. commandProcessedByFB )
 
-			if ( commandProcessedByFB == POST_MSG ) then
-				statusMessage.text = "Message posted"
-				printTable( response )
-			elseif ( commandProcessedByFB == POST_LINK ) then
-				statusMessage.text = "Link posted"
-				printTable( response )
-			elseif ( commandProcessedByFB == POST_PHOTO ) then
-				statusMessage.text = "Photo posted"
-				printTable( response )
-			elseif ( commandProcessedByFB == GET_USER_INFO ) then
+			if ( commandProcessedByFB == GET_USER_INFO ) then
 				statusMessage.text = response.name
 				printTable( response )
 			else
@@ -274,10 +215,7 @@ local function listener( event )
     end
 end
 
-
--- Set the Facebook Connect listener to use throughout the app
-facebook.setFBConnectListener( listener )
-
+facebook.init(listener)
 
 local function buttonOnRelease( event )
 
@@ -286,15 +224,6 @@ local function buttonOnRelease( event )
 
 	if id == "login" then
 		requestedFBCommand = LOGIN
-		enforceFacebookLoginAndPermissions()
-	elseif id == "postMessage" then
-		requestedFBCommand = POST_MSG
-		enforceFacebookLoginAndPermissions()
-	elseif id == "postLink" then
-		requestedFBCommand = POST_LINK
-		enforceFacebookLoginAndPermissions()
-	elseif id == "postPhoto" then
-		requestedFBCommand = POST_PHOTO
 		enforceFacebookLoginAndPermissions()
 	elseif id == "showRequestDialog" then
 		requestedFBCommand = SHOW_REQUEST_DIALOG
@@ -332,7 +261,6 @@ local function buttonOnRelease( event )
 	return true
 end
 
-
 -- Login button
 local loginButton = widget.newButton(
 	{
@@ -351,41 +279,6 @@ local loginButton = widget.newButton(
 	})
 mainGroup:insert( loginButton )
 
--- Post message button
-local postMessageButton = widget.newButton(
-	{
-		label = "Post message",
-		id = "postMessage",
-		shape = "rectangle",
-		x = display.contentCenterX,
-		y = 155,
-		width = 278,
-		height = 32,
-		font = appFont,
-		fontSize = 15,
-		fillColor = { default={ 0.1,0.3,0.5,1 }, over={ 0.1,0.3,0.5,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
-		onRelease = buttonOnRelease,
-	})
-mainGroup:insert( postMessageButton )
-
--- Post link button
-local postLinkButton = widget.newButton(
-	{
-		label = "Post link",
-		id = "postLink",
-		shape = "rectangle",
-		x = display.contentCenterX / 2 - 4,
-		y = 195,
-		width = 110,
-		height = 32,
-		font = appFont,
-		fontSize = 15,
-		fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.12,0.32,0.52,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
-		onRelease = buttonOnRelease
-	})
-mainGroup:insert( postLinkButton )
 
 -- Share link dialog button
 local shareLinkDialogButton = widget.newButton(
@@ -393,9 +286,9 @@ local shareLinkDialogButton = widget.newButton(
 		label = "Share link dialog",
 		id = "shareLinkDialog",
 		shape = "rectangle",
-		x = display.contentWidth - (display.contentCenterX / 2) - 21,
-		y = 195,
-		width = 160,
+		x = display.contentCenterX,
+		y = 155,
+		width = 278,
 		height = 32,
 		font = appFont,
 		fontSize = 15,
@@ -405,33 +298,15 @@ local shareLinkDialogButton = widget.newButton(
 	})
 mainGroup:insert( shareLinkDialogButton )
 
--- Post photo button
-local postPhotoButton = widget.newButton(
-	{
-		label = "Post photo",
-		id = "postPhoto",
-		shape = "rectangle",
-		x = display.contentCenterX / 2 - 4,
-		y = 235,
-		width = 110,
-		height = 32,
-		font = appFont,
-		fontSize = 15,
-		fillColor = { default={ 0.14,0.34,0.54,1 }, over={ 0.14,0.34,0.54,1 } },
-		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
-		onRelease = buttonOnRelease
-	})
-mainGroup:insert( postPhotoButton )
-
 -- Share photo dialog button
 local sharePhotoDialogButton = widget.newButton(
 	{
 		label = "Share photo dialog",
 		id = "sharePhotoDialog",
 		shape = "rectangle",
-		x = display.contentWidth - (display.contentCenterX / 2) - 21,
-		y = 235,
-		width = 160,
+		x = display.contentCenterX,
+		y = 195,
+		width = 278,
 		height = 32,
 		font = appFont,
 		fontSize = 15,
@@ -448,7 +323,7 @@ local shareRequestDialogButton = widget.newButton(
 		id = "showRequestDialog",
 		shape = "rectangle",
 		x = display.contentCenterX,
-		y = 275,
+		y = 235,
 		width = 278,
 		height = 32,
 		font = appFont,
@@ -466,7 +341,7 @@ local getInfoButton = widget.newButton(
 		id = "getUser",
 		shape = "rectangle",
 		x = display.contentCenterX,
-		y = 315,
+		y = 275,
 		width = 278,
 		height = 32,
 		font = appFont,
@@ -484,7 +359,7 @@ local publishInstallButton = widget.newButton(
 		id = "publishInstall",
 		shape = "rectangle",
 		x = display.contentCenterX,
-		y = 355,
+		y = 315,
 		width = 278,
 		height = 32,
 		font = appFont,
@@ -502,7 +377,7 @@ local isFacebookAppEnabledButton = widget.newButton(
 		id = "isFacebookAppEnabled",
 		shape = "rectangle",
 		x = display.contentCenterX,
-		y = 395,
+		y = 355,
 		width = 278,
 		height = 32,
 		font = appFont,
@@ -520,7 +395,7 @@ local logoutButton = widget.newButton(
 		id = "logout",
 		shape = "rectangle",
 		x = display.contentCenterX,
-		y = 435,
+		y = 395,
 		width = 278,
 		height = 32,
 		font = appFont,

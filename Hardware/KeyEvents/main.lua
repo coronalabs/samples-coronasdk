@@ -1,85 +1,87 @@
--- Project: KeyEvents
---
--- File name: main.lua
---
--- Author: Corona Labs
---
--- Abstract:	Demonstrates how to handle key events.
---
--- Demonstrates: 
---
--- File dependencies: build.settings
---
--- Target devices: Android, OS X, Windows
---
--- Update History:
---	7/13/2015	1.3		Changed check from platform to system.hasEventSource( )
---	9/09/2013	1.2		Added support for Windows. Modified key event handler.
---	7/14/2011	1.1		Added "volumeUp" exception code / removed splash screen
---	7/12/2011	1.0		Initial version
---
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2011 Corona Labs Inc. All Rights Reserved.
---
--- Supports Graphics 2.0
+
+-- Abstract: KeyEvents
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
 
+display.setStatusBar( display.HiddenStatusBar )
+
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Key Events", showBuildNum=false } )
+
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
+
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
+
+-- Set app font
+local appFont = sampleUI.appFont
+
+-- Local variables and forward references
 local centerX = display.contentCenterX
 local centerY = display.contentCenterY
-local _W = display.contentWidth
-local _H = display.contentHeight
 
-display.setDefault( "background", 80/255 )
+-- Create text labels at the center of the screen for display key event info
+local keyTxt = display.newText( { parent=mainGroup, text="...", x=centerX, y=centerY-10, font=appFont, fontSize=28, align="center" } )
+keyTxt:setFillColor( 1, 0.7, 0.35 )
+local phaseTxt = display.newText( { parent=mainGroup, text="", x=centerX, y=centerY+18, font=appFont, fontSize=22, align="center" } )
+phaseTxt:setFillColor( 1, 0.4, 0.25 )
 
--- Create a title message at the top of the screen.
---
-local title = display.newText( "Press a key or button", centerX, 40, nil, 20 )
+-- Create a message area and text object
+local shade = display.newRect( mainGroup, centerX, display.contentHeight-display.screenOriginY-18, display.actualContentWidth, 36 )
+shade:setFillColor( 0, 0, 0, 0.7 )
+local msg = display.newText( mainGroup, "", centerX, shade.y, appFont, 13 )
 
--- Create a text label at the center of the screen for display key event info.
---
-local textOptions =
-{
-	text = "Waiting for key event...",
-	x = centerX,
-	y = centerY,
-	fontSize = 20,
-	align = "center",
-}
-local eventTxt = display.newText( textOptions )
-
---
--- Check that the current platform provides key events
---
-if not system.hasEventSource( "key" ) then
-	msg = display.newText( "Key events not supported on this platform", centerX, centerY - 100, native.systemFontBold, 13 )
-	msg.x = display.contentWidth/2      -- center title
-	msg:setFillColor( 1,0,0 )
+-- Detect if key events are supported
+local platform = system.getInfo( "platform" )
+if not system.hasEventSource( "key" ) or ( system.getInfo("environment") == "device" and ( platform == "ios" or platform == "tvos" ) ) then
+	msg.text = "(connect remote or game controller)"
+	msg:setFillColor( 1, 0, 0.2 )
+	local alert = native.showAlert( "Note", "Mobile devices require a remote or game controller to receive key events.", { "OK" } )
+else
+	msg.text = "Waiting for key event..."
+	msg:setFillColor( 1, 0.9, 0.2 )
 end
 
--- The Key Event Listener
---
-local function onKeyEvent( event )
-	-- Print which key was pressed down/up to the log.
-	local message = "'" .. event.keyName .. "' is " .. event.phase
-	print( message )
-
-	-- Display the key event's information onscreen.
-	if event.device then
-		message = event.device.displayName .. "\n" .. message
+local function onInputDeviceStatusChanged( event )
+	if ( event.connectionStateChanged and event.device and event.device.isConnected == true ) then
+		msg.text = "Waiting for key event..."
+		msg:setFillColor( 1, 0.9, 0.2 )
 	end
-	eventTxt.text = message
+end
 
-	-- If the "back" key was pressed, then prevent it from backing out of the app.
-	-- We do this by returning true, telling the operating system that we are overriding the key.
-	if (event.keyName == "back") then
+-- The key event listener
+local function onKeyEvent( event )
+
+	-- Output which key was pressed down/up to the console
+	print( '"' .. event.keyName .. '" : ' .. event.phase )
+
+	-- Display the key event information on screen
+	keyTxt.text = event.keyName
+	phaseTxt.text = event.phase
+
+	-- If the Android "back" key was pressed, prevent it from backing out of the app
+	-- This is done by returning true, telling the operating system to override the key
+	if ( event.keyName == "back" ) then
 		return true
 	end
 
-	-- Return false to indicate that this app is *not* overriding the received key.
-	-- This lets the operating system execute its default handling of this key.
+	-- Return false to indicate that this app is NOT overriding the received key
+	-- This lets the operating system execute its default handling of the key
 	return false
 end
 
--- Add the key callback
-Runtime:addEventListener( "key", onKeyEvent );
+-- Add key event listener
+Runtime:addEventListener( "key", onKeyEvent )
 
+-- Add listener for input device status
+Runtime:addEventListener( "inputDeviceStatus", onInputDeviceStatusChanged )

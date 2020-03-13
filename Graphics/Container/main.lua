@@ -1,49 +1,91 @@
---
--- Abstract: Container sample app
---
--- Date: September 10, 2010
---
--- Version: 1.1
---
--- File name: main.lua
---
--- Author: Corona Labs
---
--- Demonstrates: graphics, orientation, object touch
---
--- File dependencies: none
---
--- Target devices: Simulator and devices
---
--- Limitations:
---
--- Update History:
---	v1.2  Use .wav sound
---
--- Comments: 
---
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
+
+-- Abstract: Container
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
 
 display.setStatusBar( display.HiddenStatusBar )
 
-local w, h = display.contentWidth, display.contentHeight
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Container", showBuildNum=false } )
 
-local container = display.newContainer( w, h )
-container:translate( display.contentCenterX, display.contentCenterY )
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
 
-local bkgd = display.newImage( container, "world.jpg" )
-bkgd.fill.effect = "filter.posterize"
-bkgd.fill.effect.colorsPerChannel = 7
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
 
-local myText = display.newText( container, "Hello, World!", 0, 0, native.systemFont, 40 )
-myText:setFillColor( 1, 1, 0 )
+-- Require libraries/plugins
+local widget = require( "widget" )
+widget.setTheme( "widget_theme_ios7" )
 
--- Mask the container
-local mask = graphics.newMask( "circlemask.png" )
-container:setMask( mask )
-container.maskScaleX = 2
-container.maskScaleY = 2
+-- Set app font
+local appFont = sampleUI.appFont
 
-transition.to( container, { height = 0.5*h, width = 0.1*h, time=3000, delay=1000} )
+-- Local variables and forward references
+local transformValues = {
+	{ property="height", label="height", current=200, range=256, offset=0, multiplier=2.56 },
+	{ property="width", label="width", current=100, range=184, offset=0, multiplier=1.84 },
+	{ property="rotation", label="rotation", current=0, range=300, offset=-150, multiplier=3 }
+}
+local lbX = display.screenOriginX
+local lbY = display.screenOriginY
+local labelAlignX = 80 + lbX
+local valueAlignX = 290 - lbX
+local sliderWidth = 140 - lbX - lbX
+
+-- Create container
+local container = display.newContainer( 184, 256 )
+mainGroup:insert( container )
+container.width = 100
+container.height = 200
+container:translate( display.contentCenterX, display.contentCenterY-50 )
+
+-- Add image to container
+local background = display.newImageRect( container, "image.jpg", 184, 256 )
+background.x, background.y = 0,0
+
+local function sliderListener( event )
+
+	local index = transformValues[event.target.indexValue]
+	local propertyName = index.property
+	local propertyValue = ( event.value * index.multiplier ) + index.offset
+	event.target.valueLabel.text = math.round( propertyValue )
+
+	-- Update container property
+	container[propertyName] = propertyValue
+end
+
+-- Slider controls and labels
+local sliderGroup = display.newGroup()
+mainGroup:insert( sliderGroup )
+for i = 1,#transformValues do
+	local label = display.newText( sliderGroup, transformValues[i].label, labelAlignX, 480-(i*36)-lbY, appFont, 16 )
+	label.anchorX = 1
+	local labelValue = display.newText( sliderGroup, transformValues[i].current, valueAlignX, label.y, appFont, 16 )
+	labelValue:setFillColor( 0.7 )
+	labelValue.anchorX = 1
+	local slider = widget.newSlider(
+	{
+		id = transformValues[i].property,
+		left = labelAlignX + 20,
+		width = sliderWidth,
+		value = ( ( transformValues[i].current - transformValues[i].offset ) / transformValues[i].range ) * 100,
+		listener = sliderListener
+	})
+	slider.y = label.y
+	slider.indexValue = i
+	slider.valueLabel = labelValue
+	sliderGroup:insert( slider )
+end
+sliderGroup.anchorChildren = true
+sliderGroup.x = display.contentCenterX
+sliderGroup.y = 470 - (sliderGroup.height/2) - lbY

@@ -1,1 +1,0 @@
-Demonstrates simple body construction by generating 100 random physics objects.

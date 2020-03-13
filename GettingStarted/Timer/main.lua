@@ -40,15 +40,15 @@ local pausedAt = 0
 local timerText, pauseResumeButton, cancelButton, timerID
 
 
--- Orientation handler function
-local function onOrientationChange( event )
+-- Called when the app's view has been resized (orientation changed)
+local function onResize( event )
 	pauseResumeButton.x = display.contentCenterX
 	pauseResumeButton.y = display.contentHeight - 100
 	cancelButton.x = display.contentCenterX
 	cancelButton.y = display.contentHeight - 50
 	timerText.x = display.contentCenterX - 15
 end
-Runtime:addEventListener( "orientation", onOrientationChange )
+Runtime:addEventListener( "resize", onResize )
 
 
 -- Button handler function
@@ -97,7 +97,7 @@ pauseResumeButton = widget.newButton(
 		id = "pauseResume",
 		label = "Start",
 		x = display.contentCenterX,
-		y = display.contentHeight - 155,
+		y = display.contentHeight - 100,
 		width = 160,
 		height = 32,
 		font = appFont,
@@ -114,7 +114,7 @@ cancelButton = widget.newButton(
 		id = "cancel",
 		label = "Cancel",
 		x = display.contentCenterX,
-		y = display.contentHeight - 105,
+		y = display.contentHeight - 50,
 		width = 160,
 		height = 32,
 		font = appFont,
@@ -133,19 +133,28 @@ local testText = display.newText( { x=-1000, y=-1000, text="1", font=native.syst
 local width1 = testText.width
 testText.text = "2"
 local width2 = testText.width
-local platform = system.getInfo( "platformName" ):lower()
 display.remove( testText )
 
 if ( width2 > width1 ) then
 	-- The system font doesn't have monospaced digits, so use a font known to have them
-	bestFontForDevice = ( platform == "win" and "Courier New" or "Helvetica Neue" )
+	bestFontForDevice = ( system.getInfo("platform") == "win32" and "Courier New" or "Helvetica Neue" )
 else
 	-- The system font has monospaced digits
 	bestFontForDevice = native.systemFontBold
 end
 
 -- Create timer text object
-timerText = display.newText( { parent=mainGroup, text="0.0", x=display.contentCenterX-15, y=105, width=display.contentWidth-10, font=bestFontForDevice, fontSize=140, align="right" } )
+timerText = display.newText(
+	{
+		parent=mainGroup,
+		text="0.0",
+		x=display.contentCenterX-15,
+		y=105,
+		width=310,
+		font=bestFontForDevice,
+		fontSize=140,
+		align="right"
+	})
 timerText:setFillColor( 0 )
 
 

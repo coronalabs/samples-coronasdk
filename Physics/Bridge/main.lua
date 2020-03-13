@@ -1,132 +1,109 @@
--- Abstract: Bridge sample project
---
--- Demonstrates joints and damping
--- 
--- Version: 1.2 (revised for Alpha 3)
--- 
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
---
---	Supports Graphics 2.0
+
+-- Abstract: Bridge
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
 
-local centerX = display.contentCenterX
-local centerY = display.contentCenterY
-local _W = display.contentWidth
-local _H = display.contentHeight
-
-local physics = require("physics")
-physics.start()
-
 display.setStatusBar( display.HiddenStatusBar )
+math.randomseed( os.time() )
 
--- The final "true" parameter overrides Corona's auto-scaling of large images
-local background = display.newImage( "jungle_bkg.png", centerX, centerY, true )
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Bridge", showBuildNum=false } )
 
-local pole1 = display.newImage( "bamboo.png" )
-pole1.x = 50; pole1.y = 250; pole1.rotation = -12
-physics.addBody( pole1, "static", { friction=0.5 } )
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
 
-local pole2 = display.newImage( "bamboo.png" )
-pole2.x = 430; pole2.y = 250; pole2.rotation = 12
-physics.addBody( pole2, "static", { friction=0.5 } )
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
 
-local instructionLabel = display.newText( "touch boards to break bridge, touch rocks to remove", centerX, 40, native.systemFont, 17 )
-instructionLabel:setFillColor( 190/255, 1, 131/255, 150/255 )
+-- Set up physics engine
+local physics = require( "physics" )
+physics.start()
+physics.setGravity( 0, 9.8 )
+physics.setDrawMode( "normal" )
 
-local board = {}
-local joint = {}
+-- Set app font
+local appFont = sampleUI.appFont
 
--- A touch listener to "break" bridge joints
-local breakJoint = function( event )
-	local t = event.target
-	local phase = event.phase
+local msg = display.newText( mainGroup, "Touch bridge to break it; touch a ball to remove it", display.contentCenterX, 55+display.screenOriginY, appFont, 13 )
+msg:setFillColor( 1, 0.4, 0.25 )
 
-	if "began" == phase then
-		local myIndex = t.myIndex
-		if ( joint[myIndex] ) then
-			print( "breaking joint at board#" .. myIndex )
-			joint[myIndex]:removeSelf()
-			joint[myIndex] = nil
-		elseif ( joint[myIndex+1] ) then
-			myIndex = myIndex + 1
-			print( "breaking joint at board#" .. myIndex )
-			joint[myIndex]:removeSelf()
-			joint[myIndex] = nil
-		end
+-- Function to break bridge
+local function breakBridge( event )
+	if ( "began" == event.phase ) then
+		display.remove( event.target )
+		event.target = nil
 	end
-
-	-- Stop further propagation of touch event
 	return true
 end
 
--- A touch listener to remove rocks
-local removeBody = function( event )
-	local t = event.target
-	local phase = event.phase
+-- Create left and right poles to mount bridge to
+local poleLeft = display.newImageRect( mainGroup, "post.png", 40, 280 )
+poleLeft.x, poleLeft.y = display.screenOriginX+20, display.contentCenterY+40
+physics.addBody( poleLeft, "static" )
+local poleRight = display.newImageRect( mainGroup, "post.png", 40, 280 )
+poleRight.x, poleRight.y = 460-display.screenOriginX, display.contentCenterY+40
+physics.addBody( poleRight, "static" )
 
-	if "began" == phase then
-		t:removeSelf() -- destroy object
-		t = nil
-	end
+-- Set number of bridge pieces and calculate size of each based on distance between poles
+local numPieces = 16
+local nextToJoin = poleLeft
+local pieceWidth = ( (poleRight.x-(poleRight.width/2)+10) - (poleLeft.x+(poleLeft.width/2)-10) + ((numPieces-1)*10) ) / numPieces
 
-	-- Stop further propagation of touch event
-	return true
-end
+-- Create bridge
+for i = 1,numPieces do
+	local piece = display.newRoundedRect( mainGroup, 0, display.contentCenterY, pieceWidth, 18, 3 )
+	piece:toBack()
 
+	piece:setFillColor( math.random(9,10)/10, math.random(0,2)/10, math.random(1,5)/10 )
+	piece.x = nextToJoin.contentBounds.xMax + (piece.width/2) - 10
+	physics.addBody( piece, { density=1.0, friction=0.4, bounce=0.2 } )
+	physics.newJoint( "pivot", nextToJoin, piece, piece.contentBounds.xMin+(piece.height/2), piece.y )
+	piece:addEventListener( "touch", breakBridge )  -- Assign touch listener to piece
 
-for j = 1,16 do
-	board[j] = display.newImage( "board.png" )
-	board[j].x = 20 + (j*26)
-	board[j].y = 150
-	board[j].myIndex = j -- for touch handler above
-	board[j]:addEventListener( "touch", breakJoint ) -- assign touch listener to board
-	
-	physics.addBody( board[j], { density=2, friction=0.3, bounce=0.3 } )
-	
-	-- damping the board motion increases the "tension" in the bridge
-	board[j].angularDamping = 5000
-	board[j].linearDamping = 0.7
-
-	-- create joints between boards
-	if (j > 1) then
-		prevLink = board[j-1] -- each board is joined with the one before it
+	if ( i == numPieces ) then
+		physics.newJoint( "pivot", poleRight, piece, poleRight.contentBounds.xMin+(piece.height/2), piece.y )
 	else
-		prevLink = pole1 -- first board is joined to left pole
+		nextToJoin = piece
 	end
-	joint[j] = physics.newJoint( "pivot", prevLink, board[j], 6+(j*26), 150 )
-
 end
 
--- join final board to right pole
-joint[#joint + 1] = physics.newJoint( "pivot", board[16], pole2, 6+(17*26), 150 )
+-- Function to drop random balls
+local function randomBall()
 
-local balls = {}
-
--- function to drop random coconuts and rocks
-local randomBall = function()
-
-	choice = math.random( 100 )
 	local ball
-	
-	if ( choice < 80 ) then
-		ball = display.newImage( "coconut.png" )
-		ball.x = 40 + math.random( 380 ); ball.y = -40
-		physics.addBody( ball, { density=0.6, friction=0.6, bounce=0.6, radius=19 } )
-		ball.angularVelocity = math.random(800) - 400
-		ball.isSleepingAllowed = false
-	
+	local choice = math.random( 10 )
+
+	if ( choice < 8 ) then
+		ball = display.newImageRect( mainGroup, "ball1.png", 40, 40 )
+		ball.x = 60 + math.random(360)
+		ball.y = -40 + display.screenOriginY
+		physics.addBody( ball, { density=0.5, friction=0.6, bounce=0.5, radius=20 } )
 	else
-		ball = display.newImage( "rock.png" )
-		ball.x = 40 + math.random( 380 ); ball.y = -40
-		physics.addBody( ball, { density=2.0, friction=0.6, bounce=0.2, radius=33 } )
-		ball.angularVelocity = math.random(600) - 300
-	
+		ball = display.newImageRect( mainGroup, "ball2.png", 70, 70 )
+		ball.x = 100 + math.random(280)
+		ball.y = -70 + display.screenOriginY
+		physics.addBody( ball, { density=2.0, friction=0.6, bounce=0.2, radius=35 } )
 	end
-	
-	ball:addEventListener( "touch", removeBody ) -- assign touch listener to rock
-	balls[#balls + 1] = ball	
+	ball.angularVelocity = math.random(800) - 400
+	ball.isSleepingAllowed = false
+	ball:addEventListener( "touch",
+		function( event )
+			if ( "began" == event.phase ) then
+				display.remove( ball )
+			end
+		end
+	)
+	ball:toBack()
 end
 
--- run the above function 14 times
-timer.performWithDelay( 1500, randomBall, 14 )
+-- Run the above function 12 times
+timer.performWithDelay( 1500, randomBall, 12 )

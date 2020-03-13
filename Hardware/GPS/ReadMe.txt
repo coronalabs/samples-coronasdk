@@ -1,1 +1,4 @@
-Demonstrates Location events which are returned by the GPS listener.  Devices with without GPS will have less accurate location data and the Corona Simulator will return a set of artificial coordinates for the purpose of testing.
+This sample project demonstrates location (GPS) events. Note that devices without GPS will have less accurate location data.
+
+RELATED GUIDES
+[Basic Interactivity and Event Detection](https://docs.coronalabs.com/guide/events/detectEvents/index.html)

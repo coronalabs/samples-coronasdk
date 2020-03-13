@@ -1,1 +1,0 @@
-Demonstrates multitouch and use of external libraries. The widget library was used to create the buttons. This application specifically shows how several buttons can be held at once.

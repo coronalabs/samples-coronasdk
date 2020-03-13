@@ -1,1 +1,0 @@
-A sample animation created from sprite sheet animations with different frame rates.

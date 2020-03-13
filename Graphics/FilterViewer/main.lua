@@ -1,207 +1,159 @@
--- 
--- Abstract: FilterViewer sample app
--- 
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2013 Corona Labs Inc. All Rights Reserved.
---
--- Supports Graphics 2.0
---
--- v2.1		2/19/2014	Added filter name in title on preview screen
-------------------------------------------------------------
 
-display.setStatusBar( display.HiddenStatusBar ) 
-display.setDefault( "background", .1, .2, .3 )
+-- Abstract: Filter Viewer
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
+---------------------------------------------------------------------------------------
 
-local titleString = "Filter Effects Viewer"
+display.setStatusBar( display.HiddenStatusBar )
 
--- Modules
--------------------------------------------------------------------------------
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Filter Viewer", showBuildNum=false } )
 
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
+
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
+
+-- Require libraries/plugins
+local filterData = require( "filters" )
 local widget = require( "widget" )
-local json = require "json"
+if ( system.getInfo("platform") ~= "tvos" ) then
+	widget.setTheme( "widget_theme_android_holo_light" )
+end
 
--- Constants
--------------------------------------------------------------------------------
+-- Set app font
+local appFont = sampleUI.appFont
 
--- create a constant for the left spacing of the row content
-local LEFT_PADDING = 10
-local halfW = display.contentCenterX
-local halfH = display.contentCenterY
-local width = display.actualContentWidth
-
-local supportHPS = system.getInfo( "gpuSupportsHighPrecisionFragmentShaders" )
-
--- Forward declares
--------------------------------------------------------------------------------
+-- Local variables and forward references
+local deviceSupportsHPFS = system.getInfo( "gpuSupportsHighPrecisionFragmentShaders" )
+local currentFilter = ""
 local list
-local previewShowing = false
 
--- Views
--------------------------------------------------------------------------------
+-- Create containers for images
+local cont1 = display.newContainer( display.actualContentWidth/2, 150 )
+cont1.x, cont1.y = display.contentCenterX-(cont1.width/2)-2, sampleUI.titleBarBottom + 75
+mainGroup:insert( cont1 )
+local cont2 = display.newContainer( display.actualContentWidth/2, 150 )
+cont2.x, cont2.y = display.contentCenterX+(cont2.width/2)+2, sampleUI.titleBarBottom + 75
+mainGroup:insert( cont2 )
 
---Create a group to hold our widgets & images
-local view = display.newGroup()
+-- Image before filter is applied
+local before = display.newImageRect( cont1, "image.jpg", 200, 160 )
+before.x, before.y = 1, 0
 
--- Create toolbar to go at the top of the screen
-local titleBar = display.newRect( view, halfW, 0, width, 32 )
-titleBar.fill = { type = 'gradient', color1 = { .74, .8, .86, 1 }, color2 = { .35, .45, .6, 1 } }
-titleBar.y = display.screenOriginY + titleBar.contentHeight * 0.5
+-- Image after filter is applied
+local after = display.newImageRect( cont2, "image.jpg", 200, 160 )
+after.x, after.y = -1, 0
 
--- create embossed text to go on toolbar
-local titleText = display.newEmbossedText( view, titleString, halfW, titleBar.y, native.systemFontBold, 20 )
-
--- Preview group
--------------------------------------------------------------------------------
-local preview = display.newGroup()
-preview:translate( halfW + width, halfH )
-
-local before = display.newImageRect( preview, "Image.jpg", 160, 160 )
-local after = display.newImageRect( preview, "Image.jpg", 160, 160 )
-
-before.anchorX = 1 -- image on left
-after.anchorX = 0 -- image on right
-
-local onBackRelease = function()
-	--Transition in the list, transition out the item selected text and the back button
-	--The table x origin refers to the center of the table in Graphics 2.0, so we translate with half the object's contentWidth
-	transition.to( list, { x = width * 0.5 + display.screenOriginX, time = 400, transition = easing.outExpo } )
-	transition.to( preview, { x = width + preview.contentWidth * 0.5, time = 400, transition = easing.outExpo } )
-	titleText.text = titleString
-	previewShowing = false
-end
-
--- Back button
-local backButton = widget.newButton
-{
-	x = 0,
-	y = after.contentHeight,
-	width = 298,
-	height = 56,
-	label = "Back", 
-	labelYOffset = - 1,
-	onRelease = onBackRelease
-}
-preview:insert( backButton )
-
--- Precision information.
-local precisionText = display.newText
-{
-	x = 0,
-	y = - after.contentHeight,
-	fontSize = 14,
-	text="This effect is not supported by this device's GPU",
-}
-precisionText:setFillColor( 1, 0, 0 )
-preview:insert( precisionText )
-
--- preview is child of main view
-view:insert( preview )
-
-
--- UI
--------------------------------------------------------------------------------
-
--- Handle row rendering
+-- Function to render table view rows
 local function onRowRender( event )
-	local phase = event.phase
+
 	local row = event.row
-	
-	-- Precalculate y position. NOTE: row's height will change as we add children
 	local y = row.contentHeight * 0.5
-
-	local rowTitle = display.newText( row, row.id.name, 0, 0, native.systemFontBold, 16 )
-	local rowArrow = display.newImage( row, "rowArrow.png", false )
-
-	-- Left-align title
+	local rowTitle = display.newText( row, row.id.name, 20, y-2, appFont, 16 )
+	row.rowTitle = rowTitle
+	if ( currentFilter == row.id.name ) then
+		rowTitle:setFillColor( 1, 0.4, 0.25 )
+	else
+		rowTitle:setFillColor( 1 )
+	end
 	rowTitle.anchorX = 0
-	rowTitle.x = LEFT_PADDING
-	rowTitle.y = y
-	rowTitle:setFillColor( 0 )
-	
-	-- Right-align the arrow
-	rowArrow.anchorX = 1
-	rowArrow.x = row.contentWidth - LEFT_PADDING
-	rowArrow.y = y
-end
 
--- Hande row touch events
-local function onRowTouch( event )
-	local phase = event.phase
-	local row = event.target
-	
-	if "press" == phase then
-		-- print( "Pressed row: " .. row.index )
-	elseif "release" == phase then
-		-- Set preview effect
-		after.fill.effect = row.id.name
-		for i,v in pairs(row.id) do
-			after.fill.effect[i] = v
-		end
+	local rowLine = display.newRect( row, 160, y+20, display.actualContentWidth, 2 )
+	rowLine.anchorY = 1
+	rowLine:setFillColor( 0 )
 
-		-- Alert the user if this device does not support high precision fragment shaders.
-		if row.id.reqhp and not supportHPS then
-			precisionText.isVisible = true
-		else
-			precisionText.isVisible = false
-		end
-
-		-- Transition out the list, transition in the item selected text and the back button
-		-- The table x origin refers to the center of the table in Graphics 2.0, so we translate with half the object's contentWidth
-		transition.to( list, { x = - width * 0.5 + display.screenOriginX, time = 400, transition = easing.outExpo } )
-		transition.to( preview, { x = display.contentCenterX, time = 400, transition = easing.outExpo } )
-		titleText.text = row.id.name:sub( 8 )
-		previewShowing = true
-		-- print( "Tapped and/or Released row: " .. row.index )
+	if ( row.id.reqhp == true and deviceSupportsHPFS == false ) then
+		rowTitle:setFillColor( 0.4 )
+		row.canTest = false
+	else
+		row.canTest = true
 	end
 end
 
--- Create a tableView
-list = widget.newTableView
+-- Handle row touch events
+local function onRowTouch( event )
+
+	if ( event.target.canTest == false ) then return end
+
+	if ( event.phase == "press" ) then
+		list.actionOnRelease = true
+	elseif ( event.phase == "cancelled" ) then
+		list.actionOnRelease = false
+	end
+
+	if ( "release" == event.phase and list.actionOnRelease == true ) then
+
+		list.actionOnRelease = false
+		currentFilter = event.target.id.name
+
+		-- Apply filter to image
+		after.fill.effect = event.target.id.name
+
+		-- Step down through all filter data to apply filter properties
+		local thisData = filterData[event.target.id.name]
+		for K1,V1 in pairs( thisData ) do
+			if ( type(V1) == "table" and #V1 == 0 ) then
+				for K2,V2 in pairs(V1) do
+					if ( type(V2) == "table" and #V2 == 0 ) then
+						for K3,V3 in pairs(V2) do
+							if not ( type(V3) == "table" and #V3 == 0 ) then
+								after.fill.effect[K1][K2][K3] = V3
+							end
+						end
+					else
+						after.fill.effect[K1][K2] = V2
+					end
+				end
+			else
+				after.fill.effect[K1] = V1
+			end
+		end
+		list:reloadData()
+	end
+end
+
+local function scrollListener( event )
+	if ( event.x and event.xStart and ( math.abs( event.x - event.xStart ) > 10 ) ) then
+		list.actionOnRelease = false
+	end
+	return true
+end
+
+-- Create a table view
+list = widget.newTableView(
 {
-	top = titleBar.contentHeight + display.screenOriginY,
+	top = sampleUI.titleBarBottom + 154,
 	left = display.screenOriginX,
-	width = width, 
-	height = display.actualContentHeight - titleBar.contentHeight,
+	width = display.actualContentWidth,
+	height = display.actualContentHeight - 180,
+	hideBackground = true,
+	rowTouchDelay = 0,
+	noLines = true,
+	hideScrollBar = true,
 	onRowRender = onRowRender,
 	onRowTouch = onRowTouch,
-}
+	listener = scrollListener
+})
+mainGroup:insert( list )
 
--- list is child of main view
-view:insert( list )
-
-
--- Load effect list
--------------------------------------------------------------------------------
-
--- Read effects from json
-local f = io.open( system.pathForFile( "filters.json" ) )
-local data = f:read( "*a" )
-local effects = json.decode( data )
-
-for i = 1, #effects do
-	list:insertRow{
-		id = effects[i], -- use name of effect as id
-		height = 72,
-		category = "foo"
-	}
+-- Read effects from module and sort alphabetically
+local filterList = {}
+for k,v in pairs(filterData) do
+	filterList[#filterList+1] = { name=k, reqhp=v["reqhp"] }
 end
+table.sort( filterList, function( a,b ) return a.name < b.name; end )
 
--- handle key events
-local function onKeyEvent( event )
-
-    local phase = event.phase
-    local keyName = event.keyName
-
-    if ( "back" == keyName and "up" == phase ) then
-        if previewShowing then
-            onBackRelease()
-        else
-            native.requestExit()
-        end
-        -- we handled the key event, return true
-        return true
-    end
-    -- we did not handle the key event, let the system know it has to deal with it
-    return false
+-- Populate table view
+for i = 1,#filterList do
+	list:insertRow( { id=filterList[i], rowHeight=40, rowColor={ default={1,1,1,0}, over={1,1,1,0} } } )
 end
-Runtime:addEventListener( "key", onKeyEvent )

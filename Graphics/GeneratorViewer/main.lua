@@ -12,10 +12,6 @@
 display.setStatusBar( display.HiddenStatusBar ) 
 -- display.setDefault( "background", 1 )
 
--- Some effects are time based (e.g. random),
--- so force Corona to re-blit them.
-display.setDrawMode( "forceRender" )
-
 local titleString = "Generator Effects"
 
 -- Modules
@@ -202,4 +198,14 @@ local function onKeyEvent( event )
     -- we did not handle the key event, let the system know it has to deal with it
     return false
 end
-Runtime:addEventListener( "key", onKeyEvent )
+
+local platform = "iOS"
+if "simulator" == system.getInfo("environment") and "Android" == system.getInfo("platformName" ) then
+	platform = "Android"
+elseif "device" == system.getInfo("environment") and "Android" == system.getInfo("platformName" ) then
+	platform = "Android"
+end
+if "Android" == platform then
+	Runtime:addEventListener( "key", onKeyEvent )
+end
+

@@ -1,1 +1,0 @@
-Shows an example of how to use Flurry analytics.  This sample only runs on iOS and Android devices.  It will take a few hours for the events to be logged and shown on Flurry's servers.

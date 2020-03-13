@@ -22,67 +22,232 @@
 -- OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 -- DEALINGS IN THE SOFTWARE.
 
--- Cycles through the different status bar modes, changing modes every second
---
--- Supports Graphics 2.0
--- 1.2 - Add support for additional status bars. Made the background middle gray so you can
---       see both light and dark versions.
+
+-- Demonstrates different status bar and androidSystemUiVisibility settings
+-- https://docs.coronalabs.com/api/library/display/setStatusBar.html
+-- https://docs.coronalabs.com/api/library/native/setProperty.html#android-system-ui-visibility
 ------------------------------------------------------------
 
--- array of status bar modes
-local modes = {
-        display.HiddenStatusBar,
-        display.DefaultStatusBar,
-        display.DarkStatusBar,
-        display.TranslucentStatusBar,
-        display.LightTransparentStatusBar,
-        display.DarkTransparentStatusBar,
-}
 
-local modeNames = {
-        "display.HiddenStatusBar",
-        "display.DefaultStatusBar",
-        "display.DarkStatusBar",
-        "display.TranslucentStatusBar",
-        "display.LightTransparentStatusBar",
-        "display.DarkTransparentStatusBar",
-}
+
+local environment = system.getInfo("environment") 
+local platform = system.getInfo("platform")
 
 local background = display.newRect(display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentHeight)
 background:setFillColor( 0.5 )
 
-local label
 
-local function changeStatusBarMode( event )
-	local numModes = #modes
+-- This is only supported on iOS (simulated or device) or Android (device only)
+if platform == "ios" or (platform == "android" and environment ~= "simulator") then
 
-	-- get an integer index between 1 and numModes
-	local index = event.count % numModes + 1
+	local widget = require "widget"
 
-	label.text = modeNames[index]
-	display.setStatusBar( modes[index] )
-end
 
-local model = system.getInfo("model")
-local environment = system.getInfo("environment") 
-local platformName = system.getInfo("platformName")
+	-- Create text object to display current status bar mode
+	local statusBarState = display.newText( "None set, default", display.contentCenterX, 50, nil, 20 )
 
--- this is only supported on iOS (simulated or device) or Android (device only)
-if platformName == "Android" or platformName == "iPhone OS" or (environment == "simulator" and (model == "iPad" or model == "iPhone")) then
-	label = display.newText( "Statusbar mode changes every 2 seconds", 0, 0, native.systemFontBold, 12 )
-	label:setFillColor( 1, 1, 1 )
-	-- center text
-	label.x = display.contentWidth*0.5
-	label.y = display.contentHeight*0.8
+	-- This table connects string id to actual status bar mode
+	local statusBarModes = {
+		["display.HiddenStatusBar"] = display.HiddenStatusBar,
+		["display.DefaultStatusBar"] = display.DefaultStatusBar,
+		["display.DarkStatusBar"] = display.DarkStatusBar,
+		["display.TranslucentStatusBar"] = display.TranslucentStatusBar,
+		["display.LightTransparentStatusBar"] = display.LightTransparentStatusBar,
+		["display.DarkTransparentStatusBar"] = display.DarkTransparentStatusBar,
+	}
 
-	-- call changeStatusBarMode() every second
-	timer.performWithDelay( 2000, changeStatusBarMode, 0 )
+	-- When button is pressed, set status bar mode text and mode
+	local function changeStatusBar( event )
+		local id = event.target.id
+		statusBarState.text = id
+		display.setStatusBar( statusBarModes[id] )
+	end
+
+
+	-- Create buttons which would switch to status bar mode stored in id
+	widget.newButton({
+		label = "Hidden",
+		id = "display.HiddenStatusBar",
+		shape = "rectangle",
+		x = display.contentCenterX,
+		y = 115,
+		width = 278,
+		height = 32,
+		fontSize = 15,
+		fillColor = { default={ 0.08,0.28,0.48,1 }, over={ 0.08,0.28,0.48,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = changeStatusBar,
+	})
+
+	widget.newButton({
+		label = "Default",
+		id = "display.DefaultStatusBar",
+		shape = "rectangle",
+		x = display.contentCenterX,
+		y = 155,
+		width = 278,
+		height = 32,
+		fontSize = 15,
+		fillColor = { default={ 0.1,0.3,0.5,1 }, over={ 0.1,0.3,0.5,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = changeStatusBar,
+	})
+
+	widget.newButton({
+		label = "Light Transparent",
+		id = "display.LightTransparentStatusBar",
+		shape = "rectangle",
+		x = display.contentCenterX,
+		y = 195,
+		width = 278,
+		height = 32,
+		fontSize = 15,
+		fillColor = { default={ 0.12,0.32,0.52,1 }, over={ 0.12,0.32,0.52,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = changeStatusBar
+	})	
+
+	widget.newButton({
+		label = "Dark Transparent",
+		id = "display.DarkTransparentStatusBar",
+		shape = "rectangle",
+		x = display.contentCenterX,
+		y = 235,
+		width = 278,
+		height = 32,
+		fontSize = 15,
+		fillColor = { default={ 0.14,0.34,0.54,1 }, over={ 0.14,0.34,0.54,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = changeStatusBar
+	})
+
+	widget.newButton({
+		label = "Dark (legacy)",
+		id = "display.DarkStatusBar",
+		shape = "rectangle",
+		x = display.contentCenterX,
+		y = 275,
+		width = 278,
+		height = 32,
+		fontSize = 15,
+		fillColor = { default={ 0.16,0.36,0.56,1 }, over={ 0.16,0.36,0.56,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = changeStatusBar
+	})
+
+	widget.newButton({
+		label = "Translucent (legacy)",
+		id = "display.TranslucentStatusBar",
+		shape = "rectangle",
+		x = display.contentCenterX,
+		y = 315,
+		width = 278,
+		height = 32,
+		fontSize = 15,
+		fillColor = { default={ 0.18,0.38,0.58,1 }, over={ 0.18,0.38,0.58,1 } },
+		labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+		onRelease = changeStatusBar
+	})
+
+	-- Android have 'androidSystemUiVisibility' options, which would change how status bar looks like
+	-- This can be set with native.setProperty() function
+	if platform == 'android' then
+
+		local systemUIVisibility = nil
+
+		-- When 'androidSystemUiVisibility' buttons are pressed, select ui mode and create/change display text
+		local function changeAndroidSystemUI( event )
+			local id = event.target.id
+
+			if not systemUIVisibility then
+				systemUIVisibility = display.newText( id, display.contentCenterX, 75, appFont, 16 )
+				systemUIVisibility:setFillColor( 0.7 )
+			else
+				systemUIVisibility.text = id
+			end
+
+			native.setProperty( "androidSystemUiVisibility", id )
+		end
+
+
+		-- Title text for androidSystemUiVisibility
+		display.newText({
+			text = 'androidSystemUiVisibility:',
+			x = display.contentCenterX,
+			y = 360,
+			width = 278,
+			height = 32,
+			fontSize = 18,
+		})
+
+		-- Buttons to change Android System UI. Mode is stored in button's id
+		widget.newButton({
+			label = "default",
+			id = "default",
+			shape = "rectangle",
+			x = 89,
+			y = 395,
+			width = 136,
+			height = 32,
+			fontSize = 15,
+			fillColor = { default={ 0.22,0.42,0.62,1 }, over={ 0.22,0.42,0.62,1 } },
+			labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+			onRelease = changeAndroidSystemUI
+		})
+
+		widget.newButton({
+			label = "lowProfile",
+			id = "lowProfile",
+			shape = "rectangle",
+			x = 231,
+			y = 395,
+			width = 136,
+			height = 32,
+			fontSize = 15,
+			fillColor = { default={ 0.22,0.42,0.62,1 }, over={ 0.22,0.42,0.62,1 } },
+			labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+			onRelease = changeAndroidSystemUI
+		})
+
+		widget.newButton({
+			label = "immersiveSticky",
+			id = "immersiveSticky",
+			shape = "rectangle",
+			x = 89,
+			y = 435,
+			width = 136,
+			height = 32,
+			fontSize = 15,
+			fillColor = { default={ 0.22,0.42,0.62,1 }, over={ 0.22,0.42,0.62,1 } },
+			labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+			onRelease = changeAndroidSystemUI
+		})
+
+		widget.newButton({
+			label = "immersive",
+			id = "immersive",
+			shape = "rectangle",
+			x = 231,
+			y = 435,
+			width = 136,
+			height = 32,
+			fontSize = 15,
+			fillColor = { default={ 0.22,0.42,0.62,1 }, over={ 0.22,0.42,0.62,1 } },
+			labelColor = { default={ 1,1,1,1 }, over={ 1,1,1,0.8 } },
+			onRelease = changeAndroidSystemUI
+		})
+	end
 else
-	local msg = display.newText( "Statusbar mode not supported on this platform", 0, 60, native.systemFontBold, 12 )
-	msg.x = display.contentWidth / 2
+	local msg = display.newText( {
+		text = "Statusbar mode not supported on this platform.\n\nTry simulating iOS Device or building for a mobile platform.",
+		x = display.contentCenterX,
+		y = display.contentCenterY,
+		width = display.viewableContentWidth*0.95,
+		font = native.systemFontBold,
+		fontSize = 20,
+		align = "center",
+	} )
 	msg:setFillColor( 1, 0, 0 )
-	local msg2 = display.newText( "Try simulating or building for iOS", 0, 100, native.systemFontBold, 12 )
-	msg2.x = display.contentWidth / 2
-	msg2:setFillColor( 1, 0, 0 )
+	
 end
 

@@ -3,15 +3,24 @@
 -- https://docs.coronalabs.com/guide/distribution/buildSettings
 --
 
+-- There are quite a few steps involved in getting an app to work with Facebook; you can start here:
+-- https://docs.coronalabs.com/guide/social/setupFacebook/index.html
+
+-- When you've got your Facebook App ID enter it here:
+local myFacebookAppID = "XXXXXXXXXXXXXXX"
+
 settings =
 {
 	orientation = {
+		-- Supported values for orientation:
+		-- portrait, portraitUpsideDown, landscapeLeft, landscapeRight
 		default = "portrait",
 		supported = { "portrait", "portraitUpsideDown" }
 	},
 
 	iphone =
 	{
+		xcassets = "Images.xcassets",
 		plist =
 		{
 			UIApplicationExitsOnSuspend = false,
@@ -21,25 +30,14 @@ settings =
 				{
 					CFBundleURLSchemes =
 					{
-						"fbXXXXXXXXXXXXXXX"  -- Replace XXXXXXXXXXXXXXX with your Facebook App ID
+						"fb" .. myFacebookAppID,
 					}
 				}
 			},
-			FacebookAppID = "XXXXXXXXXXXXXXX",  -- Replace XXXXXXXXXXXXXXX with your Facebook App ID
+			FacebookAppID = myFacebookAppID,
 
 			UILaunchStoryboardName = "LaunchScreen",
-			CFBundleIconFiles =
-			{
-				"Icon-40.png",
-				"Icon-58.png",
-				"Icon-76.png",
-				"Icon-80.png",
-				"Icon-87.png",
-				"Icon-120.png",
-				"Icon-152.png",
-				"Icon-167.png",
-				"Icon-180.png",
-			},
+			ITSAppUsesNonExemptEncryption = false, -- This sample doesn't use custom encryption
 			LSApplicationQueriesSchemes =
 			{
 				"fb",  -- Needed for the facebook-v4.isFacebookAppEnabled() API
@@ -53,7 +51,7 @@ settings =
 
 	android =
 	{
-		facebookAppId = "XXXXXXXXXXXXXXX",  -- Replace XXXXXXXXXXXXXXX with your Facebook App ID
+		facebookAppId = myFacebookAppID,
 	},
 
 	window =
@@ -66,9 +64,9 @@ settings =
 
 	plugins =
 	{
-		["plugin.facebook.v4"] =
-		{
-			publisherId = "com.coronalabs"
-		},
+        ["plugin.facebook.v4a"] =
+        {
+            publisherId = "com.coronalabs",
+        },
 	},
 }

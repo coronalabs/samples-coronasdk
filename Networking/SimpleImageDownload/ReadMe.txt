@@ -1,1 +1,0 @@
-Demonstrates how to download and display a remote image using the LuaSocket libraries that ship with Corona.

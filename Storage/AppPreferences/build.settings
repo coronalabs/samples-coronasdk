@@ -7,27 +7,19 @@ settings =
 {
 	orientation =
 	{
+		-- Supported values for orientation:
+		-- portrait, portraitUpsideDown, landscapeLeft, landscapeRight
 		default = "portrait",
 		supported = { "portrait", "portraitUpsideDown", "landscapeLeft", "landscapeRight" }
 	},
 
 	iphone =
 	{
+		xcassets = "Images.xcassets",
 		plist =
 		{
 			UILaunchStoryboardName = "LaunchScreen",
-			CFBundleIconFiles =
-			{
-				"Icon-40.png",
-				"Icon-58.png",
-				"Icon-76.png",
-				"Icon-80.png",
-				"Icon-87.png",
-				"Icon-120.png",
-				"Icon-152.png",
-				"Icon-167.png",
-				"Icon-180.png",
-			},
+			ITSAppUsesNonExemptEncryption = false, -- This sample doesn't use custom encryption
 		},
 	},
 
@@ -35,7 +27,7 @@ settings =
 	{
 		-- By default, Corona stores preferences to a SQLite database on Windows
 		-- Uncomment the following setting to store preferences to the registry
-		-- Note: Registry support has portability issue, such as lack of case sensitivity
+		-- Note that registry support has portability issues such as lack of case sensitivity
 		--preferenceStorage = "registry",
 	},
 

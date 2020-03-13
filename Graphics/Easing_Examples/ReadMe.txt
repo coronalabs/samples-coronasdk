@@ -1,1 +1,0 @@
-This sample demonstrates all the easing types using transitions. The examples are kept in a table and called out all at once in the beginning then one at a time afterwards. A tap listener is used to restart the animation when tapped.

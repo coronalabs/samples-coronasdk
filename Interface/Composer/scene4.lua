@@ -39,7 +39,7 @@ function scene:create( event )
 	text2.x, text2.y = display.contentWidth * 0.5, display.contentHeight * 0.5
 	sceneGroup:insert( text2 )
 	
-	text3 = display.newText( "Touch to continue.", 0, 0, native.systemFontBold, 18 )
+	text3 = display.newText( "Touch to continue", 0, 0, native.systemFontBold, 18 )
 	text3:setFillColor( 255 ); text3.isVisible = false
 	text3.x, text3.y = display.contentWidth * 0.5, display.contentHeight - 100
 	sceneGroup:insert( text3 )
@@ -56,12 +56,13 @@ function scene:show( event )
 	
 		-- remove previous scene's view
 		composer.removeScene( "scene3" )
+		collectgarbage("collect")
 	
 		-- update Lua memory text display
 		local showMem = function()
 			image:addEventListener( "touch", image )
 			text3.isVisible = true
-			text2.text = text2.text .. collectgarbage("count")/1000 .. "MB"
+			text2.text = text2.text .. string.format("%.2g", collectgarbage("count")/1000) .. "MB"
 			text2.x = display.contentWidth * 0.5
 		end
 		memTimer = timer.performWithDelay( 1000, showMem, 1 )
@@ -84,6 +85,8 @@ function scene:hide( event )
 	
 		-- reset label text
 		text2.text = "MemUsage: "
+	elseif "did" == phase then
+		composer.removeScene("scene4")
 	
 	end
 end

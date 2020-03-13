@@ -1,44 +1,39 @@
 --
--- For more information on build.settings see the Corona SDK Build Guide at:
--- http://docs.coronalabs.com/guide/distribution/buildSettings/index.html
+-- For more information on build.settings, see the Project Build Settings guide at:
+-- https://docs.coronalabs.com/guide/distribution/buildSettings
 --
 
 settings =
 {
 	orientation =
 	{
+		-- Supported values for orientation:
+		-- portrait, portraitUpsideDown, landscapeLeft, landscapeRight
 		default = "portrait",
-		supported = { "portrait", "portraitUpsideDown", "landscapeLeft", "landscapeRight" }
+		supported = { "portrait", "portraitUpsideDown" },
 	},
+
 	android =
 	{
 		usesPermissions =
 		{
-			-- This permission is not required.
-			-- If set, then system.getInfo("deviceID") will return the unique ID assigned by the cellular provider.
-			-- If not set, then the unique ID assigned by the operating system will be returned.
+			-- This permission is not required; if set, then 'system.getInfo("deviceID")' will return the unique ID assigned
+			-- by the cellular provider, otherwise it will return the unique ID assigned by the operating system
 			"android.permission.READ_PHONE_STATE",
 		},
 	},
+
 	iphone =
 	{
+		xcassets = "Images.xcassets",
 		plist =
 		{
+			UIStatusBarHidden = false,
 			UILaunchStoryboardName = "LaunchScreen",
-			CFBundleIconFiles =
-			{
-				"Icon-40.png",
-				"Icon-58.png",
-				"Icon-76.png",
-				"Icon-80.png",
-				"Icon-87.png",
-				"Icon-120.png",
-				"Icon-152.png",
-				"Icon-167.png",
-				"Icon-180.png",
-			},
+			ITSAppUsesNonExemptEncryption = false, -- This sample doesn't use custom encryption
 		},
 	},
+
 	window =
 	{
 		titleText =

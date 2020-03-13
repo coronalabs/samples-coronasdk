@@ -187,10 +187,3 @@ local function onResize( event )
 	resetBeams()
 end
 Runtime:addEventListener( "resize", onResize )
-
--- On tvOS, make sure the app stays awake
--- Also ensure that the menu button exits the app
-if ( system.getInfo( "platformName" ) == "tvOS" ) then
-	system.activate( "controllerUserInteraction" )
-	system.setIdleTimer( false )
-end

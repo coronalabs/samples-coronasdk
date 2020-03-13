@@ -1,15 +1,21 @@
 --
--- For more information on build.settings see the Corona SDK Build Guide at:
--- http://docs.coronalabs.com/guide/distribution/buildSettings/index.html
+-- For more information on build.settings, see the Project Build Settings guide at:
+-- https://docs.coronalabs.com/guide/distribution/buildSettings
 --
 
 settings =
 {
 	orientation =
 	{
+		-- Supported values for orientation:
+		-- portrait, portraitUpsideDown, landscapeLeft, landscapeRight
 		default = "portrait",
-		supported = { "portrait" }
+		supported = { "portrait", },
 	},
+
+	--
+	-- Android section
+	--
 	android =
 	{
 		usesPermissions =
@@ -18,6 +24,16 @@ settings =
 			"com.android.vending.CHECK_LICENSE"
 		},
 	},
+
+	--
+	-- Project section
+	--
+	excludeFiles =
+	{
+		-- Exclude unnecessary files for each platform
+		android = { "Icon.png", "Icon-??.png", "Icon-???.png", "LaunchScreen.storyboardc", },
+	},
+
 	window =
 	{
 		titleText =

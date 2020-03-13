@@ -1,114 +1,169 @@
--- 
--- Abstract: Follow Me (touch event) sample app
--- 
--- Version: 1.1
--- 
--- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
--- 
--- Permission is hereby granted, free of charge, to any person obtaining a copy of 
--- this software and associated documentation files (the "Software"), to deal in the 
--- Software without restriction, including without limitation the rights to use, copy, 
--- modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
--- and to permit persons to whom the Software is furnished to do so, subject to the 
--- following conditions:
--- 
--- The above copyright notice and this permission notice shall be included in all copies 
--- or substantial portions of the Software.
--- 
--- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
--- INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
--- PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
--- FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
--- OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
--- DEALINGS IN THE SOFTWARE.
---
--- Supports Graphics 2.0
 
--- Demonstrates how to use create draggable objects. Also shows how to move
--- an object to the top, and how to use touch pressure sensitivity.
+-- Abstract: DragMe
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
+---------------------------------------------------------------------------------------
 
-local arguments =
-{
-	{ x=100, y=60, w=100, h=100, r=10, red=1, green=0, blue=0 },
-	{ x=60, y=100, w=100, h=100, r=10, red=0, green=1, blue=0 },
-	{ x=140, y=140, w=100, h=100, r=10, red=0, green=0, blue=1 }
-}
+display.setStatusBar( display.HiddenStatusBar )
 
-local function getFormattedPressure( pressure )
-	if pressure then
-		return math.floor( pressure * 1000 + 0.5 ) / 1000
-	end
-	return "unsupported"
-end
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Drag Me", showBuildNum=false } )
 
-local function printTouch( event )
- 	if event.target then 
- 		local bounds = event.target.contentBounds
- 		print( "event(" .. event.phase .. ") ("..event.x..","..event.y..") bounds: "..bounds.xMin..","..bounds.yMin..","..bounds.xMax..","..bounds.yMax.."; pressure: "..getFormattedPressure(event.pressure) )
-	end 
-end
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
 
-local function onTouch( event )
-	local t = event.target
-	
-	-- Print info about the event. For actual production code, you should
-	-- not call this function because it wastes CPU resources.
-	printTouch(event)
-	
-	local phase = event.phase
-	if "began" == phase then
-		-- Make target the top-most object
-		local parent = t.parent
-		parent:insert( t )
-		display.getCurrentStage():setFocus( t )
-		
-		-- Spurious events can be sent to the target, e.g. the user presses 
-		-- elsewhere on the screen and then moves the finger over the target.
-		-- To prevent this, we add this flag. Only when it's true will "move"
-		-- events be sent to the target.
-		t.isFocus = true
-		
-		-- Store initial position
-		t.x0 = event.x - t.x
-		t.y0 = event.y - t.y
-	elseif t.isFocus then
-		if "moved" == phase then
-			-- Make object move (we subtract t.x0,t.y0 so that moves are
-			-- relative to initial grab point, rather than object "snapping").
-			t.x = event.x - t.x0
-			t.y = event.y - t.y0
-			
-			-- Gradually show the shape's stroke depending on how much pressure is applied.
-			if ( event.pressure ) then
-				t:setStrokeColor( 1, 1, 1, event.pressure )
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
+
+local isMultitouchEnabled = false
+
+-- Require libraries/plugins
+local widget = require( "widget" )
+widget.setTheme( "widget_theme_ios7" )
+
+-- Set app font
+local appFont = sampleUI.appFont
+
+-- Function to toggle multitouch
+local function onSwitchPress( event )
+
+	if ( event.target.isOn ) then
+		-- Activate multitouch
+		system.activate( "multitouch" )
+		isMultitouchEnabled = true
+	else
+		-- Loop through touch-sensitive objects and force-release touch
+		for i = 1,mainGroup.numChildren do
+			if ( mainGroup[i].isDragObject == true ) then
+				mainGroup[i]:dispatchEvent( { name="touch", phase="ended", target=mainGroup[i] } )
 			end
-		elseif "ended" == phase or "cancelled" == phase then
-			display.getCurrentStage():setFocus( nil )
-			t:setStrokeColor( 1, 1, 1, 0 )
-			t.isFocus = false
+		end
+		-- Deactivate multitouch
+		system.deactivate( "multitouch" )
+		isMultitouchEnabled = false
+	end
+end
+
+-- Detect if multitouch is supported
+if not system.hasEventSource( "multitouch" ) then
+
+	-- Inform that multitouch is not supported
+	local shade = display.newRect( mainGroup, display.contentCenterX, display.contentHeight-display.screenOriginY-18, display.actualContentWidth, 36 )
+	shade:setFillColor( 0, 0, 0, 0.7 )
+	local msg = display.newText( mainGroup, "Multitouch events not supported on this platform", display.contentCenterX, shade.y, appFont, 13 )
+	msg:setFillColor( 1, 0, 0.2 )
+else
+	-- Create switch/label to enable/disable multitouch
+	local enableMultitouchCheckbox = widget.newSwitch(
+	{
+		x = display.contentCenterX - 68,
+		y = display.contentHeight-display.screenOriginY-40,
+		style = "checkbox",
+		initialSwitchState = true,
+		onPress = onSwitchPress
+	})
+	mainGroup:insert( enableMultitouchCheckbox )
+	local checkboxLabel = display.newText( mainGroup, "Enable Multitouch", display.contentCenterX+18, enableMultitouchCheckbox.y, appFont, 16 )
+
+	-- Activate multitouch
+	system.activate( "multitouch" )
+	isMultitouchEnabled = true
+end
+
+-- Touch handling function
+local function onTouch( event )
+
+	local obj = event.target
+	local phase = event.phase
+
+	if ( "began" == phase ) then
+
+		-- Make target and its label the top-most objects
+		obj:toFront()
+		obj.label:toFront()
+
+		-- Set focus on the object based on the unique touch ID, and if multitouch is enabled
+		if ( isMultitouchEnabled == true ) then
+			display.currentStage:setFocus( obj, event.id )
+		else
+			display.currentStage:setFocus( obj )
+		end
+		-- Spurious events can be sent to the target, for example the user presses
+		-- elsewhere on the screen and then moves the finger over the target;
+		-- to prevent this, we add this flag and only move the target when it's true
+		obj.isFocus = true
+
+		-- Store initial position
+		obj.x0 = event.x - obj.x
+		obj.y0 = event.y - obj.y
+
+	elseif obj.isFocus then
+
+		if ( "moved" == phase ) then
+
+			-- Make object move; we subtract "obj.x0" and "obj.y0" so that moves are relative
+			-- to the initial touch point rather than the object snapping to that point
+			obj.x = event.x - obj.x0
+			obj.y = event.y - obj.y0
+
+			-- Update/move object label
+			obj.label.text = string.format("%0.0f",obj.x)..", "..string.format("%0.0f",obj.y)
+			obj.label.x = obj.x
+			obj.label.y = obj.y-(obj.height/2)-14
+
+			-- Gradually show the shape's stroke depending on how much pressure is applied
+			if ( event.pressure ) then
+				obj:setStrokeColor( 1, 1, 1, event.pressure )
+			end
+
+		elseif ( "ended" == phase or "cancelled" == phase ) then
+
+			-- Release focus on the object
+			if ( isMultitouchEnabled == true ) then
+				display.currentStage:setFocus( obj, nil )
+			else
+				display.currentStage:setFocus( nil )
+			end
+			obj.isFocus = false
+
+			obj:setStrokeColor( 1, 1, 1, 0 )
 		end
 	end
-
-	-- Important to return true. This tells the system that the event
-	-- should not be propagated to listeners of any objects underneath.
 	return true
 end
 
--- Iterate through arguments array and create rounded rects (vector objects) for each item
-for _,item in ipairs( arguments ) do
-	local button = display.newRoundedRect( item.x, item.y, item.w, item.h, item.r )
-	button:setFillColor( item.red, item.green, item.blue )
-	button.strokeWidth = 6
-	button:setStrokeColor( 1, 1, 1, 0 )
-	
-	-- Make the button instance respond to touch events
-	button:addEventListener( "touch", onTouch )
-end
+-- Data table for position, radius, and color of objects
+local objectData =
+{
+	{ x=160, y=100, radius=24, r=1, g=0, b=0.1 },
+	{ x=65, y=175, radius=32, r=0.95, g=0.1, b=0.3 },
+	{ x=200, y=225, radius=48, r=0.9, g=0.2, b=0.5 }
+}
 
--- listener used by Runtime object. This gets called if no other display object
--- intercepts the event.
-local function printTouch2( event )
-	print( "event(" .. event.phase .. ") ("..event.x..","..event.y..") ("..getFormattedPressure(event.pressure)..")" )
-end
+-- Loop through table and create objects
+for i = 1,#objectData do
 
-Runtime:addEventListener( "touch", printTouch2 )
+	-- Create object
+	local obj = display.newCircle( mainGroup, objectData[i].x, objectData[i].y, objectData[i].radius )
+	obj:setFillColor( objectData[i].r, objectData[i].g, objectData[i].b )
+	obj.isDragObject = true
+
+	-- Set stroke color/width (used for indicating pressure touch)
+	obj:setStrokeColor( 1, 1, 1, 0 )
+	obj.strokeWidth = 4
+
+	-- Create label to show x/y of object
+	obj.label = display.newText( mainGroup, string.format("%0.0f",obj.x)..", "..string.format("%0.0f",obj.y), obj.x, objectData[i].y-(obj.height/2)-14, appFont, 12 )
+	obj.label:setFillColor( 0.8 )
+
+	-- Add touch sensitivity to object
+	obj:addEventListener( "touch", onTouch )
+end

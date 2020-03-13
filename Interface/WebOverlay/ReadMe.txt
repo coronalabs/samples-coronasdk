@@ -1,1 +1,0 @@
-Demonstrates using native.showWebPopup to create a WebPopUp over the "fishies" application.

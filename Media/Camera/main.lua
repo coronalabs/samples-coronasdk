@@ -124,7 +124,7 @@ local function permissionsListener( event )
 		media.capturePhoto( { listener = sessionComplete } )
 	else
 		-- The user hasn't given us the required permissions.
-		native.showAlert( "Corona SDK", "Required permissions not granted.", { "OK" } )
+		native.showAlert( "Corona", "Required permissions not granted.", { "OK" } )
 	end
 end
 
@@ -164,12 +164,12 @@ local function tryToCapturePhoto( event )
 		else
 			-- The device has a Camera, but we can't ask for permission to use it.
 			-- Tell the user to enable it in Settings.
-			native.showAlert( "Corona SDK", "A camera was found on this device, but permission to use it cannot " 
+			native.showAlert( "Corona", "A camera was found on this device, but permission to use it cannot " 
 				.. "be requested. Please go to Settings and grant this app access to the Camera.", { "OK" } )
 		end
 	else
 		-- The sample requires that we actually have a camera.
-		native.showAlert( "Corona SDK", "Camera not found.", { "OK" } )
+		native.showAlert( "Corona", "Camera not found.", { "OK" } )
 	end
 
 	return true

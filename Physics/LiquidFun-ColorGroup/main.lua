@@ -1,32 +1,48 @@
--- 
--- Abstract: ColorGroup sample project
--- 
--- Version: 1.0
--- 
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2014 Corona Labs Inc. All Rights Reserved.
---
--- Supports Graphics 2.0
+
+-- Abstract: Liquid Fun - Color Group
+-- Version: 2.0
+-- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
 ---------------------------------------------------------------------------------------
 
-local physics = require( "physics" )
-physics.start()
-physics.setDrawMode( "normal" )
-
 display.setStatusBar( display.HiddenStatusBar )
-display.setDefault( "fillColor", 0.5 )
 math.randomseed( os.time() )
 
+------------------------------
+-- RENDER THE SAMPLE CODE UI
+------------------------------
+local sampleUI = require( "sampleUI.sampleUI" )
+sampleUI:newUI( { theme="darkgrey", title="Color Group", showBuildNum=false } )
+
+------------------------------
+-- CONFIGURE STAGE
+------------------------------
+display.getCurrentStage():insert( sampleUI.backGroup )
+local mainGroup = display.newGroup()
+display.getCurrentStage():insert( sampleUI.frontGroup )
+
+----------------------
+-- BEGIN SAMPLE CODE
+----------------------
+
+-- Set app font
+local appFont = sampleUI.appFont
+
+-- Require libraries/plugins
+local physics = require( "physics" )
+physics.start()
+
+math.randomseed( os.time() )
+display.setDefault( "fillColor", 0.20 )
 
 -- Add all physics objects
-local left_side_piece = display.newRect( -40, display.contentHeight-220, 400, 70 )
+local left_side_piece = display.newRect(mainGroup, -40, display.contentHeight-220, 400, 70 )
 physics.addBody( left_side_piece, "static" )
 left_side_piece.rotation = 80
 
-local center_piece = display.newRect( display.contentCenterX, display.contentHeight-16, 400, 120 )
+local center_piece = display.newRect(mainGroup, display.contentCenterX, display.contentHeight-16, 400, 120 )
 physics.addBody( center_piece, "static" )
 
-local right_side_piece = display.newRect( display.contentWidth+40, display.contentHeight-220, 400, 70 )
+local right_side_piece = display.newRect(mainGroup, display.contentWidth+40, display.contentHeight-220, 400, 70 )
 physics.addBody( right_side_piece, "static" )
 right_side_piece.rotation = -80
 
@@ -80,7 +96,7 @@ local function onTouch( event )
 		velocityX = 0.0
 		velocityY = 0.0
 
-		box = display.newRect( event.x, event.y, 32, 32 )
+		box = display.newRect(mainGroup, event.x, event.y, 32, 32 )
 		box.strokeWidth = 1
 		box:setStrokeColor( 0.4 )
 		box:setFillColor( 1, 1, 1, 0.2 )
@@ -108,7 +124,7 @@ local particleSystem = physics.newParticleSystem{
 	radius = 3,
 	imageRadius = 6
 }
-
+mainGroup:insert( particleSystem )
 
 -- Create box
 local function createBox( flags, groupFlags, color, x, y )
@@ -247,5 +263,5 @@ end
 Runtime:addEventListener( "enterFrame", enterFrame )
 
 -- Display instructions
-local inst = display.newText( "touch/drag to flick particles", display.contentWidth * 0.5, 50, native.systemFont, 16 )
+local inst = display.newText(mainGroup, "Touch/drag to flick particles", display.contentWidth * 0.5, 50, native.systemFont, 16 )
 inst:setFillColor( 1 )

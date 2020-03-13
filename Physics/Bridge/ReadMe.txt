@@ -1,1 +1,7 @@
-This application uses the physics engine allowing gravity, bouncing, and friction. This particular animation also uses joints and dampening to create the bridge.  
+This sample project demonstrates how to build a bridge from individual pieces joined together by physics "pivot" joints.
+
+RELATED GUIDES
+[Physics Joints](https://docs.coronalabs.com/guide/physics/physicsJoints/index.html)
+[Physics Bodies](https://docs.coronalabs.com/guide/physics/physicsBodies/index.html)
+
+

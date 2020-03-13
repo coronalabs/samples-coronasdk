@@ -1,5 +1,5 @@
 
--- Version: 1.25
+-- Version: 1.3
 ---------------------------------------------------------------------------------------
 
 local widget = require( "widget" )
@@ -62,7 +62,7 @@ function M:newUI( options )
 	self.appFont = useFont
 
 	-- Place Corona title
-	local siteLink = display.newText( barContainer, "Corona SDK", 8, topBarOver.contentHeight / 2, useFont, 14 )
+	local siteLink = display.newText( barContainer, "Corona Labs", 8, topBarOver.contentHeight / 2, useFont, 14 )
 	siteLink.anchorX = 0
 	siteLink:setFillColor( 0.961, 0.494, 0.125 )
 	if system.canOpenURL( "https://www.coronalabs.com" ) then
@@ -223,10 +223,7 @@ function M:newUI( options )
 		local spacer = display.newRect( infoTextGroup, 0, infoTextGroup.contentBounds.yMax, 10, 15 )
 		spacer.anchorY = 0 ; spacer.isVisible = false
 
-		local textHeight = 240
-		if infoTextGroup.height < 240 then textHeight = infoTextGroup.height end
-
-		local infoTextAnchorBox = display.newRect( infoTextGroup, 0, 0, 288, textHeight )
+		local infoTextAnchorBox = display.newRect( infoTextGroup, 0, 0, 288, math.max( 240, infoTextGroup.height ) )
 		infoTextAnchorBox.anchorY = 0
 		infoTextAnchorBox.isVisible = false
 

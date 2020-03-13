@@ -30,8 +30,8 @@ physics.setGravity( 0, 9.8 )
 physics.setDrawMode( "normal" )
 
 -- Declare initial variables
-local letterboxWidth = (display.actualContentWidth-display.contentWidth)/2
-local letterboxHeight = (display.actualContentHeight-display.contentHeight)/2
+local letterboxWidth = math.abs(display.screenOriginX)
+local letterboxHeight = math.abs(display.screenOriginY)
 
 -- Create "walls" around screen
 local wallL = display.newRect( worldGroup, 0-letterboxWidth, display.contentCenterY, 20, display.actualContentHeight )
@@ -104,7 +104,7 @@ end
 
 -- Add collision listener to character
 char.preCollision = localPreCollision
-char:addEventListener( "preCollision", char )
+char:addEventListener( "preCollision" )
 
 -- Create an invisible touch-sensitive rectangle to handle screen touches
 local touchRect = display.newRect( worldGroup, display.contentCenterX, sampleUI.titleBarBottom, 600, 400 )

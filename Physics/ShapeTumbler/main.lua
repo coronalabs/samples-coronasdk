@@ -11,7 +11,7 @@ math.randomseed( os.time() )
 -- RENDER THE SAMPLE CODE UI
 ------------------------------
 local sampleUI = require( "sampleUI.sampleUI" )
-sampleUI:newUI( { theme="darkgrey", title="Shape Tumbler", showBuildNum=true } )
+sampleUI:newUI( { theme="darkgrey", title="Shape Tumbler", showBuildNum=false } )
 
 ------------------------------
 -- CONFIGURE STAGE
@@ -31,8 +31,8 @@ physics.setGravity( 0, 9.8 )  -- Initial gravity points downwards
 physics.setScale( 60 )
 
 -- Declare initial variables
-local letterboxWidth = (display.actualContentWidth-display.contentWidth)/2
-local letterboxHeight = (display.actualContentHeight-display.contentHeight)/2
+local letterboxWidth = math.abs(display.screenOriginX)
+local letterboxHeight = math.abs(display.screenOriginY)
 
 -- Create "walls" around screen
 local wallL = display.newRect( worldGroup, 0-letterboxWidth, display.contentCenterY, 20, display.actualContentHeight )
@@ -50,7 +50,6 @@ physics.addBody( wallT, "static", { bounce=0, friction=0 } )
 local wallB = display.newRect( worldGroup, display.contentCenterX, 320+letterboxHeight, display.actualContentWidth, 20 )
 wallB.anchorY = 0
 physics.addBody( wallB, "static", { bounce=0.4, friction=0.6 } )
-
 
 -- Create triangle function
 local function createTriangle()
@@ -97,7 +96,6 @@ local function createBall()
 	return ball
 end
 
-
 -- Create random object function
 local function createRandomObject()
 	local r = math.random( 1, 6 )
@@ -120,29 +118,25 @@ local function createRandomObject()
 	return object
 end
 
-
 -- Fill the content area with some objects
-local xIndex = 0
-local yPos = 100
+local function spawnObjects()
+	local xIndex = 0
+	local yPos = 100
 
-for i = 1, 8 do
+	for i = 1, 8 do
+		local object = createRandomObject()
+		object:setFillColor( ( math.random( 4, 8 ) / 10 ), ( math.random( 0, 2 ) / 10 ), ( math.random( 4, 10 ) / 10 ) )
 
-	local object = createRandomObject()
-	object:setFillColor( ( math.random( 4, 8 ) / 10 ), ( math.random( 0, 2 ) / 10 ), ( math.random( 4, 10 ) / 10 ) )
+		if ( xIndex == 4 ) then
+			xIndex = 0
+			yPos = 220
+		end
 
-	if ( xIndex == 4 ) then
-		xIndex = 0
-		yPos = 220
+		object.y = yPos + ( math.random( -1, 1 ) * 15 )
+		object.x = ( xIndex * 120 ) + 60 + ( math.random( -1, 1 ) * 15 )
+		xIndex = xIndex + 1
 	end
-
-	object.y = yPos + ( math.random( -1, 1 ) * 15 )
-	object.x = ( xIndex * 120 ) + 60 + ( math.random( -1, 1 ) * 15 )
-	xIndex = xIndex + 1
 end
-
-
--- Set accelerometer to maximum responsiveness
-system.setAccelerometerInterval( 100 )
 
 -- Function to adjust gravity based on accelerometer response
 local function onTilt( event )
@@ -155,4 +149,17 @@ local function onTilt( event )
 	end
 end
 
-Runtime:addEventListener( "accelerometer", onTilt )
+-- Detect if accelerometer is supported
+if ( system.hasEventSource( "accelerometer" ) ) then
+	-- Set accelerometer to maximum responsiveness
+	system.setAccelerometerInterval( 100 )
+	-- Start listening for accelerometer events
+	Runtime:addEventListener( "accelerometer", onTilt )
+	-- Spawn some objects
+	spawnObjects()
+else
+	local shade = display.newRect( worldGroup, display.contentCenterX, display.contentHeight-display.screenOriginY-18, display.actualContentWidth, 36 )
+	shade:setFillColor( 0, 0, 0, 0.7 )
+	local msg = display.newText( worldGroup, "Accelerometer not supported on this platform", display.contentCenterX, shade.y, appFont, 13 )
+	msg:setFillColor( 1, 0, 0.2 )
+end

@@ -1,43 +1,16 @@
--- Project: Twitter sample app
---
--- File name: Twitter.lua
---
--- Author: Corona Labs
---
--- Abstract: Demonstrates how to connect to Twitter using Oauth Authenication.
---
--- Note: In order to get the Twitter sign-on working correctly, you need to
---		 make sure you have the following items set in the Twitter Application page
---		 1. "Callback URL" add your site URL here
---		 2. "Sign in with Twitter" checked
---
--- History:
---	 March 5, 2013 for Twitter API 1.1 using oAuth 1.0a
---
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
--- Copyright (C) 2010-2013 Corona Labs Inc. All Rights Reserved.
---
--- Supports Graphics 2.0
------------------------------------------------------------------------------------------
 
-module(..., package.seeall)
+local M = {}
 
-local oAuth = require "oAuth"
-local json = require("json")
+-- Require libraries/plugins
+local oAuth = require( "oAuth" )
+local json = require( "json" )
 
--- Fill in the following fields from your Twitter app account
-consumer_key = nil -- key string goes here
-consumer_secret = nil -- secret string goes here
+-- These are set in "main.lua" and passed in via "twitter.init()"
+local consumerKey
+local consumerSecret
+local webURL
 
--- The web URL address below can be anything
--- Twitter sends the web address with the token back to your app and the code strips out the token to use to authorise it
---
-webURL = "https://coronalabs.com/"
-
--- Note: Once logged on, the access_token and access_token_secret should be saved so they can
---	     be used for the next session without the user having to log in again.
--- The following is returned after a successful authenications and log-in by the user
---
+-- The following are returned after a successful authentication and login by the user
 local access_token
 local access_token_secret
 local user_id
@@ -48,108 +21,66 @@ local postMessage
 local delegate
 
 -- Forward references
-local doTweet			-- function to send the actual tweet
+local doTweet
 
--- Display a message if there is no app keys set
--- (App keys must be strings)
---
-if not consumer_key or not consumer_secret then
-	-- Handle the response from showAlert dialog boxbox
-	--
-	local function onComplete( event )
-		if event.index == 1 then
-			system.openURL( "https://dev.twitter.com//" )
+
+-- Debug output function (useful for displaying JSON information returned from Twitter API)
+local function printTable( t )
+
+	local printTable_cache = {}
+
+	local function sub_printTable( t, indent )
+
+		if ( printTable_cache[tostring(t)] ) then
+			print( indent .. "*" .. tostring(t) )
+		else
+			printTable_cache[tostring(t)] = true
+			if ( type( t ) == "table" ) then
+				for pos,val in pairs( t ) do
+					if ( type(val) == "table" ) then
+						print( indent .. "[" .. pos .. "] => " .. tostring( t ).. " {" )
+						sub_printTable( val, indent .. string.rep( " ", string.len(pos)+8 ) )
+						print( indent .. string.rep( " ", string.len(pos)+6 ) .. "}" )
+					elseif ( type(val) == "string" ) then
+						print( indent .. "[" .. pos .. '] => "' .. val .. '"' )
+					else
+						print( indent .. "[" .. pos .. "] => " .. tostring(val) )
+					end
+				end
+			else
+				print( indent..tostring(t) )
+			end
 		end
 	end
 
-	native.showAlert( "Error", "To develop for Twitter, you need to get an API key and application secret. This is available from Twitter's website.",
-		{ "Learn More", "Cancel" }, onComplete )
-end
-
------------------------------------------------------------------------------------------
--- Twitter Authorization Listener (callback from step 2)
--- webPopup listener
------------------------------------------------------------------------------------------
---
-local function webListener(event)
-
-	print("listener: ", event.url)
-	local remain_open = true
-	local url = event.url
-
-	-- The URL that we are looking for contains "oauth_token" and our own URL
-	-- It also has the "oauth_token_secret" and "oauth_verifier" strings
-	--
-	if url:find("oauth_token") and url:find(webURL) then
-	
-		----------------------------------------------------
-		-- Callback from getAccessToken
-		----------------------------------------------------
-		local function accessToken_ret( status, access_response )
-					
-			access_response = responseToTable( access_response, {"=", "&"} )
-			access_token = access_response.oauth_token
-			access_token_secret = access_response.oauth_token_secret
-			user_id = access_response.user_id
-			screen_name = access_response.screen_name
-						
-			if not access_token then
-				return
-			end
-		
-			print( "Tweeting" )
-		
-			doTweet()		-- send the actual tweet
-
-		end -- end of callback listener
-		
-		----------------------------------------------------
-		-- Executes when Web Popup listener starts
-		----------------------------------------------------
-		url = url:sub(url:find("?") + 1, url:len())
-
-		-- Get Request Token and Verifier
-		local authorize_response = responseToTable(url, {"=", "&"})
-		remain_open = false
-		
-		-- Step 3 Converting Request Token to Access Token		
-		oAuth.getAccessToken(authorize_response.oauth_token,
-			authorize_response.oauth_verifier, twitter_request_token_secret, consumer_key, 
-			 consumer_secret, "https://api.twitter.com/oauth/access_token", accessToken_ret )
-		
-	elseif url:find(webURL) then
-	
-		-- Logon was canceled by user
-		--
-		remain_open = false
-		delegate.twitterCancel()
-		
+	if ( type(t) == "table" ) then
+		print( tostring(t) .. " {" )
+		sub_printTable( t, "  " )
+		print( "}" )
+	else
+		sub_printTable( t, "  " )
 	end
-
-	return remain_open
 end
 
------------------------------------------------------------------------------------------
--- RESPONSE TO TABLE
---
--- Strips the token from the web address returned
------------------------------------------------------------------------------------------
---
-function responseToTable(str, delimeters)
+
+-- Response to table (strips the token from the web address returned)
+local function responseToTable( str, delimeters )
 
 	local obj = {}
 
 	while str:find(delimeters[1]) ~= nil do
+
 		if #delimeters > 1 then
+
 			local key_index = 1
 			local val_index = str:find(delimeters[1])
 			local key = str:sub(key_index, val_index - 1)
-	
+
 			str = str:sub((val_index + delimeters[1]:len()))
-	
+
 			local end_index
 			local value
-	
+
 			if str:find(delimeters[2]) == nil then
 				end_index = str:len()
 				value = str
@@ -159,15 +90,14 @@ function responseToTable(str, delimeters)
 				str = str:sub((end_index + delimeters[2]:len()), str:len())
 			end
 			obj[key] = value
-			--print(key .. ":" .. value)		-- **debug
+
 		else
-	
 			local val_index = str:find(delimeters[1])
 			str = str:sub((val_index + delimeters[1]:len()))
-	
+
 			local end_index
 			local value
-	
+
 			if str:find(delimeters[1]) == nil then
 				end_index = str:len()
 				value = str
@@ -176,151 +106,138 @@ function responseToTable(str, delimeters)
 				value = str:sub(1, (end_index - 1))
 				str = str:sub(end_index, str:len())
 			end
-			
-			obj[#obj + 1] = value
-
+			obj[#obj+1] = value
 		end
 	end
-	
 	return obj
 end
 
------------------------------------------------------------------------------------------
--- Tweet
---
--- Sends the tweet or request. Authorizes if no access token
------------------------------------------------------------------------------------------
---
-function tweet(del, msg)
 
-	postMessage = msg
-	delegate = del
-	
-	-- Check to see if we are authorized to tweet
-	if not access_token then
-		
-		----------------------------------------------------
-		-- Callback from getRequestToken
-		----------------------------------------------------
-		function tweetAuth_ret( status, result )
-		        
-			local twitter_request_token = result:match('oauth_token=([^&]+)')
-			local twitter_request_token_secret = result:match('oauth_token_secret=([^&]+)')
-					
-			if not twitter_request_token then
-				print( ">> No valid token received!")	-- **debug
-				
-				-- No valid token received. Abort
-				delegate.twitterFailed()
-				return
-			end
-		
-			-- Request the authorization (step 2)
-			-- Displays a webpopup to access the Twitter site so user can sign in
-			--
-			native.showWebPopup(0, 0, 320, 480, "https://api.twitter.com/oauth/authenticate?oauth_token="
-				.. twitter_request_token, {urlRequest = webListener})
-
-		end --  end of tweetAuth_ret callback
-
-		----------------------------------------------------
-		-- Executes first to authorize account
-		----------------------------------------------------
-		
-		if not consumer_key or not consumer_secret then
-			-- Exit if no API keys set (avoids crashing app)
-			delegate.twitterFailed()
-			return
-		end
-	
-		-- Get temporary token (step 1)		
-		-- Call the routine and wait for a response callback (tweet_ret)
-		local twitter_request = (oAuth.getRequestToken(consumer_key, webURL,
-			"https://api.twitter.com/oauth/request_token", consumer_secret, tweetAuth_ret))
-				
-	else
-		----------------------------------------------------
-		-- Account is already authorized, just tweet
-		----------------------------------------------------
-
-		print( "Tweeting" )
-		doTweet()
-		
-	end
-end
-
------------------------------------------------------------------------------------------
--- printTable (**debug)
---
--- This function is useful for display json information returned from Twitter api.
------------------------------------------------------------------------------------------
---
-local function printTable( t, label, level )
-	if label then print( label ) end
-	level = level or 1
-
-	if t then
-		for k,v in pairs( t ) do
-			local prefix = ""
-			for i=1,level do
-				prefix = prefix .. "\t"
-			end
-
-			print( prefix .. "[" .. tostring(k) .. "] = " .. tostring(v) )
-			if type( v ) == "table" then
-				print( prefix .. "{" )
-				printTable( v, nil, level + 1 )
-				print( prefix .. "}" )
-			end
-		end
-	end
-end
-
------------------------------------------------------------------------------------------
--- Tweet
---
--- Sends actual tweet or request to Twitter
------------------------------------------------------------------------------------------
---
-function doTweet()
+-- Sends the tweet/request or authorizes if no access token exists
+local function doTweet()
 
 	local values = postMessage
-	
-	----------------------------------------------------
-	-- Callback from makeRequest
-	----------------------------------------------------
-	function doTweetCallback( status, result )
-		
+
+	-- Callback from request
+	local function doTweetCallback( status, result )
+
 		local response = json.decode( result )
-		printTable( response, "Request", 3 )
-		
+		printTable( response )
+
 		-- Return the following: type of request, screen name, response
 		delegate.twitterSuccess( values[1], screen_name, response )
-
 	end
 
-	-- Build the parameter table for the Twitter Request
-	-- values[1] = type of request (tweet, users, friends, etc.)
+	-- Build the parameter table for the Twitter request
+	-- values[1] = Type of request ("tweet", "users", "friends", etc.)
 	-- values[2] = Twitter URL suffix
-	-- values[3] = medthod: GET | POST
-	-- values[4] ... values[n] = parameter pairs
-	-- "SELF" is replaced by current screen_name
-	--
+	-- values[3] = Method ("GET" or "POST")
+	-- values[4] = Parameter pairs
 	local params = {}
-
 	if #values > 3 then
-		for i = 4, #values do
+		for i = 4,#values do
 			print( values[i][1] .. " = " .. values[i][2]  )
 			params[i-3] = { key = values[i][1], value = values[i][2] }
-		
 			if params[i-3].value == "SELF" then 
 				params[i-3].value = screen_name
 			end
 		end
 	end
 
-	oAuth.makeRequest("https://api.twitter.com/1.1/" .. values[2],
-		params, consumer_key, access_token, consumer_secret, access_token_secret,
+	-- Make the request
+	oAuth.makeRequest( "https://api.twitter.com/1.1/"..values[2], params, consumerKey, access_token, consumerSecret, access_token_secret,
 		values[3], doTweetCallback )
-		
 end
+
+
+local function webPopupListener( event )
+
+	local remain_open = true
+	local url = event.url
+
+	-- The URL that we are looking for contains "oauth_token" and our own URL
+	-- It also has the "oauth_token_secret" and "oauth_verifier" strings
+	if ( url:find( "oauth_token" ) and url:find( webURL ) ) then
+
+		-- Callback from access token conversion
+		local function accessTokenCallback( status, access_response_value )
+
+			local access_response = responseToTable( access_response_value, {"=", "&"} )
+			access_token = access_response.oauth_token
+			access_token_secret = access_response.oauth_token_secret
+			user_id = access_response.user_id
+			screen_name = access_response.screen_name
+
+			if not access_token then return end
+
+			-- Send the tweet
+			doTweet()
+		end
+
+		-- Executes when web popup listener starts
+		url = url:sub( url:find( "?" ) + 1, url:len() )
+
+		-- Get request token and verifier
+		local authorize_response = responseToTable( url, { "=", "&" } )
+		remain_open = false
+
+		-- Convert request token to access token
+		oAuth.getAccessToken( authorize_response.oauth_token, authorize_response.oauth_verifier, twitter_request_token_secret, consumerKey, consumerSecret, "https://api.twitter.com/oauth/access_token", accessTokenCallback )
+
+	elseif url:find( webURL ) then
+
+		-- Login was cancelled by user
+		remain_open = false
+		delegate.twitterCancel()
+	end
+	return remain_open
+end
+
+
+function M.tweet( del, msg )
+
+	-- Defined at the top of the module
+	postMessage = msg
+	delegate = del
+
+	-- Check to see if user is authorized to tweet
+	if not access_token then
+
+		-- Callback function for request
+		local function tweetAuthCallback( status, result )
+
+			local twitter_request_token = result:match( "oauth_token=([^&]+)" )
+			local twitter_request_token_secret = result:match( "oauth_token_secret=([^&]+)" )
+
+			-- No valid token received (abort)
+			if not twitter_request_token then
+				delegate.twitterFailed()
+				return
+			end
+
+			-- Request authorization by displaying a web popup to access the Twitter site
+			native.showWebPopup( 0, 0, 320, 480, "https://api.twitter.com/oauth/authenticate?oauth_token="..twitter_request_token, { urlRequest=webPopupListener } )
+		end
+
+		-- Exit if no API keys set (avoids crashing app)
+		if not consumerKey or not consumerSecret then
+			delegate.twitterFailed()
+			return
+		end
+
+		-- Get temporary token by calling the routine and waiting for a response callback
+		local twitter_request = oAuth.getRequestToken( consumerKey, webURL, "https://api.twitter.com/oauth/request_token", consumerSecret, tweetAuthCallback )
+	else
+		-- Account is already authorized, just tweet
+		doTweet()
+	end
+end
+
+
+function M.init( key, secret, URL )
+	consumerKey = key
+	consumerSecret = secret
+	webURL = URL
+end
+
+return M
