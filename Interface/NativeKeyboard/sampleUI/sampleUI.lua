@@ -13,13 +13,13 @@ function M:newUI( options )
 	local backGroup = display.newGroup()
 	local frontGroup = display.newGroup()
 	local textGroupContainer = display.newContainer( 288, 240 ) ; frontGroup:insert( textGroupContainer )
-	local barContainer = display.newContainer( display.safeActualContentWidth, 30 )
+	local barContainer = display.newContainer( display.actualContentWidth, 30 )
 	frontGroup:insert( barContainer )
 	barContainer.anchorX = 0
 	barContainer.anchorY = 0
 	barContainer.anchorChildren = false
-	barContainer.x = display.safeScreenOriginX
-	barContainer.y = display.safeScreenOriginY + display.safeScreenOriginY
+	barContainer.x = display.screenOriginX
+	barContainer.y = display.screenOriginY
 
 	local scrollBounds
 	local infoBoxState = "canOpen"
@@ -39,22 +39,13 @@ function M:newUI( options )
 	end
 
 	-- Create background image by theme value
-	local backgroundFill = display.newRect( backGroup, display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentHeight )
 	local background = display.newImageRect( backGroup, "sampleUI/back-" .. themeName .. ".png", 360, 640 )
 	background.x, background.y = display.contentCenterX, display.contentCenterY
-	background.isVisible = true
 
 	local topBarBack = display.newRect( barContainer, 0, 0, barContainer.contentWidth, barContainer.contentHeight )
 	topBarBack.anchorX = 0
 	topBarBack.anchorY = 0
-	
-	if themeName == "darkgrey" then
-		topBarBack:setFillColor( 0, 0, 0, 0.2 )
-		backgroundFill:setFillColor( 29/255, 29/255, 29/255 )
-	else
-		topBarBack:setFillColor( 0.3451, 0.3451, 0.3451 )
-		backgroundFill:setFillColor( 0.3451, 0.3451, 0.3451 )
-	end
+	topBarBack:setFillColor( 0,0,0,0.2 )
 	local topBarOver = display.newRect( barContainer, 0, 0, barContainer.contentWidth, barContainer.contentHeight - 2 )
 	topBarOver.anchorX = 0
 	topBarOver.anchorY = 0
@@ -71,7 +62,7 @@ function M:newUI( options )
 	self.appFont = useFont
 
 	-- Place Corona title
-	local siteLink = display.newText( barContainer, "Corona Labs", 8, topBarOver.contentHeight / 2, useFont, 14 )
+	local siteLink = display.newText( barContainer, "Solar2D", 8, topBarOver.contentHeight / 2, useFont, 14 )
 	siteLink.anchorX = 0
 	siteLink:setFillColor( 0.961, 0.494, 0.125 )
 	if system.canOpenURL( "https://www.coronalabs.com" ) then
@@ -121,9 +112,9 @@ function M:newUI( options )
 			background.x, background.y, background.rotation = display.contentCenterX, display.contentCenterY, 90
 		end
 
-		barContainer.x = display.safeScreenOriginX
-		barContainer.y = display.safeScreenOriginY
-		barContainer.width = display.safeActualContentWidth
+		barContainer.x = display.screenOriginX
+		barContainer.y = display.screenOriginY
+		barContainer.width = display.actualContentWidth
 		topBarBack.width = barContainer.width
 		topBarOver.width = barContainer.width
 		title.x = barContainer.contentWidth - 28
@@ -139,7 +130,7 @@ function M:newUI( options )
 		end
 
 		-- If info box is opening or already open, snap it entirely on screen
-		objPos["infoBoxOffY"] = display.safeScreenOriginY - 130
+		objPos["infoBoxOffY"] = display.screenOriginY - 130
 		objPos["infoBoxDestY"] = (barContainer.y + barContainer.contentHeight + 130)
 		if ( infoBoxState == "opening" or infoBoxState == "canClose" ) then
 			transition.cancel( "infoBox" )

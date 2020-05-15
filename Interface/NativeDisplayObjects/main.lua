@@ -5,7 +5,7 @@
 ---------------------------------------------------------------------------------------
 
 display.setStatusBar( display.HiddenStatusBar )
-
+native.setProperty( "preferredScreenEdgesDeferringSystemGestures", true ) 
 ------------------------------
 -- RENDER THE SAMPLE CODE UI
 ------------------------------

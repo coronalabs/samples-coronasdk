@@ -62,7 +62,7 @@ function M:newUI( options )
 	self.appFont = useFont
 
 	-- Place Corona title
-	local siteLink = display.newText( barContainer, "Corona Labs", 8, topBarOver.contentHeight / 2, useFont, 14 )
+	local siteLink = display.newText( barContainer, "Solar2D", 8, topBarOver.contentHeight / 2, useFont, 14 )
 	siteLink.anchorX = 0
 	siteLink:setFillColor( 0.961, 0.494, 0.125 )
 	if system.canOpenURL( "https://www.coronalabs.com" ) then
