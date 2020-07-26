@@ -1,7 +1,7 @@
 
 -- Abstract: SpriteTiles
 -- Version: 2.0
--- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed; see https://solar2d.com/LICENSE.txt
 -- Artwork used within this project is licensed under Public Domain Dedication: https://creativecommons.org/publicdomain/zero/1.0/
 ---------------------------------------------------------------------------------------
 

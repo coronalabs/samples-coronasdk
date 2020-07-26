@@ -21,7 +21,7 @@
 --
 -- Comments: 
 --
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://solar2d.com/LICENSE.txt
 -- Copyright (C) 2010-2015 Corona Labs Inc. All Rights Reserved.
 --
 ---------------------------------------------------------------------------------------

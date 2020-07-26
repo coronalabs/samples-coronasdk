@@ -21,7 +21,7 @@
 --	1.0		January 17, 2012		Initial version
 --	1.1		November 16, 2016		Added native.canShowPopup() checks before trying to show the popups
 --
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://solar2d.com/LICENSE.txt
 -- Copyright (C) 2010-2016 Corona Labs Inc. All Rights Reserved.
 --
 -- Supports Graphics 2.0

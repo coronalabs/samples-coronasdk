@@ -5,7 +5,7 @@
 -- * How to get and set the window title bar text.
 -- * How to toggle fullscreen mode on Windows via an F11 key event.
 --
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://solar2d.com/LICENSE.txt
 -- Copyright (C) 2015 Corona Labs Inc. All Rights Reserved.
 ----------------------------------------------------------------------------------------------------
 

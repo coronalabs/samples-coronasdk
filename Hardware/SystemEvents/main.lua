@@ -32,7 +32,7 @@
 --		This file is read at start-up time to determine if the app received an
 --		applicationExit event. A message is displayed if found and the file deleted.
 --
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://solar2d.com/LICENSE.txt
 -- Copyright (C) 2010-2015 Corona Labs Inc. All Rights Reserved.
 --
 -- History

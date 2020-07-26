@@ -13,7 +13,7 @@
 --
 -- Limitations: This sample app only works on an Android device with "Google Play" installed.
 --
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://solar2d.com/LICENSE.txt
 -- Copyright (C) 2012 Corona Labs Inc. All Rights Reserved.
 --
 --	Supports Graphics 2.0

@@ -1,7 +1,7 @@
 
 -- Abstract: AudioPlayer
 -- Version: 2.0
--- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed; see https://solar2d.com/LICENSE.txt
 -- Some audio files courtesy of Eric Matyas; see http://www.soundimage.org/
 -- Other audio files courtesy of Freesound; see http://www.freesound.org
 ---------------------------------------------------------------------------------------

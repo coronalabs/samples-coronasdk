@@ -19,7 +19,7 @@
 --	1.0		January 3, 2011		Initialize version
 --	1.1		March 6, 2013		Modified for Networking 2.0	
 --
--- Sample code is MIT licensed, see https://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed, see https://solar2d.com/LICENSE.txt
 -- Copyright (C) 2010 Corona Labs Inc. All Rights Reserved.
 --
 -- Supports Graphics 2.0

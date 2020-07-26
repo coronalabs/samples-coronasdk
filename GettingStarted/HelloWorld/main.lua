@@ -1,7 +1,7 @@
 
 -- Abstract: Hello World
 -- Version: 2.0
--- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed; see https://solar2d.com/LICENSE.txt
 ---------------------------------------------------------------------------------------
 
 local world = display.newImageRect( "world.png", 250, 250 )

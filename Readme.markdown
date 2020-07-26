@@ -14,4 +14,4 @@ For more information on the "config.lua" and "build.settings" files, see the fol
 
 ### License
 
-All sample code is [MIT licensed](https://www.coronalabs.com/links/code/license).
+All sample code is [MIT licensed](https://solar2d.com/LICENSE.txt).

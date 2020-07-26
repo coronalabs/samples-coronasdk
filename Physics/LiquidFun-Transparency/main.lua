@@ -1,7 +1,7 @@
 
 -- Abstract: LiquidFun-Transparency
 -- Version: 1.0
--- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed; see https://solar2d.com/LICENSE.txt
 -- Assets copyright © 2015 Frozen Gun Games. All rights reserved.
 ---------------------------------------------------------------------------------------
 

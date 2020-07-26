@@ -1,7 +1,7 @@
 
 -- Abstract: NewVideo
 -- Version: 2.0
--- Sample code is MIT licensed; see https://www.coronalabs.com/links/code/license
+-- Sample code is MIT licensed; see https://solar2d.com/LICENSE.txt
 -- Video licensed as Creative Commons Attribute 3.0: https://peach.blender.org
 ---------------------------------------------------------------------------------------
 
