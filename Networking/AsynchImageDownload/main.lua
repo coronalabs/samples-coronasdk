@@ -30,6 +30,8 @@ local centerY = display.contentCenterY
 local _W = display.contentWidth
 local _H = display.contentHeight
 
+display.setDefault( "background", 0.95 )
+
 ----------------------------------------------------------------------------------------------------
 -- Method 1: use network.download() to create an image file, then load it as a display object
 
@@ -46,7 +48,7 @@ local function networkListener( event )
 end
 
 network.download( 
-	"https://developer.coronalabs.com/demo/hello.png", 
+	"https://solar2d.com/images/logo.png", 
 	"GET", 
 	networkListener, 
 	"helloCopy.png", 
@@ -72,7 +74,7 @@ local function networkListener2( event )
 end
 
 display.loadRemoteImage( 
-	"https://developer.coronalabs.com/demo/hello.png", 
+	"https://solar2d.com/images/logo.png", 
 	"GET", 
 	networkListener2, 
 	"helloCopy2.png", 

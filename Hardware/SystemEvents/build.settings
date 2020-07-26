@@ -24,7 +24,7 @@ settings =
 				{
 					CFBundleURLSchemes=
 					{
-						"CoronaSystemEvent", "Corona2",
+						"Solar2DSystemEvent", "Solar2D",
 					}
 				},
 			},

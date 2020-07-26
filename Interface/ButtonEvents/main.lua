@@ -32,7 +32,7 @@ local widget = require( "widget" )
 local buttonPhase = display.newText( mainGroup, "(waiting for button event)", display.contentCenterX, 55+display.screenOriginY, appFont, 13 )
 buttonPhase:setFillColor( 1, 0.4, 0.25 )
 
-local logo = display.newImageRect( mainGroup, "corona-logo.png", 150, 150 )
+local logo = display.newImageRect( mainGroup, "logo.png", 150, 150 )
 logo.x = display.contentCenterX
 logo.y = 160 + display.screenOriginY
 

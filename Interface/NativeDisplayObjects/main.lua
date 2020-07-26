@@ -176,11 +176,11 @@ local function onButtonRelease( event )
 
 	elseif ( buttonID == "Alert" ) then
 		-- Create native alert
-		local alertBox = native.showAlert( "Custom Alert", "This is a native alert with customizable title, text, and buttons which can perform various actions upon being clicked.", { "OK", "coronalabs.com" },
+		local alertBox = native.showAlert( "Custom Alert", "This is a native alert with customizable title, text, and buttons which can perform various actions upon being clicked.", { "OK", "solar2d.com" },
 			function( event )
 				if ( event.action == "clicked" ) then
 					if ( event.index == 2 ) then
-						system.openURL( "https://www.coronalabs.com" )
+						system.openURL( "https://www.solar2d.com" )
 					end
 					cleanUp()
 				end
@@ -216,7 +216,7 @@ local function onButtonRelease( event )
 		-- Create native web view
 		local viewHeight = display.contentHeight - ( objectLabel.y - display.screenOriginY + 50 )
 		webView = native.newWebView( display.contentCenterX, objectLabel.y+(viewHeight/2)+50, display.actualContentWidth, viewHeight )
-		webView:request( "https://www.coronalabs.com" )
+		webView:request( "https://www.solar2d.com" )
 		objectLabel.text = "Web View"
 		webView.tip = display.newText( labelGroup, "(touch outside web view to close)", display.contentCenterX, objectLabel.y+25, appFont, 14 )
 		webView.tip:setFillColor( 0.6 )

@@ -22,7 +22,7 @@ physics.setScale( 60 )
 
 display.setStatusBar( display.HiddenStatusBar )
 
--- The final "true" parameter overrides Corona's auto-scaling of large images
+-- The final "true" parameter overrides Solar2D's auto-scaling of large images
 local background = display.newImage( "grille_bkg.png", centerX, centerY, true )
 
 local ground = display.newImage( "ground.png", centerX, 450, true )

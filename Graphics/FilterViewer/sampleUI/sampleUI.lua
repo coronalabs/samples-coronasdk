@@ -61,15 +61,15 @@ function M:newUI( options )
 	end
 	self.appFont = useFont
 
-	-- Place Corona title
+	-- Place Solar2D title
 	local siteLink = display.newText( barContainer, "Solar2D", 8, topBarOver.contentHeight / 2, useFont, 14 )
 	siteLink.anchorX = 0
 	siteLink:setFillColor( 0.961, 0.494, 0.125 )
-	if system.canOpenURL( "https://www.coronalabs.com" ) then
+	if system.canOpenURL( "https://www.solar2d.com" ) then
 		siteLink:addEventListener( "touch",
 			function( event )
 				if event.phase == "began" then
-					system.openURL( "https://www.coronalabs.com" )
+					system.openURL( "https://www.solar2d.com" )
 				end
 				return true
 			end )

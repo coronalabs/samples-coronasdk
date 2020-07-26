@@ -25,7 +25,7 @@ settings =
 
 	win32 =
 	{
-		-- By default, Corona stores preferences to a SQLite database on Windows
+		-- By default, Solar2D stores preferences to a SQLite database on Windows
 		-- Uncomment the following setting to store preferences to the registry
 		-- Note that registry support has portability issues such as lack of case sensitivity
 		--preferenceStorage = "registry",

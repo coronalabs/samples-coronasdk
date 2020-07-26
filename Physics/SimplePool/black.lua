@@ -1,7 +1,6 @@
 module(...)
 
 
--- This file is for use with Corona Game Edition
 --
 -- The function getSpriteSheetData() returns a table suitable for importing using sprite.newSpriteSheetFromData()
 --
@@ -10,7 +9,7 @@ module(...)
 -- 			local data = zwoptexData.getSpriteSheetData()
 --			local spriteSheet = sprite.newSpriteSheetFromData( "blackBall.png", data )
 --
--- For more details, see https://www.coronalabs.com/links/content/game-edition-sprite-sheets
+-- For more details, see https://docs.coronalabs.com/guide/media/imageSheets/index.html
 
 function getSpriteSheetData()
 

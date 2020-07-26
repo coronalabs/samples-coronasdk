@@ -62,7 +62,7 @@ display.setDefault( "fillColor", 1, 1, 1 )
 -- Button event handler
 local buttonOnRelease = function( event )
 
-	local mapURL = "https://maps.google.com/maps?q=Hello,+Corona!@" .. currentLatitude .. "," .. currentLongitude
+	local mapURL = "https://maps.google.com/maps?q=Hello,+Solar2D!@" .. currentLatitude .. "," .. currentLongitude
 	if system.canOpenURL( mapURL ) then
 		-- Show location on map
 		system.openURL( mapURL )

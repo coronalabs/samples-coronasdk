@@ -10,7 +10,7 @@ application =
 	{
 		google =
 		{
-			-- This Project Number (also known as a Sender ID) tells Corona to register this application
+			-- This Project Number (also known as a Sender ID) tells Solar2D to register this application
 			-- for push notifications with the Google Cloud Messaging service on startup.
 			-- This number can be obtained from the Firebase Console https://console.firebase.google.com/
 			-- Select your project -> (Gear Icon) -> Project Settings -> Cloud Messaging -> Sender ID field

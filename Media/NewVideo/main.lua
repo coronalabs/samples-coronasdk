@@ -119,7 +119,7 @@ local function playVideo( event )
 
 		msg.text = "(loading)"
 		video = native.newVideo( videoFrame.x, videoFrame.y, videoFrame.width, videoFrame.height )
-		video:load( "https://www.coronalabs.com/video/bbb/BigBuckBunny_640x360.m4v", media.RemoteSource )
+		video:load( "https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_640x360.m4v", media.RemoteSource )
 		video:addEventListener( "video", videoListener )
 		setButtonEnabled( playButton, false )
 

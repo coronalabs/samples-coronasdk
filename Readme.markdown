@@ -1,5 +1,5 @@
 
-## Corona Sample Code
+## Solar2D Sample Code
 
 These samples have been adapted for cross-platform deployment in the following ways:
 

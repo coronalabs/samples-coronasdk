@@ -95,10 +95,10 @@ local function processFBCommand()
 	elseif requestedFBCommand == SHARE_LINK_DIALOG then
 		-- Create table with link data to share
 		local linkData = {
-			name = "Facebook plugin for Corona",
+			name = "Facebook plugin for Solar2D",
 			link = "https://docs.coronalabs.com/guide/social/usingFacebook/index.html",
-			description = "More Facebook awesomeness for Corona!",
-			picture = "https://coronalabs.com/wordpress/wp-content/uploads/2018/07/orange_vertikal_RGB.png",
+			description = "More Facebook awesomeness for Solar2D!",
+			picture = "https://solar2d.com/images/logo.png",
 		}
 		response = facebook.showDialog( "link", linkData )
 
@@ -107,7 +107,7 @@ local function processFBCommand()
 		-- Create table with photo data to share
 		local photoData = {
 			photos = {
-				{ url = "https://coronalabs.com/wordpress/wp-content/uploads/2018/07/orange_vertikal_RGB.png", },
+				{ url = "https://solar2d.com/images/logo.png", },
 			},
 		}
 		response = facebook.showDialog( "photo", photoData )		

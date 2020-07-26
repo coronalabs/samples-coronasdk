@@ -24,7 +24,7 @@ display.getCurrentStage():insert( sampleUI.frontGroup )
 ----------------------
 
 -- Create logo objects
-local logo = display.newImageRect( mainGroup, "corona-logo.png", 150, 150 )
+local logo = display.newImageRect( mainGroup, "logo.png", 150, 150 )
 logo.x, logo.y = display.contentCenterX, display.contentCenterY
 logo.anchorX = 0.5
 logo.anchorY = 0.5

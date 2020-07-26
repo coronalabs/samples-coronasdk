@@ -32,7 +32,7 @@ local appFont = sampleUI.appFont
 
 local function openVideoPlayer()
 	-- Open device-specific video player and show video controls (third parameter)
-	media.playVideo( "https://www.coronalabs.com/video/bbb/BigBuckBunny_640x360.m4v", media.RemoteSource, true )
+	media.playVideo( "https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_640x360.m4v", media.RemoteSource, true )
 end
 
 -- Play button

@@ -111,13 +111,13 @@ function gameStage()
 	stageGroup = display.newGroup()
 	
 	
-	local table = display.newImage( "table_bkg.png", true) -- "true" overrides Corona's downsizing of large images on smaller devices
+	local table = display.newImage( "table_bkg.png", true) -- "true" overrides Solar2D's downsizing of large images on smaller devices
 	stageGroup:insert(table)
 	table.x = 384
 	table.y = 512
 	
 	
-	local tableTopColor = display.newImage( "table"..feltColorIndex..".png", true) -- "true" overrides Corona's downsizing of large images on smaller devices
+	local tableTopColor = display.newImage( "table"..feltColorIndex..".png", true) -- "true" overrides Solar2D's downsizing of large images on smaller devices
 	stageGroup:insert(tableTopColor)
 	tableTopColor.x = 384
 	tableTopColor.y = 512

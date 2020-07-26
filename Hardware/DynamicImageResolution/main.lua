@@ -65,7 +65,7 @@ local descOptions = {
 	align = "center",
 }
 local description = display.newText( descOptions )
-description.text = "View in different simulated devices\n(best resolution image is chosen automatically)\n\nGrey rectangle is Corona content area"
+description.text = "View in different simulated devices\n(best resolution image is chosen automatically)\n\nGrey rectangle is Solar2D content area"
 description:setFillColor( 0 )
 
 local paramOptions = 

@@ -36,7 +36,7 @@ local consumerSecret = ""  -- Secret string goes here
 
 -- The web URL address below can be anything, but it should match what you put in your Twitter API setup;
 -- Twitter sends the web address with the token back to your app and the code strips out the token
-local webURL = "https://coronalabs.com/"
+local webURL = "https://solar2d.com/"
 
 -- Local variables and forward references
 local centerX = display.contentCenterX
@@ -98,7 +98,7 @@ local function buttonRelease( event )
 	elseif ( "tweet" == id ) then
 
 		local time = os.date( "*t" )  -- Get time to append to the tweet
-		local value = "Posted from Corona at coronalabs.com at " .. time.hour .. ":" .. time.min .. "." .. time.sec
+		local value = "Posted from Solar2D at solar2d.com at " .. time.hour .. ":" .. time.min .. "." .. time.sec
 		local params = { "tweet", "statuses/update.json", "POST", { "status", value } }
 		twitter.tweet( callbackFunctions, params )
 

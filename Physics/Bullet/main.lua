@@ -22,7 +22,7 @@ physics.setScale( 40 )
 
 display.setStatusBar( display.HiddenStatusBar )
 
--- The final "true" parameter overrides Corona's auto-scaling of large images
+-- The final "true" parameter overrides Solar2D's auto-scaling of large images
 local background = display.newImage( "bricks.png", centerX, centerY, true )
 
 display.setDefault( "anchorX", 0.0 )	-- default to TopLeft anchor point for new objects

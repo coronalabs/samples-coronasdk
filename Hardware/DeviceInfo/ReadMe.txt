@@ -1,4 +1,4 @@
-This sample project demonstrates how to utilize APIs in the Corona system library to read/detect device-specific information.
+This sample project demonstrates how to utilize APIs in the Solar2D system library to read/detect device-specific information.
 
 RELATED DOCUMENTATION
 [system.getInfo()](https://docs.coronalabs.com/api/library/system/getInfo.html)

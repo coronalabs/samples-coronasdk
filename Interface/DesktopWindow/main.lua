@@ -10,7 +10,7 @@
 ----------------------------------------------------------------------------------------------------
 
 
--- Desktop apps support the Corona widgets library!
+-- Desktop apps support the Solar2D widgets library!
 -- Require it in so that we can use widget buttons below.
 local widget = require("widget")
 widget.setTheme("widget_theme_android_holo_dark")
