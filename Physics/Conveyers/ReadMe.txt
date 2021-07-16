@@ -1,6 +1,7 @@
 This sample project demonstrates polygonal body constructors and tilt-based gravity effects for Android, iOS, and tvOS.
 
-Turn the device around (orientation) to see how the objects tumble around as if contained in a tumbler.
+Turn the device around (orientation) to see how the objects tumble around as if contained in a tumbler. A couple of the
+surfaces also behave like conveyer belts.
 
 RELATED GUIDES
 [Basic Interactivity and Event Detection](https://docs.coronalabs.com/guide/events/detectEvents/index.html)
