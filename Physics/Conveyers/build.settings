@@ -36,7 +36,7 @@ settings =
 	{
 		titleText =
 		{
-			default = "Shape Tumbler",
+			default = "Shape Tumbler with conveyers",
 		},
 	},
 }
