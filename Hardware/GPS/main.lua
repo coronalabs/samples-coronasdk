@@ -63,10 +63,7 @@ display.setDefault( "fillColor", 1, 1, 1 )
 local buttonOnRelease = function( event )
 
 	local mapURL = "https://maps.google.com/maps?q=Hello,+Solar2D!@" .. currentLatitude .. "," .. currentLongitude
-	if system.canOpenURL( mapURL ) then
-		-- Show location on map
-		system.openURL( mapURL )
-	else
+	if not system.openURL( mapURL ) then
 		native.showAlert( "Alert", "No browser found to show location on map!", { "OK" } )
 	end
 end
