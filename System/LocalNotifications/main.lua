@@ -18,7 +18,7 @@
 ---------------------------------------------------------------------------------------
 
 local launchArgs = ...
-local notifications = require( "plugin.notifications" )
+local notifications = require( "plugin.notifications.v2" )
 local widget = require( "widget" )
 
 local centerX = display.contentCenterX
