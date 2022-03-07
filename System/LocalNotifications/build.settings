@@ -37,7 +37,7 @@ settings =
 	},
 	plugins =
 	{
-		["plugin.notifications"] =
+		["plugin.notifications.v2"] =
 		{
 			publisherId = "com.coronalabs"
 		},
