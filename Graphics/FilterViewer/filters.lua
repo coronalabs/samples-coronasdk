@@ -19,6 +19,22 @@ local M = {
 		vertical = { blurSize = 20, sigma = 240 }
 	},
 
+	["filter.blurLinearHorizontal"] = {
+		offset1 = 20,
+		offset2 = 40
+	},
+
+	["filter.blurLinearVertical"] = {
+		offset1 = 20,
+		offset2 = 40
+	},
+
+	["filter.blurGaussianLinear"] = {
+		horizontal = { offset1 = 5, offset2 = 10 },
+		vertical = { offset1 = 5, offset2 = 10 },
+	},
+
+
 	["filter.blurHorizontal"] = {
 		blurSize = 100,
 		sigma = 140
