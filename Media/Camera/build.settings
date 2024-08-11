@@ -15,7 +15,6 @@ settings =
 		usesPermissions =
 		{
 			"android.permission.CAMERA",
-			"android.permission.WRITE_EXTERNAL_STORAGE",
 		},
 		usesFeatures =
 		{

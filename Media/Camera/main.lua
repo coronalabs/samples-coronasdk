@@ -55,17 +55,6 @@ local function canUseMediaCapturePhoto()
 		return false
 	end
 
-	-- Ensure that we have permission to use external storage. We do not need
-	-- to check for camera permission explicitly, because media.hasSource does that
-	-- for us (see `hasAccessToCamera` above).
-	local grantedPermissions = system.getInfo("grantedAppPermissions")
-	if ( grantedPermissions ) then
-		if ( not isValueInTable( grantedPermissions, "Storage" ) ) then
-			print( "Lacking storage permission!" )
-			return false
-		end
-	end
-
 	return true 
 end
 
@@ -141,17 +130,9 @@ local function tryToCapturePhoto( event )
 		-- If we don't have access to the camera, and a camera is actually available,
 		-- request permission to use it, if we can.
 		if ( native.canShowPopup( "requestAppPermission" ) ) then
-			local permissionsToRequest = nil
+			local permissionsToRequest = { "Camera" }
 			local rationaleTitleMessage = "media.capturePhoto() needs permissions!"
-			local rationaleMessage = nil
-			if system.getInfo( "platformName" ) == "Android" then
-				-- On Android, we also need the Storage permission to use media.capturePhoto().
-				permissionsToRequest = { "Camera", "Storage" }
-				rationaleMessage = "Camera sample needs Camera and Storage permission to use media.capturePhoto()!"
-			else
-				permissionsToRequest = { "Camera" }
-				rationaleMessage = "Camera sample needs the Camera permission to access the camera!"
-			end
+			local rationaleMessage = "Camera sample needs the Camera permission to access the camera!"
 
 			-- Make the actual request from the user.
 			native.showPopup( "requestAppPermission", {
