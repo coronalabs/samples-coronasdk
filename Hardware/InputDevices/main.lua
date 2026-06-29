@@ -273,7 +273,7 @@ Runtime:addEventListener( "key", onKeyEvent )
 ------------------------------------------
 
 -- We only support advanced controllers when one is detected
-if ( getHasJoystick ) then
+if ( hasJoystick ) then
 	-- Detect axis event updates
 	local function onAxisEvent( event )
 		local value = event.normalizedValue
